@@ -1,5 +1,7 @@
 "use strict";
 
+const EVENT_COUNT = 3;
+
 const createMenuTemplate = () => {
   return (
     `<nav class="trip-controls__trip-tabs  trip-tabs">
@@ -248,40 +250,38 @@ const createEventEditTemplate = () => {
 
 const createEventTemplate = () => {
   return (
-    `<li class="trip-events__item">
-      <div class="event">
-        <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
-        </div>
-        <h3 class="event__title">Taxi to Amsterdam</h3>
-
-        <div class="event__schedule">
-          <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
-            &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
-          </p>
-          <p class="event__duration">30M</p>
-        </div>
-
-        <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">20</span>
-        </p>
-
-        <h4 class="visually-hidden">Offers:</h4>
-        <ul class="event__selected-offers">
-          <li class="event__offer">
-            <span class="event__offer-title">Order Uber</span>
-            &plus;
-            &euro;&nbsp;<span class="event__offer-price">20</span>
-          </li>
-        </ul>
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+    `<div class="event">
+      <div class="event__type">
+        <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
       </div>
-    </li>`
+      <h3 class="event__title">Taxi to Amsterdam</h3>
+
+      <div class="event__schedule">
+        <p class="event__time">
+          <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+          &mdash;
+          <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+        </p>
+        <p class="event__duration">30M</p>
+      </div>
+
+      <p class="event__price">
+        &euro;&nbsp;<span class="event__price-value">20</span>
+      </p>
+
+      <h4 class="visually-hidden">Offers:</h4>
+      <ul class="event__selected-offers">
+        <li class="event__offer">
+          <span class="event__offer-title">Order Uber</span>
+          &plus;
+          &euro;&nbsp;<span class="event__offer-price">20</span>
+        </li>
+      </ul>
+
+      <button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Open event</span>
+      </button>
+    </div>`
   );
 };
 
@@ -292,5 +292,13 @@ const render = (container, template, place) => {
 const page = document.querySelector(`.page-body`);
 const pageMenuTitle = page.querySelector(`.trip-controls h2`);
 const controlsContainer = page.querySelector(`.trip-controls`);
+const eventsContainer = page.querySelector(`.trip-events`);
 
 render(pageMenuTitle, createMenuTemplate(), `afterend`);
+render(controlsContainer, createFiltersTemplate(), `beforeend`);
+render(eventsContainer, createSortingTemplate(), `beforeend`);
+render(eventsContainer, createEventEditTemplate(), `beforeend`);
+
+for (let i = 0; i < EVENT_COUNT; i++) {
+  render(eventsContainer, createEventTemplate(), `beforeend`);
+}
