@@ -12,3 +12,8 @@ const createMenuTemplate = () => {
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
+
+const page = document.querySelector(`.page-body`);
+const pageMenuTitle = page.querySelector(`.trip-controls h2`);
+
+render(pageMenuTitle, createMenuTemplate(), `afterend`);
