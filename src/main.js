@@ -8,3 +8,7 @@ const createMenuTemplate = () => {
     </nav>`
   );
 };
+
+const render = (container, template, place) => {
+  container.insertAdjacentHTML(place, template);
+};
