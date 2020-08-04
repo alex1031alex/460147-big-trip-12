@@ -50,9 +50,11 @@ const generateEvent = () => {
 
   return {
     type: isTransferEvent ? eventTransferTypes[getRandomInteger(0, eventTransferTypes.length - 1)] : eventActivityTypes[getRandomInteger(0, eventActivityTypes.length - 1)],
-    destination: isTransferEvent ? destinations(getRandomInteger(0, destinations.length)) : null,
+    destination: isTransferEvent ? {
+      name: destinations(getRandomInteger(0, destinations.length)),
+      info: generateDestinationInfo(),
+    } : null,
     options: [],
-    destinationInfo: generateDestinationInfo(),
   };
 };
 
