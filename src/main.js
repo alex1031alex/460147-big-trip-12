@@ -3,8 +3,14 @@ import {createFilterTemplate} from "./view/filter.js";
 import {createSortingTemplate} from "./view/sorting.js";
 import {createEventEditTemplate} from "./view/event-edit.js";
 import {createEventTemplate} from "./view/event.js";
+import {generateEvent} from "./mock/event.js";
 
-const EVENT_COUNT = 3;
+const EVENT_COUNT = 20;
+const events = [];
+
+for (let i = 0; i < EVENT_COUNT; i++) {
+  events.push(generateEvent);
+}
 
 const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
@@ -20,6 +26,4 @@ render(controlsContainer, createFilterTemplate(), `beforeend`);
 render(eventsContainer, createSortingTemplate(), `beforeend`);
 render(eventsContainer, createEventEditTemplate(), `beforeend`);
 
-for (let i = 0; i < EVENT_COUNT; i++) {
-  render(eventsContainer, createEventTemplate(), `beforeend`);
-}
+events.forEach((event) => render(eventsContainer, createEventTemplate(event), `beforeend`));
