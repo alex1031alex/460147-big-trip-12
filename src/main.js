@@ -24,6 +24,6 @@ const eventsContainer = page.querySelector(`.trip-events`);
 render(pageMenuTitle, createMenuTemplate(), `afterend`);
 render(controlsContainer, createFilterTemplate(), `beforeend`);
 render(eventsContainer, createSortingTemplate(), `beforeend`);
-render(eventsContainer, createEventEditTemplate(), `beforeend`);
+render(eventsContainer, createEventEditTemplate(events[0]), `beforeend`);
 
-events.forEach((event) => render(eventsContainer, createEventTemplate(event), `beforeend`));
+events.slice(1).forEach((event) => render(eventsContainer, createEventTemplate(event), `beforeend`));
