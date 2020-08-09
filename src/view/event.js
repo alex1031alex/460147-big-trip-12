@@ -42,7 +42,8 @@ export const createEventTemplate = (event) => {
   const {type, destination, date: {start, end}, offers, cost} = event;
 
   const isTransferEvent = type === `Check-in` || type === `Sightseeing` || type === `Restaurant` ? false : true;
-  const offersTemplate = offers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
+  const chosenOffers = offers.filter((offer) => offer.isChecked);
+  const offersTemplate = chosenOffers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
 
   return (
     `<div class="event">
