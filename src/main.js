@@ -9,7 +9,7 @@ const EVENT_COUNT = 20;
 const events = [];
 
 for (let i = 0; i < EVENT_COUNT; i++) {
-  events.push(generateEvent);
+  events.push(generateEvent());
 }
 
 const render = (container, template, place) => {
