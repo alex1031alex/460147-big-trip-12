@@ -46,38 +46,40 @@ export const createEventTemplate = (event) => {
   const offersTemplate = chosenOffers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
 
   return (
-    `<div class="event">
-      <div class="event__type">
-        <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
-      </div>
-      <h3 class="event__title">${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}</h3>
+    `<li class="trip-events__item">
+      <div class="event">
+        <div class="event__type">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
+        </div>
+        <h3 class="event__title">${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}</h3>
 
-      <div class="event__schedule">
-        <p class="event__time">
-          <time
-            class="event__start-time"
-            datetime="${start.getFullYear()}-${start.toLocaleString(`en-US`, {month: `2-digit`})}-${start.toLocaleString(`en-US`, {day: `2-digit`})}T${start.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
-          >${start.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>&mdash;
-          <time
-            class="event__end-time"
-            datetime="${end.getFullYear()}-${end.toLocaleString(`en-US`, {month: `2-digit`})}-${end.toLocaleString(`en-US`, {day: `2-digit`})}T${end.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
-          >${end.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>
+        <div class="event__schedule">
+          <p class="event__time">
+            <time
+              class="event__start-time"
+              datetime="${start.getFullYear()}-${start.toLocaleString(`en-US`, {month: `2-digit`})}-${start.toLocaleString(`en-US`, {day: `2-digit`})}T${start.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
+            >${start.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>&mdash;
+            <time
+              class="event__end-time"
+              datetime="${end.getFullYear()}-${end.toLocaleString(`en-US`, {month: `2-digit`})}-${end.toLocaleString(`en-US`, {day: `2-digit`})}T${end.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
+            >${end.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>
+          </p>
+          <p class="event__duration">${formatTimeInterval(end.getTime() - start.getTime())}</p>
+        </div>
+
+        <p class="event__price">
+          &euro;&nbsp;<span class="event__price-value">${cost}</span>
         </p>
-        <p class="event__duration">${formatTimeInterval(end.getTime() - start.getTime())}</p>
+
+        <h4 class="visually-hidden">Offers:</h4>
+        <ul class="event__selected-offers">
+          ${offersTemplate}
+        </ul>
+
+        <button class="event__rollup-btn" type="button">
+          <span class="visually-hidden">Open event</span>
+        </button>
       </div>
-
-      <p class="event__price">
-        &euro;&nbsp;<span class="event__price-value">${cost}</span>
-      </p>
-
-      <h4 class="visually-hidden">Offers:</h4>
-      <ul class="event__selected-offers">
-        ${offersTemplate}
-      </ul>
-
-      <button class="event__rollup-btn" type="button">
-        <span class="visually-hidden">Open event</span>
-      </button>
-    </div>`
+    </li>`
   );
 };
