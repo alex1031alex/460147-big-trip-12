@@ -1,4 +1,4 @@
-import {EventCategory} from "../mock/event";
+import {EventCategory} from "../const.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
 

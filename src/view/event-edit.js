@@ -1,4 +1,5 @@
-import {transferTypes, activityTypes, EventCategory} from "../mock/event.js";
+import {transferTypes, activityTypes} from "../mock/event.js";
+import {EventCategory} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 

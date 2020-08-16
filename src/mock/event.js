@@ -1,3 +1,5 @@
+import {EventCategory} from "../const.js";
+
 const MIN_SENTENCE_COUNT = 1;
 const MAX_SENTENCE_COUNT = 5;
 const MIN_OFFER_COUNT = 0;
@@ -18,11 +20,6 @@ const getRandomInteger = (a = 0, b = 1) => {
 
 const getRandomItem = (array) => {
   return array[getRandomInteger(0, array.length - 1)];
-};
-
-const EventCategory = {
-  TRANSFER: `transfer`,
-  ACTIVITY: `activity`,
 };
 
 const transferTypes = [
@@ -146,4 +143,4 @@ const generateEvent = () => {
   return event;
 };
 
-export {generateEvent, transferTypes, activityTypes, EventCategory};
+export {generateEvent, transferTypes, activityTypes};
