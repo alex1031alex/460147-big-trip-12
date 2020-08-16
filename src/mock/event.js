@@ -125,9 +125,9 @@ const generateEvent = () => {
   event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
   if (event.category === EventCategory.TRANSFER) {
-    event.name = getRandomItem(transferTypes);
+    event.type = getRandomItem(transferTypes);
   } else {
-    event.name = getRandomItem(activityTypes);
+    event.type = getRandomItem(activityTypes);
   }
 
   event.destination = {

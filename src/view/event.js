@@ -2,7 +2,11 @@ import {EventCategory} from "../const.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
 
-const convertToDaytimeFormat = (milliseconds) => {
+const getLocalTime = (date) => {
+  return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
+};
+
+const formatTimeInterval = (milliseconds) => {
   const totalSeconds = Math.trunc(milliseconds / 1000);
   if (totalSeconds < 60) {
     return `0M`;
@@ -25,6 +29,15 @@ const convertToDaytimeFormat = (milliseconds) => {
   return `${days}D ${hours}H ${minutes}M`;
 };
 
+const convertToMachineFormat = (date) => {
+  const year = date.getFullYear();
+  const month = date.toLocaleString(`en-US`, {month: `2-digit`});
+  const day = date.toLocaleString(`en-US`, {day: `2-digit`});
+  const time = date.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false});
+
+  return `${year}-${month}-${day}T${time}`;
+};
+
 const createOfferTemplate = (offer) => {
   if (!offer) {
     return ``;
@@ -42,31 +55,40 @@ const createOfferTemplate = (offer) => {
 };
 
 export const createEventTemplate = (event) => {
-  const {category, name, destination, date: {start, end}, offers, cost} = event;
+  const {category, type, destination, date: {start, end}, offers, cost} = event;
+
   const isTransferEvent = category === EventCategory.TRANSFER ? true : false;
+  const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
+
   const chosenOffers = offers.filter((offer) => offer.isChecked);
   const offersTemplate = chosenOffers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
+
+  const eventStartTime = getLocalTime(start);
+  const eventEndTime = getLocalTime(end);
+  const eventDuration = formatTimeInterval(end.getTime() - start.getTime());
+  const eventStartDatetime = convertToMachineFormat(start);
+  const eventEndDatetime = convertToMachineFormat(end);
 
   return (
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${name}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${name} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}</h3>
+        <h3 class="event__title">${destinationTemplate}</h3>
 
         <div class="event__schedule">
           <p class="event__time">
             <time
               class="event__start-time"
-              datetime="${start.getFullYear()}-${start.toLocaleString(`en-US`, {month: `2-digit`})}-${start.toLocaleString(`en-US`, {day: `2-digit`})}T${start.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
-            >${start.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>&mdash;
+              datetime="${eventStartDatetime}"
+            >${eventStartTime}</time>&mdash;
             <time
               class="event__end-time"
-              datetime="${end.getFullYear()}-${end.toLocaleString(`en-US`, {month: `2-digit`})}-${end.toLocaleString(`en-US`, {day: `2-digit`})}T${end.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
-            >${end.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>
+              datetime="${eventEndDatetime}"
+            >${eventEndTime}</time>
           </p>
-          <p class="event__duration">${convertToDaytimeFormat(end.getTime() - start.getTime())}</p>
+          <p class="event__duration">${eventDuration}</p>
         </div>
 
         <p class="event__price">

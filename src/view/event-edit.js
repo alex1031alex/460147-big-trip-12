@@ -3,10 +3,21 @@ import {EventCategory} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 
+const localizeDate = (date) => {
+  const year = date.toLocaleString(`en-US`, {year: `2-digit`});
+  const month = date.toLocaleString(`en-US`, {month: `2-digit`});
+  const day = date.toLocaleString(`en-US`, {day: `2-digit`});
+  const time = date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
+
+  return `${day})}/${month}/${year} ${time}`;
+};
+
 const createEventTypeTemplate = (eventType, isChecked) => {
+  const checkedAttributeValue = isChecked ? `checked` : ``;
+
   return (
     `<div class="event__type-item">
-      <input id="event-type-${eventType.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType.toLowerCase()}" ${isChecked ? `checked` : ``}>
+      <input id="event-type-${eventType.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${eventType.toLowerCase()}" ${checkedAttributeValue}>
       <label class="event__type-label  event__type-label--${eventType.toLowerCase()}" for="event-type-${eventType.toLowerCase()}-1">${eventType}</label>
     </div>`
   );
@@ -18,6 +29,7 @@ const createOfferTemplate = (offer) => {
   }
 
   const {name, title, cost, isChecked} = offer;
+  const checkedAttributeValue = isChecked ? `checked` : ``;
 
   return (
     `<div class="event__offer-selector">
@@ -25,7 +37,7 @@ const createOfferTemplate = (offer) => {
         class="event__offer-checkbox  visually-hidden" 
         id="event-offer-${title}-1" type="checkbox"    
         name="event-offer-${title}" 
-        ${isChecked ? `checked` : ``}
+        ${checkedAttributeValue}
       >
       <label class="event__offer-label" for="event-offer-${title}-1">
         <span class="event__offer-title">${name}</span>
@@ -58,7 +70,7 @@ export const createEventEditTemplate = (event) => {
       .map((it) => createEventTypeTemplate(it, false))
       .join(`\n\n`);
 
-    const initialDate = new Date();
+    const initialDate = localizeDate(new Date());
 
     return (
       `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -105,7 +117,7 @@ export const createEventEditTemplate = (event) => {
               id="event-start-time-1" 
               type="text" 
               name="event-start-time" 
-              value="${initialDate.toLocaleString(`en-US`, {day: `2-digit`})}/${initialDate.toLocaleString(`en-US`, {month: `2-digit`})}/${initialDate.toLocaleString(`en-US`, {year: `2-digit`})} ${initialDate.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}"
+              value="${initialDate}"
             >
             &mdash;
             <label class="visually-hidden" for="event-end-time-1">
@@ -116,7 +128,7 @@ export const createEventEditTemplate = (event) => {
               id="event-end-time-1" 
               type="text" 
               name="event-end-time" 
-              value="${initialDate.toLocaleString(`en-US`, {day: `2-digit`})}/${initialDate.toLocaleString(`en-US`, {month: `2-digit`})}/${initialDate.toLocaleString(`en-US`, {year: `2-digit`})} ${initialDate.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}"
+              value="${initialDate}"
             >
           </div>
 
@@ -140,11 +152,15 @@ export const createEventEditTemplate = (event) => {
     );
   }
 
-  const {category, name, destination, date: {start, end}, offers, cost} = event;
+  const {category, type, destination, date: {start, end}, offers, cost} = event;
+  const isTransferEvent = category === EventCategory.TRANSFER;
+  const localizedStartDate = localizeDate(start);
+  const localizedEndDate = localizeDate(end);
 
   const transferEventTypesTemplate = transferTypes
     .map((it) => createEventTypeTemplate(it, it === name))
     .join(`\n\n`);
+
   const activityEventTypesTemplate = activityTypes
     .map((it) => createEventTypeTemplate(it, it === name))
     .join(`\n\n`);
@@ -152,6 +168,7 @@ export const createEventEditTemplate = (event) => {
   const offersTemplate = offers
     .map(createOfferTemplate)
     .join(`\n`);
+
   const photosTemplate = destination.photos
     .map((photo) => {
       return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
@@ -164,7 +181,7 @@ export const createEventEditTemplate = (event) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${name.toLowerCase()}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -183,7 +200,7 @@ export const createEventEditTemplate = (event) => {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${name} ${category === EventCategory.TRANSFER ? `to` : `in`}
+            ${type} ${isTransferEvent ? `to` : `in`}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
           <datalist id="destination-list-1">
@@ -203,7 +220,7 @@ export const createEventEditTemplate = (event) => {
             id="event-start-time-1" 
             type="text" 
             name="event-start-time" 
-            value="${start.toLocaleString(`en-US`, {day: `2-digit`})}/${start.toLocaleString(`en-US`, {month: `2-digit`})}/${start.toLocaleString(`en-US`, {year: `2-digit`})} ${start.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}"
+            value="${localizedStartDate}"
           >
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
@@ -214,7 +231,7 @@ export const createEventEditTemplate = (event) => {
             id="event-end-time-1" 
             type="text" 
             name="event-end-time" 
-            value="${end.toLocaleString(`en-US`, {day: `2-digit`})}/${end.toLocaleString(`en-US`, {month: `2-digit`})}/${end.toLocaleString(`en-US`, {year: `2-digit`})} ${end.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}"
+            value="${localizedEndDate}"
           >
         </div>
 
