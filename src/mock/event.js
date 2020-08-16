@@ -16,7 +16,16 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
-const eventTransferTypes = [
+const getRandomItem = (array) => {
+  return array[getRandomInteger(0, array.length - 1)];
+};
+
+const EventCategory = {
+  TRANSFER: `transfer`,
+  ACTIVITY: `activity`,
+};
+
+const transferTypes = [
   `Taxi`,
   `Bus`,
   `Train`,
@@ -26,7 +35,7 @@ const eventTransferTypes = [
   `Flight`,
 ];
 
-const eventActivityTypes = [
+const activityTypes = [
   `Check-in`,
   `Sightseeing`,
   `Restaurant`,
@@ -58,9 +67,9 @@ const descriptionText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit
 
 const generateDestinationInfo = () => {
   const sentenceCount = getRandomInteger(MIN_SENTENCE_COUNT, MAX_SENTENCE_COUNT);
-  const sentences = descriptionText.split(`.`).
-    filter(Boolean).
-    map((it) => `${it}.`);
+  const sentences = descriptionText.split(`.`)
+    .filter(Boolean)
+    .map((it) => `${it}.`);
   const destinationInfo = sentences.slice(0, sentenceCount).join(``);
 
   return destinationInfo;
@@ -99,7 +108,7 @@ const generateOffers = () => {
   const offerCount = getRandomInteger(MIN_OFFER_COUNT, MAX_OFFER_COUNT);
 
   for (let i = 1; i <= offerCount; i++) {
-    offers.push(offerSamples[getRandomInteger(0, offerSamples.length - 1)]);
+    offers.push(getRandomItem(offerSamples));
   }
 
   const nonrepeatingOffers = Array.from(new Set(offers));
@@ -113,20 +122,28 @@ const generateOffers = () => {
 };
 
 const generateEvent = () => {
-  const isTransferEvent = getRandomInteger(0, 2) > 0;
+  const event = {};
 
-  return {
-    id: eventIdCounter++,
-    type: isTransferEvent ? eventTransferTypes[getRandomInteger(0, eventTransferTypes.length - 1)] : eventActivityTypes[getRandomInteger(0, eventActivityTypes.length - 1)],
-    destination: {
-      name: destinations[getRandomInteger(0, destinations.length - 1)],
-      info: generateDestinationInfo(),
-      photos: generateDestinationPhotos(),
-    },
-    date: generateDate(),
-    offers: generateOffers(),
-    cost: getRandomInteger(2, 120) * 5,
+  event.id = eventIdCounter++;
+  event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
+
+  if (event.category === EventCategory.TRANSFER) {
+    event.name = getRandomItem(transferTypes);
+  } else {
+    event.name = getRandomItem(activityTypes);
+  }
+
+  event.destination = {
+    name: getRandomItem(destinations),
+    info: generateDestinationInfo(),
+    photos: generateDestinationPhotos(),
   };
+
+  event.date = generateDate();
+  event.offers = generateOffers();
+  event.cost = getRandomInteger(2, 120) * 5;
+
+  return event;
 };
 
-export {generateEvent, eventTransferTypes, eventActivityTypes};
+export {generateEvent, transferTypes, activityTypes, EventCategory};
