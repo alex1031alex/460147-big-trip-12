@@ -1,4 +1,8 @@
-const formatTimeInterval = (milliseconds) => {
+import {EventCategory} from "../mock/event";
+
+const MAX_SHOWING_OFFER_COUNT = 3;
+
+const convertToDaytimeFormat = (milliseconds) => {
   const totalSeconds = Math.trunc(milliseconds / 1000);
   if (totalSeconds < 60) {
     return `0M`;
@@ -38,10 +42,8 @@ const createOfferTemplate = (offer) => {
 };
 
 export const createEventTemplate = (event) => {
-  const MAX_SHOWING_OFFER_COUNT = 3;
-  const {type, destination, date: {start, end}, offers, cost} = event;
-
-  const isTransferEvent = type === `Check-in` || type === `Sightseeing` || type === `Restaurant` ? false : true;
+  const {category, name, destination, date: {start, end}, offers, cost} = event;
+  const isTransferEvent = category === EventCategory.TRANSFER ? true : false;
   const chosenOffers = offers.filter((offer) => offer.isChecked);
   const offersTemplate = chosenOffers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
 
@@ -49,9 +51,9 @@ export const createEventTemplate = (event) => {
     `<li class="trip-events__item">
       <div class="event">
         <div class="event__type">
-          <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
+          <img class="event__type-icon" width="42" height="42" src="img/icons/${name}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}</h3>
+        <h3 class="event__title">${name} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}</h3>
 
         <div class="event__schedule">
           <p class="event__time">
@@ -64,7 +66,7 @@ export const createEventTemplate = (event) => {
               datetime="${end.getFullYear()}-${end.toLocaleString(`en-US`, {month: `2-digit`})}-${end.toLocaleString(`en-US`, {day: `2-digit`})}T${end.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false})}"
             >${end.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false})}</time>
           </p>
-          <p class="event__duration">${formatTimeInterval(end.getTime() - start.getTime())}</p>
+          <p class="event__duration">${convertToDaytimeFormat(end.getTime() - start.getTime())}</p>
         </div>
 
         <p class="event__price">

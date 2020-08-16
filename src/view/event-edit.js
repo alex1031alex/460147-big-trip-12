@@ -1,4 +1,6 @@
-import {eventTransferTypes, eventActivityTypes} from "../mock/event.js";
+import {transferTypes, activityTypes, EventCategory} from "../mock/event.js";
+
+const DEFAULT_EVENT_NAME = `Bus`;
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   return (
@@ -14,17 +16,17 @@ const createOfferTemplate = (offer) => {
     return ``;
   }
 
-  const {name, keyword, cost, isChecked} = offer;
+  const {name, title, cost, isChecked} = offer;
 
   return (
     `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden" 
-        id="event-offer-${keyword}-1" type="checkbox"    
-        name="event-offer-${keyword}" 
+        id="event-offer-${title}-1" type="checkbox"    
+        name="event-offer-${title}" 
         ${isChecked ? `checked` : ``}
       >
-      <label class="event__offer-label" for="event-offer-${keyword}-1">
+      <label class="event__offer-label" for="event-offer-${title}-1">
         <span class="event__offer-title">${name}</span>
         &plus;
         &euro;&nbsp;<span class="event__offer-price">${cost}</span>
@@ -46,12 +48,12 @@ export const createEventEditTemplate = (event) => {
   }
 
   if (mode === Mode.ADD) {
-    const transferEventTypesTemplate = eventTransferTypes
+    const transferEventNamesTemplate = transferTypes
       .map((it) => {
-        return createEventTypeTemplate(it, it === `Bus`);
+        return createEventTypeTemplate(it, it === DEFAULT_EVENT_NAME);
       })
       .join(`\n\n`);
-    const activityEventTypesTemplate = eventActivityTypes
+    const activityEventNamesTemplate = activityTypes
       .map((it) => createEventTypeTemplate(it, false))
       .join(`\n\n`);
 
@@ -70,12 +72,12 @@ export const createEventEditTemplate = (event) => {
             <div class="event__type-list">
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Transfer</legend>
-                ${transferEventTypesTemplate}
+                ${transferEventNamesTemplate}
               </fieldset>
 
               <fieldset class="event__type-group">
                 <legend class="visually-hidden">Activity</legend>
-                ${activityEventTypesTemplate}
+                ${activityEventNamesTemplate}
               </fieldset>
             </div>
           </div>
@@ -137,15 +139,15 @@ export const createEventEditTemplate = (event) => {
     );
   }
 
-  const {type, destination, date: {start, end}, offers, cost} = event;
+  const {category, name, destination, date: {start, end}, offers, cost} = event;
 
-  const transferEventTypesTemplate = eventTransferTypes
-    .map((it) => createEventTypeTemplate(it, it === type))
+  const transferEventTypesTemplate = transferTypes
+    .map((it) => createEventTypeTemplate(it, it === name))
     .join(`\n\n`);
-  const activityEventTypesTemplate = eventActivityTypes
-    .map((it) => createEventTypeTemplate(it, it === type))
+  const activityEventTypesTemplate = activityTypes
+    .map((it) => createEventTypeTemplate(it, it === name))
     .join(`\n\n`);
-  const isTransferEvent = eventTransferTypes.some((eventType) => eventType === type);
+
   const offersTemplate = offers
     .map(createOfferTemplate)
     .join(`\n`);
@@ -161,7 +163,7 @@ export const createEventEditTemplate = (event) => {
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-1">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${name.toLowerCase()}.png" alt="Event type icon">
           </label>
           <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
 
@@ -180,7 +182,7 @@ export const createEventEditTemplate = (event) => {
 
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-1">
-            ${type} ${isTransferEvent ? `to` : `in`}
+            ${name} ${category === EventCategory.TRANSFER ? `to` : `in`}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
           <datalist id="destination-list-1">
