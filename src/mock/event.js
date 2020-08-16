@@ -41,31 +41,18 @@ const destinations = [
   `Rome`,
 ];
 
-const offerNames = [
-  `Add luggage`,
-  `Switch to comfort`,
-  `Add meal`,
-  `Choose seats`,
-  `Travel by Train`,
-  `Watch moovie`,
-  `Order Uber`,
-  `Rent a car`,
-  `Add breakfast`,
-  `Lunch in city`,
+const offerSamples = [
+  {name: `Add luggage`, title: `luggage`, cost: 0, isChecked: false},
+  {name: `Switch to comfort`, title: `comfort`, cost: 0, isChecked: false},
+  {name: `Add meal`, title: `meal`, cost: 0, isChecked: false},
+  {name: `Choose seats`, title: `seats`, cost: 0, isChecked: false},
+  {name: `Travel by Train`, title: `train`, cost: 0, isChecked: false},
+  {name: `Watch moovie`, title: `moovie`, cost: 0, isChecked: false},
+  {name: `Order Uber`, title: `uber`, cost: 0, isChecked: false},
+  {name: `Rent a car`, title: `car`, cost: 0, isChecked: false},
+  {name: `Add breakfast`, title: `breakfast`, cost: 0, isChecked: false},
+  {name: `Lunch in city`, title: `lunch`, cost: 0, isChecked: false},
 ];
-
-const nameToKeyword = {
-  [`Add luggage`]: `luggage`,
-  [`Switch to comfort`]: `comfort`,
-  [`Add meal`]: `meal`,
-  [`Choose seats`]: `seats`,
-  [`Travel by Train`]: `train`,
-  [`Watch moovie`]: `moovie`,
-  [`Order Uber`]: `uber`,
-  [`Rent a car`]: `car`,
-  [`Add breakfast`]: `breakfast`,
-  [`Lunch in city`]: `lunch`,
-};
 
 const descriptionText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 
@@ -108,23 +95,19 @@ const generateDate = () => {
 };
 
 const generateOffers = () => {
-  const names = [];
+  const offers = [];
   const offerCount = getRandomInteger(MIN_OFFER_COUNT, MAX_OFFER_COUNT);
 
   for (let i = 1; i <= offerCount; i++) {
-    names.push(offerNames[getRandomInteger(0, offerNames.length - 1)]);
+    offers.push(offerSamples[getRandomInteger(0, offerSamples.length - 1)]);
   }
 
-  const nonrepeatingNames = Array.from(new Set(names));
-  const offers = nonrepeatingNames.
-    map((name) => {
-      return {
-        name,
-        keyword: nameToKeyword[name],
-        cost: getRandomInteger(1, 10) * 5,
-        isChecked: Boolean(getRandomInteger(0, 1)),
-      };
-    });
+  const nonrepeatingOffers = Array.from(new Set(offers));
+
+  nonrepeatingOffers.forEach((offer) => {
+    offer.cost = getRandomInteger(1, 10) * 5;
+    offer.isChecked = Boolean(getRandomInteger(0, 1));
+  });
 
   return offers;
 };
