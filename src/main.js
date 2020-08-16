@@ -1,7 +1,7 @@
 import {createMenuTemplate} from "./view/menu.js";
 import {createFilterTemplate} from "./view/filter.js";
 import {createSortingTemplate} from "./view/sorting.js";
-import {createEventEditTemplate} from "./view/event-edit.js";
+import {createEventFormTemplate} from "./view/event-form.js";
 import {createDaysTemplate} from "./view/days.js";
 import {createDayTemplate} from "./view/day.js";
 import {createEventTemplate} from "./view/event.js";
@@ -26,7 +26,7 @@ const eventsContainer = page.querySelector(`.trip-events`);
 render(pageMenuTitle, createMenuTemplate(), `afterend`);
 render(controlsContainer, createFilterTemplate(), `beforeend`);
 render(eventsContainer, createSortingTemplate(), `beforeend`);
-render(eventsContainer, createEventEditTemplate(events[0]), `beforeend`);
+render(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
 
 render(eventsContainer, createDaysTemplate(), `beforeend`);
 const dayList = page.querySelector(`.trip-days`);

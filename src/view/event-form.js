@@ -48,7 +48,7 @@ const createOfferTemplate = (offer) => {
   );
 };
 
-export const createEventEditTemplate = (event, mode = FormMode.EDIT) => {
+export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
 
   if (event === null || mode === FormMode.ADD) {
     const transferEventNamesTemplate = transferTypes
