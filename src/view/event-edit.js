@@ -1,5 +1,5 @@
 import {transferTypes, activityTypes} from "../mock/event.js";
-import {EventCategory} from "../const.js";
+import {EventCategory, FormMode} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 
@@ -48,19 +48,9 @@ const createOfferTemplate = (offer) => {
   );
 };
 
-export const createEventEditTemplate = (event) => {
-  const Mode = {
-    EDIT: `edit`,
-    ADD: `add`,
-  };
+export const createEventEditTemplate = (event, mode = FormMode.EDIT) => {
 
-  let mode = Mode.EDIT;
-
-  if (event === null) {
-    mode = Mode.ADD;
-  }
-
-  if (mode === Mode.ADD) {
+  if (event === null || mode === FormMode.ADD) {
     const transferEventNamesTemplate = transferTypes
       .map((it) => {
         return createEventTypeTemplate(it, it === DEFAULT_EVENT_NAME);
