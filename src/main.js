@@ -31,22 +31,36 @@ render(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
 render(eventsContainer, createDaysTemplate(), `beforeend`);
 const dayList = page.querySelector(`.trip-days`);
 
-const sortedEventsByDate = events.slice().sort((a, b) => a.date.start - b.date.start);
+const eventsByDate = new Map();
 
-let showedEventsCount = 0;
-let dayNumber = 1;
-const currentDate = new Date(sortedEventsByDate[0].date.start);
+events.slice()
+  .sort((a, b) => a.date.start - b.date.start)
+  .slice(1)
+  .forEach((event) => {
+    const day = +event.date.start.getDate();
 
-while (showedEventsCount < sortedEventsByDate.length) {
-  const dayEvents = sortedEventsByDate
-    .filter((event) => event.date.start.getDate() === (new Date(currentDate).getDate()));
 
-  render(dayList, createDayTemplate(dayNumber, currentDate), `beforeend`);
-  const eventsList = page.querySelector(`[data-day="${dayNumber}"] .trip-events__list`);
+    if (!eventsByDate.has(day)) {
+      eventsByDate.set(day, []);
+    }
 
-  dayEvents.forEach((event) => render(eventsList, createEventTemplate(event), `beforeend`));
+    const dayEvents = eventsByDate.get(day);
+    dayEvents.push(event);
+  });
 
-  showedEventsCount = showedEventsCount + dayEvents.length;
-  dayNumber++;
-  currentDate.setDate(currentDate.getDate() + 1);
-}
+Array.from(eventsByDate.entries()).forEach((entry, index) => {
+  const eventsForDay = entry[1];
+
+  if (eventsForDay.length && eventsForDay.length !== 0) {
+    const date = events[0].date.start;
+    const dayNumber = index + 1;
+
+    render(dayList, createDayTemplate(dayNumber, date), `beforeend`);
+
+    const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
+
+    eventsForDay.forEach((event) => {
+      render(eventsList, createEventTemplate(event), `beforeend`);
+    });
+  }
+});
