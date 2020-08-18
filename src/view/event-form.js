@@ -9,7 +9,7 @@ const localizeDate = (date) => {
   const day = date.toLocaleString(`en-US`, {day: `2-digit`});
   const time = date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
 
-  return `${day})}/${month}/${year} ${time}`;
+  return `${day}/${month}/${year} ${time}`;
 };
 
 const createEventTypeTemplate = (eventType, isChecked) => {
