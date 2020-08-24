@@ -48,6 +48,17 @@ const createOfferTemplate = (offer) => {
   );
 };
 
+const createOffersTemplate = (offers) => {
+  if (offers.length === 0) {
+    return ``;
+  }
+
+  return `<h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
+            ${offers.map(createOfferTemplate).join(`\n`)}
+         </div>`;
+};
+
 const createEventFormTemplate = (event) => {
 
   if (event === null) {
@@ -154,9 +165,7 @@ const createEventFormTemplate = (event) => {
     .map((it) => createEventTypeTemplate(it, it === name))
     .join(`\n\n`);
 
-  const offersTemplate = offers
-    .map(createOfferTemplate)
-    .join(`\n`);
+  const offersTemplate = createOffersTemplate(offers);
 
   const photosTemplate = destination.photos
     .map((photo) => {
@@ -254,11 +263,7 @@ const createEventFormTemplate = (event) => {
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-          <div class="event__available-offers">
-            ${offersTemplate}
-          </div>
+          ${offersTemplate}
         </section>
 
         <section class="event__section  event__section--destination">
