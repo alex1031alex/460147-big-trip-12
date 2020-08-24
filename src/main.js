@@ -1,8 +1,8 @@
 import MenuView from "./view/menu.js";
-import {createFilterTemplate} from "./view/filter.js";
-import {createSortingTemplate} from "./view/sorting.js";
+import FilterView from "./view/filter.js";
+import SortingView from "./view/sorting.js";
 import {createEventFormTemplate} from "./view/event-form.js";
-import {createDaysTemplate} from "./view/days.js";
+import DaysView from "./view/days.js";
 import {createDayTemplate} from "./view/day.js";
 import {createEventTemplate} from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
@@ -21,10 +21,10 @@ const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
 renderElement(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
-renderTemplate(controlsContainer, createFilterTemplate(), `beforeend`);
-renderTemplate(eventsContainer, createSortingTemplate(), `beforeend`);
+renderElement(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
+renderElement(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
 renderTemplate(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
-renderTemplate(eventsContainer, createDaysTemplate(), `beforeend`);
+renderElement(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
 const dayList = page.querySelector(`.trip-days`);
 
 const eventsByDate = new Map();
