@@ -24,6 +24,23 @@ const renderEvent = (eventListElement, event) => {
   const eventComponent = new EventView(event);
   const eventFormComponent = new EventFormView(event);
 
+  const replaceEventToForm = () => {
+    eventListElement.replaceChild(eventFormComponent.getElement(), eventComponent.getElement());
+  };
+
+  const replaceFormToEvent = () => {
+    eventListElement.replaceChild(eventComponent.getElement(), eventFormComponent.getElement());
+  };
+
+  eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replaceEventToForm();
+  });
+
+  eventFormComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, (evt) => {
+    evt.preventDefault();
+    replaceFormToEvent();
+  });
+
   render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
 };
 
@@ -31,6 +48,7 @@ render(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
 render(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
 render(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
 render(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
+
 const dayList = page.querySelector(`.trip-days`);
 
 const eventsByDate = new Map();
