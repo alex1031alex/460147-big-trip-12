@@ -1,5 +1,5 @@
+import {createElement} from "../utils.js";
 import {transferTypes, activityTypes} from "../mock/event.js";
-import {FormMode} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 
@@ -48,9 +48,9 @@ const createOfferTemplate = (offer) => {
   );
 };
 
-export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
+const createEventFormTemplate = (event) => {
 
-  if (event === null || mode === FormMode.ADD) {
+  if (event === null) {
     const transferEventNamesTemplate = transferTypes
       .map((it) => {
         return createEventTypeTemplate(it, it === DEFAULT_EVENT_NAME);
@@ -263,3 +263,26 @@ export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
     </form>`
   );
 };
+
+export default class EventForm {
+  constructor(event) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventFormTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

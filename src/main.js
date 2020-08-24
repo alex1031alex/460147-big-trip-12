@@ -1,12 +1,12 @@
 import MenuView from "./view/menu.js";
 import FilterView from "./view/filter.js";
 import SortingView from "./view/sorting.js";
-import {createEventFormTemplate} from "./view/event-form.js";
+import EventFormView from "./view/event-form.js";
 import DaysView from "./view/days.js";
 import DayView from "./view/day.js";
-import {createEventTemplate} from "./view/event.js";
+import EventView from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
-import {renderTemplate, renderElement, RenderPosition} from "./utils.js";
+import {renderElement, RenderPosition} from "./utils.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -23,7 +23,7 @@ const eventsContainer = page.querySelector(`.trip-events`);
 renderElement(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
 renderElement(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
 renderElement(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
-renderTemplate(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
+renderElement(eventsContainer, new EventFormView(events[0]).getElement(), RenderPosition.BEFOREEND);
 renderElement(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
 const dayList = page.querySelector(`.trip-days`);
 
@@ -57,7 +57,7 @@ Array.from(eventsByDate.entries()).forEach((entry, index) => {
     const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 
     eventsForDay.forEach((event) => {
-      renderTemplate(eventsList, createEventTemplate(event), `beforeend`);
+      renderElement(eventsList, new EventView(event).getElement(), RenderPosition.BEFOREEND);
     });
   }
 });

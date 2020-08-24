@@ -3,9 +3,4 @@ const EventCategory = {
   ACTIVITY: `activity`,
 };
 
-const FormMode = {
-  EDIT: `edit`,
-  ADD: `add`,
-};
-
-export {EventCategory, FormMode};
+export {EventCategory};
