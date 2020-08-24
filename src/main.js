@@ -1,4 +1,4 @@
-import {createMenuTemplate} from "./view/menu.js";
+import MenuView from "./view/menu.js";
 import {createFilterTemplate} from "./view/filter.js";
 import {createSortingTemplate} from "./view/sorting.js";
 import {createEventFormTemplate} from "./view/event-form.js";
@@ -6,7 +6,7 @@ import {createDaysTemplate} from "./view/days.js";
 import {createDayTemplate} from "./view/day.js";
 import {createEventTemplate} from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
-import {renderTemplate} from "./utils.js";
+import {renderTemplate, renderElement, RenderPosition} from "./utils.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -16,15 +16,14 @@ for (let i = 0; i < EVENT_COUNT; i++) {
 }
 
 const page = document.querySelector(`.page-body`);
-const pageMenuTitle = page.querySelector(`.trip-controls h2`);
+const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
 const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
-renderTemplate(pageMenuTitle, createMenuTemplate(), `afterend`);
+renderElement(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
 renderTemplate(controlsContainer, createFilterTemplate(), `beforeend`);
 renderTemplate(eventsContainer, createSortingTemplate(), `beforeend`);
 renderTemplate(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
-
 renderTemplate(eventsContainer, createDaysTemplate(), `beforeend`);
 const dayList = page.querySelector(`.trip-days`);
 
