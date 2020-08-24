@@ -20,10 +20,16 @@ const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
 const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
+const renderEvent = (eventListElement, event) => {
+  const eventComponent = new EventView(event);
+  const eventFormComponent = new EventFormView(event);
+
+  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
 render(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
 render(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
 render(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
-render(eventsContainer, new EventFormView(events[0]).getElement(), RenderPosition.BEFOREEND);
 render(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
 const dayList = page.querySelector(`.trip-days`);
 
@@ -31,7 +37,6 @@ const eventsByDate = new Map();
 
 events.slice()
   .sort((a, b) => a.date.start - b.date.start)
-  .slice(1)
   .forEach((event) => {
     const day = +event.date.start.getDate();
 
@@ -57,7 +62,7 @@ Array.from(eventsByDate.entries()).forEach((entry, index) => {
     const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 
     eventsForDay.forEach((event) => {
-      render(eventsList, new EventView(event).getElement(), RenderPosition.BEFOREEND);
+      renderEvent(eventsList, event);
     });
   }
 });
