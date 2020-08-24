@@ -3,7 +3,7 @@ import FilterView from "./view/filter.js";
 import SortingView from "./view/sorting.js";
 import {createEventFormTemplate} from "./view/event-form.js";
 import DaysView from "./view/days.js";
-import {createDayTemplate} from "./view/day.js";
+import DayView from "./view/day.js";
 import {createEventTemplate} from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
 import {renderTemplate, renderElement, RenderPosition} from "./utils.js";
@@ -52,7 +52,7 @@ Array.from(eventsByDate.entries()).forEach((entry, index) => {
 
     const dayNumber = index + 1;
 
-    renderTemplate(dayList, createDayTemplate(dayNumber, date), `beforeend`);
+    renderElement(dayList, new DayView(dayNumber, date).getElement(), RenderPosition.BEFOREEND);
 
     const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 

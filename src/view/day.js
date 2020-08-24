@@ -1,3 +1,5 @@
+import {createElement} from "../utils.js";
+
 export const createDayTemplate = (number, date) => {
   return (
     `<li class="trip-days__item  day" data-day="${number}">
@@ -11,3 +13,27 @@ export const createDayTemplate = (number, date) => {
     </li>`
   );
 };
+
+export default class DayView {
+  constructor(number, date) {
+    this._number = number;
+    this._date = date;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createDayTemplate(this._number, this._date);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
