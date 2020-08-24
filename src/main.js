@@ -49,10 +49,11 @@ events.slice()
   });
 
 Array.from(eventsByDate.entries()).forEach((entry, index) => {
-  const eventsForDay = entry[1];
+  const [, eventsForDay] = entry;
 
   if (eventsForDay.length && eventsForDay.length !== 0) {
-    const date = events[0].date.start;
+    const date = eventsForDay[0].date.start;
+
     const dayNumber = index + 1;
 
     render(dayList, createDayTemplate(dayNumber, date), `beforeend`);

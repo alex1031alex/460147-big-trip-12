@@ -108,23 +108,26 @@ const generateOffers = () => {
     offers.push(getRandomItem(offerSamples));
   }
 
-  const nonrepeatingOffers = Array.from(new Set(offers));
+  const updatedOffers = Array
+    .from(new Set(offers))
+    .map((offer) => {
+      return Object.assign({}, offer, {
+        cost: getRandomInteger(1, 10) * 5,
+        isChecked: Boolean(getRandomInteger(0, 1)),
+      });
+    });
 
-  nonrepeatingOffers.forEach((offer) => {
-    offer.cost = getRandomInteger(1, 10) * 5;
-    offer.isChecked = Boolean(getRandomInteger(0, 1));
-  });
-
-  return offers;
+  return updatedOffers;
 };
 
 const generateEvent = () => {
   const event = {};
+  const eventCategory = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
   event.id = eventIdCounter++;
-  event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
+  event.isTransferEvent = eventCategory === EventCategory.TRANSFER;
 
-  if (event.category === EventCategory.TRANSFER) {
+  if (event.isTransferEvent) {
     event.type = getRandomItem(transferTypes);
   } else {
     event.type = getRandomItem(activityTypes);

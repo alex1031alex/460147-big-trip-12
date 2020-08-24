@@ -1,5 +1,3 @@
-import {EventCategory} from "../const.js";
-
 const MAX_SHOWING_OFFER_COUNT = 3;
 
 const getLocalTime = (date) => {
@@ -55,9 +53,8 @@ const createOfferTemplate = (offer) => {
 };
 
 export const createEventTemplate = (event) => {
-  const {category, type, destination, date: {start, end}, offers, cost} = event;
+  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
 
-  const isTransferEvent = category === EventCategory.TRANSFER ? true : false;
   const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
 
   const chosenOffers = offers.filter((offer) => offer.isChecked);

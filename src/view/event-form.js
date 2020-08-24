@@ -1,5 +1,5 @@
 import {transferTypes, activityTypes} from "../mock/event.js";
-import {EventCategory, FormMode} from "../const.js";
+import {FormMode} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 
@@ -142,8 +142,7 @@ export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
     );
   }
 
-  const {category, type, destination, date: {start, end}, offers, cost} = event;
-  const isTransferEvent = category === EventCategory.TRANSFER;
+  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
