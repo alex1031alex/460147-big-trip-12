@@ -6,7 +6,7 @@ import DaysView from "./view/days.js";
 import DayView from "./view/day.js";
 import EventView from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
-import {renderElement, RenderPosition} from "./utils.js";
+import {render, RenderPosition} from "./utils.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -20,11 +20,11 @@ const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
 const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
-renderElement(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
-renderElement(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
-renderElement(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
-renderElement(eventsContainer, new EventFormView(events[0]).getElement(), RenderPosition.BEFOREEND);
-renderElement(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
+render(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
+render(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
+render(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
+render(eventsContainer, new EventFormView(events[0]).getElement(), RenderPosition.BEFOREEND);
+render(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
 const dayList = page.querySelector(`.trip-days`);
 
 const eventsByDate = new Map();
@@ -52,12 +52,12 @@ Array.from(eventsByDate.entries()).forEach((entry, index) => {
 
     const dayNumber = index + 1;
 
-    renderElement(dayList, new DayView(dayNumber, date).getElement(), RenderPosition.BEFOREEND);
+    render(dayList, new DayView(dayNumber, date).getElement(), RenderPosition.BEFOREEND);
 
     const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 
     eventsForDay.forEach((event) => {
-      renderElement(eventsList, new EventView(event).getElement(), RenderPosition.BEFOREEND);
+      render(eventsList, new EventView(event).getElement(), RenderPosition.BEFOREEND);
     });
   }
 });
