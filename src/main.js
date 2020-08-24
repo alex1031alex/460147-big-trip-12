@@ -6,6 +6,7 @@ import {createDaysTemplate} from "./view/days.js";
 import {createDayTemplate} from "./view/day.js";
 import {createEventTemplate} from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
+import {renderTemplate} from "./utils.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -14,21 +15,17 @@ for (let i = 0; i < EVENT_COUNT; i++) {
   events.push(generateEvent());
 }
 
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
-
 const page = document.querySelector(`.page-body`);
 const pageMenuTitle = page.querySelector(`.trip-controls h2`);
 const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
-render(pageMenuTitle, createMenuTemplate(), `afterend`);
-render(controlsContainer, createFilterTemplate(), `beforeend`);
-render(eventsContainer, createSortingTemplate(), `beforeend`);
-render(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
+renderTemplate(pageMenuTitle, createMenuTemplate(), `afterend`);
+renderTemplate(controlsContainer, createFilterTemplate(), `beforeend`);
+renderTemplate(eventsContainer, createSortingTemplate(), `beforeend`);
+renderTemplate(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
 
-render(eventsContainer, createDaysTemplate(), `beforeend`);
+renderTemplate(eventsContainer, createDaysTemplate(), `beforeend`);
 const dayList = page.querySelector(`.trip-days`);
 
 const eventsByDate = new Map();
@@ -56,12 +53,12 @@ Array.from(eventsByDate.entries()).forEach((entry, index) => {
 
     const dayNumber = index + 1;
 
-    render(dayList, createDayTemplate(dayNumber, date), `beforeend`);
+    renderTemplate(dayList, createDayTemplate(dayNumber, date), `beforeend`);
 
     const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 
     eventsForDay.forEach((event) => {
-      render(eventsList, createEventTemplate(event), `beforeend`);
+      renderTemplate(eventsList, createEventTemplate(event), `beforeend`);
     });
   }
 });
