@@ -1,4 +1,4 @@
-import {EventCategory} from "../const.js";
+import {createElement} from "../utils.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
 
@@ -54,10 +54,9 @@ const createOfferTemplate = (offer) => {
   );
 };
 
-export const createEventTemplate = (event) => {
-  const {category, type, destination, date: {start, end}, offers, cost} = event;
+const createEventTemplate = (event) => {
+  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
 
-  const isTransferEvent = category === EventCategory.TRANSFER ? true : false;
   const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
 
   const chosenOffers = offers.filter((offer) => offer.isChecked);
@@ -107,3 +106,26 @@ export const createEventTemplate = (event) => {
     </li>`
   );
 };
+
+export default class Event {
+  constructor(event) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

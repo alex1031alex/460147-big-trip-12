@@ -1,11 +1,12 @@
-import {createMenuTemplate} from "./view/menu.js";
-import {createFilterTemplate} from "./view/filter.js";
-import {createSortingTemplate} from "./view/sorting.js";
-import {createEventFormTemplate} from "./view/event-form.js";
-import {createDaysTemplate} from "./view/days.js";
-import {createDayTemplate} from "./view/day.js";
-import {createEventTemplate} from "./view/event.js";
+import MenuView from "./view/menu.js";
+import FilterView from "./view/filter.js";
+import SortingView from "./view/sorting.js";
+import EventFormView from "./view/event-form.js";
+import DaysView from "./view/days.js";
+import DayView from "./view/day.js";
+import EventView from "./view/event.js";
 import {generateEvent} from "./mock/event.js";
+import {render, RenderPosition} from "./utils.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -14,28 +15,46 @@ for (let i = 0; i < EVENT_COUNT; i++) {
   events.push(generateEvent());
 }
 
-const render = (container, template, place) => {
-  container.insertAdjacentHTML(place, template);
-};
-
 const page = document.querySelector(`.page-body`);
-const pageMenuTitle = page.querySelector(`.trip-controls h2`);
+const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
 const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
-render(pageMenuTitle, createMenuTemplate(), `afterend`);
-render(controlsContainer, createFilterTemplate(), `beforeend`);
-render(eventsContainer, createSortingTemplate(), `beforeend`);
-render(eventsContainer, createEventFormTemplate(events[0]), `beforeend`);
+const renderEvent = (eventListElement, event) => {
+  const eventComponent = new EventView(event);
+  const eventFormComponent = new EventFormView(event);
 
-render(eventsContainer, createDaysTemplate(), `beforeend`);
+  const replaceEventToForm = () => {
+    eventListElement.replaceChild(eventFormComponent.getElement(), eventComponent.getElement());
+  };
+
+  const replaceFormToEvent = () => {
+    eventListElement.replaceChild(eventComponent.getElement(), eventFormComponent.getElement());
+  };
+
+  eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+    replaceEventToForm();
+  });
+
+  eventFormComponent.getElement().addEventListener(`submit`, (evt) => {
+    evt.preventDefault();
+    replaceFormToEvent();
+  });
+
+  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+};
+
+render(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
+render(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
+render(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
+render(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
+
 const dayList = page.querySelector(`.trip-days`);
 
 const eventsByDate = new Map();
 
 events.slice()
   .sort((a, b) => a.date.start - b.date.start)
-  .slice(1)
   .forEach((event) => {
     const day = +event.date.start.getDate();
 
@@ -49,18 +68,19 @@ events.slice()
   });
 
 Array.from(eventsByDate.entries()).forEach((entry, index) => {
-  const eventsForDay = entry[1];
+  const [, eventsForDay] = entry;
 
   if (eventsForDay.length && eventsForDay.length !== 0) {
-    const date = events[0].date.start;
+    const date = eventsForDay[0].date.start;
+
     const dayNumber = index + 1;
 
-    render(dayList, createDayTemplate(dayNumber, date), `beforeend`);
+    render(dayList, new DayView(dayNumber, date).getElement(), RenderPosition.BEFOREEND);
 
     const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 
     eventsForDay.forEach((event) => {
-      render(eventsList, createEventTemplate(event), `beforeend`);
+      renderEvent(eventsList, event);
     });
   }
 });

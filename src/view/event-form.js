@@ -1,5 +1,5 @@
+import {createElement} from "../utils.js";
 import {transferTypes, activityTypes} from "../mock/event.js";
-import {EventCategory, FormMode} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 
@@ -48,9 +48,20 @@ const createOfferTemplate = (offer) => {
   );
 };
 
-export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
+const createOffersTemplate = (offers) => {
+  if (offers.length === 0) {
+    return ``;
+  }
 
-  if (event === null || mode === FormMode.ADD) {
+  return `<h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
+            ${offers.map(createOfferTemplate).join(`\n`)}
+         </div>`;
+};
+
+const createEventFormTemplate = (event) => {
+
+  if (event === null) {
     const transferEventNamesTemplate = transferTypes
       .map((it) => {
         return createEventTypeTemplate(it, it === DEFAULT_EVENT_NAME);
@@ -142,8 +153,7 @@ export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
     );
   }
 
-  const {category, type, destination, date: {start, end}, offers, cost} = event;
-  const isTransferEvent = category === EventCategory.TRANSFER;
+  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
@@ -155,9 +165,7 @@ export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
     .map((it) => createEventTypeTemplate(it, it === name))
     .join(`\n\n`);
 
-  const offersTemplate = offers
-    .map(createOfferTemplate)
-    .join(`\n`);
+  const offersTemplate = createOffersTemplate(offers);
 
   const photosTemplate = destination.photos
     .map((photo) => {
@@ -239,15 +247,23 @@ export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Cancel</button>
+        <button class="event__reset-btn" type="reset">Delete</button>
+
+        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked>
+        <label class="event__favorite-btn" for="event-favorite-1">
+          <span class="visually-hidden">Add to favorite</span>
+          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+            <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+          </svg>
+        </label>
+
+        <button class="event__rollup-btn" type="button">
+          <span class="visually-hidden">Open event</span>
+        </button>
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
-          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-          <div class="event__available-offers">
-            ${offersTemplate}
-          </div>
+          ${offersTemplate}
         </section>
 
         <section class="event__section  event__section--destination">
@@ -264,3 +280,26 @@ export const createEventFormTemplate = (event, mode = FormMode.EDIT) => {
     </form>`
   );
 };
+
+export default class EventForm {
+  constructor(event) {
+    this._event = event;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createEventFormTemplate(this._event);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
