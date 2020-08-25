@@ -36,7 +36,7 @@ const renderEvent = (eventListElement, event) => {
     replaceEventToForm();
   });
 
-  eventFormComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, (evt) => {
+  eventFormComponent.getElement().addEventListener(`submit`, (evt) => {
     evt.preventDefault();
     replaceFormToEvent();
   });
