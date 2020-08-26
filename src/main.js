@@ -32,7 +32,7 @@ const renderEvent = (eventListElement, event) => {
     eventListElement.replaceChild(eventComponent.getElement(), eventFormComponent.getElement());
   };
 
-  eventComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+  eventComponent.getRollupButton().addEventListener(`click`, () => {
     replaceEventToForm();
   });
 
