@@ -5,6 +5,7 @@ import EventFormView from "./view/event-form.js";
 import DaysView from "./view/days.js";
 import DayView from "./view/day.js";
 import EventView from "./view/event.js";
+import NoEventView from "./view/no-event.js";
 import {generateEvent} from "./mock/event.js";
 import {render, RenderPosition} from "./utils.js";
 
