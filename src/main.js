@@ -9,6 +9,8 @@ import {generateEvent} from "./mock/event.js";
 import {render, RenderPosition} from "./utils.js";
 
 const EVENT_COUNT = 20;
+const FULL_ESC_KEY = `Escape`;
+const SHORT_ESC_KEY = `Esc`;
 const events = [];
 
 for (let i = 0; i < EVENT_COUNT; i++) {
@@ -32,13 +34,23 @@ const renderEvent = (eventListElement, event) => {
     eventListElement.replaceChild(eventComponent.getElement(), eventFormComponent.getElement());
   };
 
+  const onEscKeyDown = (evt) => {
+    if (evt.key === FULL_ESC_KEY || evt.key === SHORT_ESC_KEY) {
+      evt.preventDefault();
+      replaceFormToEvent();
+      document.removeEventListener(`keydown`, onEscKeyDown);
+    }
+  };
+
   eventComponent.getRollupButton().addEventListener(`click`, () => {
     replaceEventToForm();
+    document.addEventListener(`keydown`, onEscKeyDown);
   });
 
   eventFormComponent.getElement().addEventListener(`submit`, (evt) => {
     evt.preventDefault();
     replaceFormToEvent();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
   render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
