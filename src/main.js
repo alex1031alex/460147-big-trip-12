@@ -43,13 +43,12 @@ const renderEvent = (eventListElement, event) => {
     }
   };
 
-  eventComponent.getRollupButton().addEventListener(`click`, () => {
+  eventComponent.setRollupButtonClickHandler(() => {
     replaceEventToForm();
     document.addEventListener(`keydown`, onEscKeyDown);
   });
 
-  eventFormComponent.getElement().addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
+  eventFormComponent.setSubmitHandler(() => {
     replaceFormToEvent();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });

@@ -284,10 +284,22 @@ const createEventFormTemplate = (event) => {
 export default class EventForm extends AbstractView {
   constructor(event) {
     super();
+
     this._event = event;
+    this._submitHandler = this._submitHandler.bind(this);
   }
 
   getTemplate() {
     return createEventFormTemplate(this._event);
+  }
+
+  _submitHandler(evt) {
+    evt.preventDefault();
+    this._callback.submit();
+  }
+
+  setSubmitHandler(callback) {
+    this._callback.submit = callback;
+    this.getElement().addEventListener(`submit`, this._submitHandler);
   }
 }
