@@ -1,16 +1,8 @@
 import AbstractView from "./abstract.js";
 import {transferTypes, activityTypes} from "../mock/event.js";
+import {localizeDate} from "../utils/common.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
-
-const localizeDate = (date) => {
-  const year = date.toLocaleString(`en-US`, {year: `2-digit`});
-  const month = date.toLocaleString(`en-US`, {month: `2-digit`});
-  const day = date.toLocaleString(`en-US`, {day: `2-digit`});
-  const time = date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
-
-  return `${day}/${month}/${year} ${time}`;
-};
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;

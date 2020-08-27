@@ -7,7 +7,7 @@ import DayView from "./view/day.js";
 import EventView from "./view/event.js";
 import NoEventView from "./view/no-event.js";
 import {generateEvent} from "./mock/event.js";
-import {render, RenderPosition} from "./utils.js";
+import {render, RenderPosition, replace} from "./utils/render.js";
 
 const EVENT_COUNT = 20;
 const FULL_ESC_KEY = `Escape`;
@@ -28,11 +28,11 @@ const renderEvent = (eventListElement, event) => {
   const eventFormComponent = new EventFormView(event);
 
   const replaceEventToForm = () => {
-    eventListElement.replaceChild(eventFormComponent.getElement(), eventComponent.getElement());
+    replace(eventFormComponent, eventComponent);
   };
 
   const replaceFormToEvent = () => {
-    eventListElement.replaceChild(eventComponent.getElement(), eventFormComponent.getElement());
+    replace(eventComponent, eventFormComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -53,17 +53,17 @@ const renderEvent = (eventListElement, event) => {
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  render(eventListElement, eventComponent.getElement(), RenderPosition.BEFOREEND);
+  render(eventListElement, eventComponent, RenderPosition.BEFOREEND);
 };
 
-render(pageMenuWrapper, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
-render(controlsContainer, new FilterView().getElement(), RenderPosition.BEFOREEND);
+render(pageMenuWrapper, new MenuView(), RenderPosition.AFTERBEGIN);
+render(controlsContainer, new FilterView(), RenderPosition.BEFOREEND);
 
 if (events.length === 0) {
-  render(eventsContainer, new NoEventView().getElement(), RenderPosition.BEFOREEND);
+  render(eventsContainer, new NoEventView(), RenderPosition.BEFOREEND);
 } else {
-  render(eventsContainer, new SortingView().getElement(), RenderPosition.BEFOREEND);
-  render(eventsContainer, new DaysView().getElement(), RenderPosition.BEFOREEND);
+  render(eventsContainer, new SortingView(), RenderPosition.BEFOREEND);
+  render(eventsContainer, new DaysView(), RenderPosition.BEFOREEND);
 
   const dayList = page.querySelector(`.trip-days`);
 
@@ -91,7 +91,7 @@ if (events.length === 0) {
 
       const dayNumber = index + 1;
 
-      render(dayList, new DayView(dayNumber, date).getElement(), RenderPosition.BEFOREEND);
+      render(dayList, new DayView(dayNumber, date), RenderPosition.BEFOREEND);
 
       const eventsList = page.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
 
