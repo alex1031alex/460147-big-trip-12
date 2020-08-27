@@ -1,4 +1,4 @@
-import {createElement} from "../utils.js";
+import AbstractView from "./abstract.js";
 import {transferTypes, activityTypes} from "../mock/event.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
@@ -281,25 +281,13 @@ const createEventFormTemplate = (event) => {
   );
 };
 
-export default class EventForm {
+export default class EventForm extends AbstractView {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
   }
 
   getTemplate() {
     return createEventFormTemplate(this._event);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
