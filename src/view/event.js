@@ -128,4 +128,8 @@ export default class Event {
   removeElement() {
     this._element = null;
   }
+
+  getRollupButton() {
+    return this.getElement().querySelector(`.event__rollup-btn`);
+  }
 }
