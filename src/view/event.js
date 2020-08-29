@@ -1,42 +1,7 @@
-import {createElement} from "../utils.js";
+import AbstractView from "./abstract.js";
+import {getLocalTime, formatTimeInterval, convertToMachineFormat} from "../utils/common.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
-
-const getLocalTime = (date) => {
-  return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
-};
-
-const formatTimeInterval = (milliseconds) => {
-  const totalSeconds = Math.trunc(milliseconds / 1000);
-  if (totalSeconds < 60) {
-    return `0M`;
-  }
-
-  const totalMinutes = Math.trunc(totalSeconds / 60);
-  if (totalMinutes < 60) {
-    return `${totalMinutes}M`;
-  }
-
-  const totalHours = Math.trunc(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (totalHours < 24) {
-    return `${totalHours}H ${minutes}M`;
-  }
-
-  const days = Math.trunc(totalHours / 24);
-  const hours = totalHours % 24;
-
-  return `${days}D ${hours}H ${minutes}M`;
-};
-
-const convertToMachineFormat = (date) => {
-  const year = date.getFullYear();
-  const month = date.toLocaleString(`en-US`, {month: `2-digit`});
-  const day = date.toLocaleString(`en-US`, {day: `2-digit`});
-  const time = date.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false});
-
-  return `${year}-${month}-${day}T${time}`;
-};
 
 const createOfferTemplate = (offer) => {
   if (!offer) {
@@ -107,29 +72,27 @@ const createEventTemplate = (event) => {
   );
 };
 
-export default class Event {
+export default class Event extends AbstractView {
   constructor(event) {
+    super();
     this._event = event;
-    this._element = null;
+
+    this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEventTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _rollupButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollupButtonClick();
   }
 
-  removeElement() {
-    this._element = null;
-  }
-
-  getRollupButton() {
-    return this.getElement().querySelector(`.event__rollup-btn`);
+  setRollupButtonClickHandler(callback) {
+    this._callback.rollupButtonClick = callback;
+    this.getElement()
+      .querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, this._rollupButtonClickHandler);
   }
 }

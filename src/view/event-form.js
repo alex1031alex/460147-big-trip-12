@@ -1,16 +1,8 @@
-import {createElement} from "../utils.js";
+import AbstractView from "./abstract.js";
 import {transferTypes, activityTypes} from "../mock/event.js";
+import {localizeDate} from "../utils/common.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
-
-const localizeDate = (date) => {
-  const year = date.toLocaleString(`en-US`, {year: `2-digit`});
-  const month = date.toLocaleString(`en-US`, {month: `2-digit`});
-  const day = date.toLocaleString(`en-US`, {day: `2-digit`});
-  const time = date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
-
-  return `${day}/${month}/${year} ${time}`;
-};
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
@@ -281,25 +273,25 @@ const createEventFormTemplate = (event) => {
   );
 };
 
-export default class EventForm {
+export default class EventForm extends AbstractView {
   constructor(event) {
+    super();
+
     this._event = event;
-    this._element = null;
+    this._submitHandler = this._submitHandler.bind(this);
   }
 
   getTemplate() {
     return createEventFormTemplate(this._event);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _submitHandler(evt) {
+    evt.preventDefault();
+    this._callback.submit();
   }
 
-  removeElement() {
-    this._element = null;
+  setSubmitHandler(callback) {
+    this._callback.submit = callback;
+    this.getElement().addEventListener(`submit`, this._submitHandler);
   }
 }
