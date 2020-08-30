@@ -5,9 +5,7 @@ import DayView from "../view/day.js";
 import EventView from "../view/event.js";
 import EventFormView from "../view/event-form.js";
 import {render, RenderPosition, replace} from "../utils/render.js";
-
-const FULL_ESC_KEY = `Escape`;
-const SHORT_ESC_KEY = `Esc`;
+import {isEscKey} from "../utils/common.js";
 
 export default class Trip {
   constructor(eventsContainer) {
@@ -39,18 +37,18 @@ export default class Trip {
     const eventsByDate = new Map();
 
     this._events.slice()
-    .sort((a, b) => a.date.start - b.date.start)
-    .forEach((event) => {
-      const day = +event.date.start.getDate();
+      .sort((a, b) => a.date.start - b.date.start)
+      .forEach((event) => {
+        const day = +event.date.start.getDate();
 
 
-      if (!eventsByDate.has(day)) {
-        eventsByDate.set(day, []);
-      }
+        if (!eventsByDate.has(day)) {
+          eventsByDate.set(day, []);
+        }
 
-      const dayEvents = eventsByDate.get(day);
-      dayEvents.push(event);
-    });
+        const dayEvents = eventsByDate.get(day);
+        dayEvents.push(event);
+      });
 
     Array.from(eventsByDate.entries()).forEach((entry, index) => {
       const [, eventsForDay] = entry;
@@ -84,7 +82,7 @@ export default class Trip {
     };
 
     const onEscKeyDown = (evt) => {
-      if (evt.key === FULL_ESC_KEY || evt.key === SHORT_ESC_KEY) {
+      if (isEscKey(evt.key)) {
         evt.preventDefault();
         replaceFormToEvent();
         document.removeEventListener(`keydown`, onEscKeyDown);
