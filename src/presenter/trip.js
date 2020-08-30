@@ -18,15 +18,29 @@ export default class Trip {
     this._daysView = new DaysView();
 
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+
   }
 
   render(events) {
     this._events = events.slice();
+    this._sourcedEvents = events.slice();
+
     this._renderTrip();
   }
 
-  _sortEvents() {
+  _sortEvents(sortType) {
+    switch (sortType) {
+      case SortType.TIME:
+        this._events.sort(() => {});
+        break;
+      case SortType.PRICE:
+        this._events.sort(() => {});
+        break;
+      default:
+        this._events = this._sourcedEvents.slice();
+    }
 
+    this._currentSortType = sortType;
   }
 
   _handleSortTypeChange(sortType) {
@@ -34,8 +48,7 @@ export default class Trip {
       return;
     }
 
-    this._currentSortType = sortType;
-    this._sortEvents();
+    this._sortEvents(sortType);
   }
 
   _renderNoEvents() {
