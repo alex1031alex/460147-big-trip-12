@@ -24,4 +24,8 @@ export default class DayView extends AbstractView {
   getTemplate() {
     return createDayTemplate(this._number, this._date);
   }
+
+  getEventsList() {
+    return this.getElement().querySelector(`.trip-events__list`);
+  }
 }

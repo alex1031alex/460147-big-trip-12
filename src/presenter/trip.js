@@ -60,7 +60,7 @@ export default class Trip {
 
         render(daysContainer, dayView, RenderPosition.BEFOREEND);
 
-        const eventsList = this._eventsContainer.querySelector(`[data-day="${index + 1}"] .trip-events__list`);
+        const eventsList = dayView.getEventsList();
 
         eventsForDay.forEach((event) => {
           this._renderEvent(eventsList, event);
@@ -111,7 +111,7 @@ export default class Trip {
     this._renderSorting();
     this._renderDays();
 
-    const dayList = this._eventsContainer.querySelector(`.trip-days`);
+    const dayList = this._daysView.getElement();
     this._renderDay(dayList);
   }
 }
