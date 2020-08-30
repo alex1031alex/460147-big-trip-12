@@ -37,6 +37,22 @@ const createSortingTemplate = () => {
 };
 
 export default class Sorting extends AbstractView {
+  constructor() {
+    super();
+
+    this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
+  }
+
+  _sortTypeChangeHandler(evt) {
+    evt.preventDefault(evt);
+    this._callback.sortTypeChange(evt.target.dataset.sortType);
+  }
+
+  setSortTypeChangeHandler(callback) {
+    this._callback.sortTypeChange = callback;
+    this.getElement().addEventListener(`change`, this._sortTypeChangeHandler);
+  }
+
   getTemplate() {
     return createSortingTemplate();
   }
