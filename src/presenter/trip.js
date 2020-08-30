@@ -16,7 +16,7 @@ export default class Trip {
     this._daysView = new DaysView();
   }
 
-  init(events) {
+  render(events) {
     this._events = events.slice();
     this._renderTrip();
   }
