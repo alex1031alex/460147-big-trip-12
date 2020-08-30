@@ -6,19 +6,36 @@ import EventView from "../view/event.js";
 import EventFormView from "../view/event-form.js";
 import {render, RenderPosition, replace} from "../utils/render.js";
 import {isEscKey} from "../utils/common.js";
+import {SortType} from "../const.js";
 
 export default class Trip {
   constructor(eventsContainer) {
     this._eventsContainer = eventsContainer;
+    this._currentSortType = SortType.EVENT;
 
     this._noEventView = new NoEventView();
     this._sortingView = new SortingView();
     this._daysView = new DaysView();
+
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
   render(events) {
     this._events = events.slice();
     this._renderTrip();
+  }
+
+  _sortEvents() {
+
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+
+    this._currentSortType = sortType;
+    this._sortEvents();
   }
 
   _renderNoEvents() {
@@ -27,6 +44,7 @@ export default class Trip {
 
   _renderSorting() {
     render(this._eventsContainer, this._sortingView, RenderPosition.BEFOREEND);
+    this._sortingView.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderDays() {
