@@ -1,6 +1,11 @@
 import AbstractView from "./abstract.js";
 import {SortType} from "../const.js";
 
+const DayColumnHead = {
+  DAY: `Day`,
+  EMPTY: ``
+};
+
 const createSortingTemplate = () => {
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
@@ -43,9 +48,22 @@ export default class Sorting extends AbstractView {
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
 
+  _dayColumnHeadToggle(sortType) {
+    const dayColumnHeadElement = this.getElement().querySelector(`.trip-sort__item--day`);
+
+    if (sortType === SortType.EVENT) {
+      dayColumnHeadElement.textContent = DayColumnHead.DAY;
+    } else {
+      dayColumnHeadElement.textContent = DayColumnHead.EMPTY;
+    }
+  }
+
   _sortTypeChangeHandler(evt) {
     evt.preventDefault(evt);
-    this._callback.sortTypeChange(evt.target.dataset.sortType);
+    const sortType = evt.target.dataset.sortType;
+
+    this._dayColumnHeadToggle(sortType);
+    this._callback.sortTypeChange(sortType);
   }
 
   setSortTypeChangeHandler(callback) {
