@@ -56,7 +56,7 @@ export default class Trip {
 
     this._sortEvents(sortType);
     this._clearEventsList();
-    this._renderDay();
+    this._renderDays();
   }
 
   _renderNoEvents() {
@@ -72,7 +72,7 @@ export default class Trip {
     render(this._tripContainer, this._dayListView, RenderPosition.BEFOREEND);
   }
 
-  _renderDay() {
+  _renderDays() {
     if (this._currentSortType === SortType.EVENT) {
       const eventsByDate = new Map();
 
@@ -96,14 +96,10 @@ export default class Trip {
           const date = eventsForDay[0].date.start;
           const dayNumber = index + 1;
           const dayView = new DayView(dayNumber, date);
-
-          render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
-
           const eventsList = dayView.getEventsList();
 
-          eventsForDay.forEach((event) => {
-            this._renderEvent(eventsList, event);
-          });
+          render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
+          this._renderEvents(eventsList, eventsForDay);
         }
       });
     } else {
@@ -111,13 +107,11 @@ export default class Trip {
       const eventsList = emptyDayView.getEventsList();
 
       render(this._eventsContainer, emptyDayView, RenderPosition.BEFOREEND);
-      this._events.forEach((event) => {
-        this._renderEvent(eventsList, event);
-      });
+      this._renderEvents(eventsList, this._events);
     }
   }
 
-  _renderEvent(eventListElement, event) {
+  _renderEvent(container, event) {
     const eventComponent = new EventView(event);
     const eventFormComponent = new EventFormView(event);
 
@@ -147,7 +141,13 @@ export default class Trip {
       document.removeEventListener(`keydown`, onEscKeyDown);
     });
 
-    render(eventListElement, eventComponent, RenderPosition.BEFOREEND);
+    render(container, eventComponent, RenderPosition.BEFOREEND);
+  }
+
+  _renderEvents(container, events) {
+    events.forEach((event)=> {
+      this._renderEvent(container, event);
+    });
   }
 
   _renderTrip() {
@@ -159,6 +159,6 @@ export default class Trip {
     this._renderSorting();
     this._renderDayList();
 
-    this._renderDay();
+    this._renderDays();
   }
 }
