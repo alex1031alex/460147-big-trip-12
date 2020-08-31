@@ -1,5 +1,5 @@
 import AbstractView from "./abstract.js";
-import {getLocalTime, formatTimeInterval, convertToMachineFormat} from "../utils/common.js";
+import {getLocalTime, getTimeInterval, formatTimeInterval, convertToMachineFormat} from "../utils/common.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
 
@@ -29,7 +29,7 @@ const createEventTemplate = (event) => {
 
   const eventStartTime = getLocalTime(start);
   const eventEndTime = getLocalTime(end);
-  const eventDuration = formatTimeInterval(end.getTime() - start.getTime());
+  const eventDuration = formatTimeInterval(getTimeInterval(start, end));
   const eventStartDatetime = convertToMachineFormat(start);
   const eventEndDatetime = convertToMachineFormat(end);
 

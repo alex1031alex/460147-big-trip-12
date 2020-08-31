@@ -18,6 +18,10 @@ const getLocalTime = (date) => {
   return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
 };
 
+const getTimeInterval = (startDate, endDate) => {
+  return endDate.getTime() - startDate.getTime();
+};
+
 const formatTimeInterval = (milliseconds) => {
   const totalSeconds = Math.trunc(milliseconds / 1000);
   if (totalSeconds < 60) {
@@ -63,7 +67,8 @@ export {isEscKey,
   getRandomInteger,
   getRandomItem,
   getLocalTime,
+  getTimeInterval,
   formatTimeInterval,
   convertToMachineFormat,
-  localizeDate
+  localizeDate,
 };

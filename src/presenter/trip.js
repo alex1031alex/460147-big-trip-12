@@ -6,6 +6,7 @@ import EventView from "../view/event.js";
 import EventFormView from "../view/event-form.js";
 import {render, RenderPosition, replace} from "../utils/render.js";
 import {isEscKey} from "../utils/common.js";
+import {sortByTime, sortByPrice} from "../utils/event.js";
 import {SortType} from "../const.js";
 
 export default class Trip {
@@ -31,10 +32,10 @@ export default class Trip {
   _sortEvents(sortType) {
     switch (sortType) {
       case SortType.TIME:
-        this._events.sort(() => {});
+        this._events.sort(sortByTime);
         break;
       case SortType.PRICE:
-        this._events.sort(() => {});
+        this._events.sort(sortByPrice);
         break;
       default:
         this._events = this._sourcedEvents.slice();
