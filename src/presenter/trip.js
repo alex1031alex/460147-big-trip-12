@@ -1,6 +1,6 @@
 import SortingView from "../view/sorting.js";
 import NoEventView from "../view/no-event.js";
-import DaysView from "../view/days.js";
+import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import EventView from "../view/event.js";
 import EventFormView from "../view/event-form.js";
@@ -16,9 +16,9 @@ export default class Trip {
 
     this._noEventView = new NoEventView();
     this._sortingView = new SortingView();
-    this._daysView = new DaysView();
+    this._dayListView = new DayListView();
 
-    this._eventsContainer = this._daysView.getElement();
+    this._eventsContainer = this._dayListView.getElement();
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
   }
@@ -68,8 +68,8 @@ export default class Trip {
     this._sortingView.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
-  _renderDays() {
-    render(this._tripContainer, this._daysView, RenderPosition.BEFOREEND);
+  _renderDayList() {
+    render(this._tripContainer, this._dayListView, RenderPosition.BEFOREEND);
   }
 
   _renderDay() {
@@ -157,7 +157,7 @@ export default class Trip {
     }
 
     this._renderSorting();
-    this._renderDays();
+    this._renderDayList();
 
     this._renderDay();
   }
