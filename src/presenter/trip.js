@@ -10,14 +10,15 @@ import {sortByTime, sortByPrice} from "../utils/event.js";
 import {SortType} from "../const.js";
 
 export default class Trip {
-  constructor(eventsContainer) {
-    this._eventsContainer = eventsContainer;
+  constructor(tripContainer) {
+    this._tripContainer = tripContainer;
     this._currentSortType = SortType.EVENT;
 
     this._noEventView = new NoEventView();
     this._sortingView = new SortingView();
     this._daysView = new DaysView();
 
+    this._eventsContainer = this._daysView.getElement();
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
   }
@@ -44,61 +45,76 @@ export default class Trip {
     this._currentSortType = sortType;
   }
 
+  _clearEventsList() {
+    this._eventsContainer.innerHTML = ``;
+  }
+
   _handleSortTypeChange(sortType) {
     if (this._currentSortType === sortType) {
       return;
     }
 
     this._sortEvents(sortType);
+    this._clearEventsList();
+    this._renderDay();
   }
 
   _renderNoEvents() {
-    render(this._eventsContainer, this._noEventView, RenderPosition.BEFOREEND);
+    render(this._tripContainer, this._noEventView, RenderPosition.BEFOREEND);
   }
 
   _renderSorting() {
-    render(this._eventsContainer, this._sortingView, RenderPosition.BEFOREEND);
+    render(this._tripContainer, this._sortingView, RenderPosition.BEFOREEND);
     this._sortingView.setSortTypeChangeHandler(this._handleSortTypeChange);
   }
 
   _renderDays() {
-    render(this._eventsContainer, this._daysView, RenderPosition.BEFOREEND);
+    render(this._tripContainer, this._daysView, RenderPosition.BEFOREEND);
   }
 
-  _renderDay(daysContainer) {
-    const eventsByDate = new Map();
+  _renderDay() {
+    if (this._currentSortType === SortType.EVENT) {
+      const eventsByDate = new Map();
 
-    this._events.slice()
-      .sort((a, b) => a.date.start - b.date.start)
-      .forEach((event) => {
-        const day = +event.date.start.getDate();
+      this._events.slice()
+        .sort((a, b) => a.date.start - b.date.start)
+        .forEach((event) => {
+          const day = +event.date.start.getDate();
 
+          if (!eventsByDate.has(day)) {
+            eventsByDate.set(day, []);
+          }
 
-        if (!eventsByDate.has(day)) {
-          eventsByDate.set(day, []);
-        }
-
-        const dayEvents = eventsByDate.get(day);
-        dayEvents.push(event);
-      });
-
-    Array.from(eventsByDate.entries()).forEach((entry, index) => {
-      const [, eventsForDay] = entry;
-
-      if (eventsForDay.length && eventsForDay.length !== 0) {
-        const date = eventsForDay[0].date.start;
-        const dayNumber = index + 1;
-        const dayView = new DayView(dayNumber, date);
-
-        render(daysContainer, dayView, RenderPosition.BEFOREEND);
-
-        const eventsList = dayView.getEventsList();
-
-        eventsForDay.forEach((event) => {
-          this._renderEvent(eventsList, event);
+          const dayEvents = eventsByDate.get(day);
+          dayEvents.push(event);
         });
-      }
-    });
+
+      Array.from(eventsByDate.entries()).forEach((entry, index) => {
+        const [, eventsForDay] = entry;
+
+        if (eventsForDay.length && eventsForDay.length !== 0) {
+          const date = eventsForDay[0].date.start;
+          const dayNumber = index + 1;
+          const dayView = new DayView(dayNumber, date);
+
+          render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
+
+          const eventsList = dayView.getEventsList();
+
+          eventsForDay.forEach((event) => {
+            this._renderEvent(eventsList, event);
+          });
+        }
+      });
+    } else {
+      const emptyDayView = new DayView();
+      const eventsList = emptyDayView.getEventsList();
+
+      render(this._eventsContainer, emptyDayView, RenderPosition.BEFOREEND);
+      this._events.forEach((event) => {
+        this._renderEvent(eventsList, event);
+      });
+    }
   }
 
   _renderEvent(eventListElement, event) {
@@ -143,7 +159,6 @@ export default class Trip {
     this._renderSorting();
     this._renderDays();
 
-    const dayList = this._daysView.getElement();
-    this._renderDay(dayList);
+    this._renderDay();
   }
 }
