@@ -45,13 +45,13 @@ const formatTimeInterval = (milliseconds) => {
   return `${days}D ${hours}H ${minutes}M`;
 };
 
-const convertToMachineFormat = (date) => {
+const convertToMachineFormat = (date, isTimeShown = true) => {
   const year = date.getFullYear();
   const month = date.toLocaleString(`en-US`, {month: `2-digit`});
   const day = date.toLocaleString(`en-US`, {day: `2-digit`});
   const time = date.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false});
 
-  return `${year}-${month}-${day}T${time}`;
+  return isTimeShown ? `${year}-${month}-${day}T${time}` : `${year}-${month}-${day}`;
 };
 
 const localizeDate = (date) => {
