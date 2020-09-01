@@ -1,3 +1,8 @@
+const FULL_ESC_KEY = `Escape`;
+const SHORT_ESC_KEY = `Esc`;
+
+const isEscKey = (key) => key === FULL_ESC_KEY || key === SHORT_ESC_KEY;
+
 const getRandomInteger = (a = 0, b = 1) => {
   const lower = Math.ceil(Math.min(a, b));
   const upper = Math.floor(Math.max(a, b));
@@ -11,6 +16,10 @@ const getRandomItem = (array) => {
 
 const getLocalTime = (date) => {
   return date.toLocaleString(`en-US`, {hour: `2-digit`, minute: `2-digit`, hour12: false});
+};
+
+const getTimeInterval = (startDate, endDate) => {
+  return endDate.getTime() - startDate.getTime();
 };
 
 const formatTimeInterval = (milliseconds) => {
@@ -36,13 +45,13 @@ const formatTimeInterval = (milliseconds) => {
   return `${days}D ${hours}H ${minutes}M`;
 };
 
-const convertToMachineFormat = (date) => {
+const convertToMachineFormat = (date, isTimeShown = true) => {
   const year = date.getFullYear();
   const month = date.toLocaleString(`en-US`, {month: `2-digit`});
   const day = date.toLocaleString(`en-US`, {day: `2-digit`});
   const time = date.toLocaleString(`en-US`, {hour: `numeric`, minute: `numeric`, hour12: false});
 
-  return `${year}-${month}-${day}T${time}`;
+  return isTimeShown ? `${year}-${month}-${day}T${time}` : `${year}-${month}-${day}`;
 };
 
 const localizeDate = (date) => {
@@ -54,4 +63,12 @@ const localizeDate = (date) => {
   return `${day}/${month}/${year} ${time}`;
 };
 
-export {getRandomInteger, getRandomItem, getLocalTime, formatTimeInterval, convertToMachineFormat, localizeDate};
+export {isEscKey,
+  getRandomInteger,
+  getRandomItem,
+  getLocalTime,
+  getTimeInterval,
+  formatTimeInterval,
+  convertToMachineFormat,
+  localizeDate,
+};

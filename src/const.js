@@ -3,4 +3,10 @@ const EventCategory = {
   ACTIVITY: `activity`,
 };
 
-export {EventCategory};
+const SortType = {
+  EVENT: `event`,
+  TIME: `time`,
+  PRICE: `price`
+};
+
+export {EventCategory, SortType};

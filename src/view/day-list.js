@@ -7,7 +7,7 @@ const createDaysTemplate = () => {
   );
 };
 
-export default class Days extends AbstractView {
+export default class DayList extends AbstractView {
   getTemplate() {
     return createDaysTemplate();
   }

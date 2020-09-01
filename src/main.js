@@ -20,4 +20,4 @@ render(pageMenuWrapper, new MenuView(), RenderPosition.AFTERBEGIN);
 render(controlsContainer, new FilterView(), RenderPosition.BEFOREEND);
 
 const tripPresenter = new TripPresenter(eventsContainer);
-tripPresenter.init(events);
+tripPresenter.render(events);
