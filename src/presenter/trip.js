@@ -2,12 +2,10 @@ import SortingView from "../view/sorting.js";
 import NoEventView from "../view/no-event.js";
 import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
-import EventView from "../view/event.js";
-import EventFormView from "../view/event-form.js";
-import {render, RenderPosition, replace} from "../utils/render.js";
-import {isEscKey} from "../utils/common.js";
+import {render, RenderPosition} from "../utils/render.js";
 import {sortByTime, sortByPrice} from "../utils/event.js";
 import {SortType} from "../const.js";
+import EventPresenter from "./event.js";
 
 export default class Trip {
   constructor(tripContainer) {
@@ -20,7 +18,6 @@ export default class Trip {
 
     this._eventsContainer = this._dayListView.getElement();
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-
   }
 
   render(events) {
@@ -112,36 +109,8 @@ export default class Trip {
   }
 
   _renderEvent(container, event) {
-    const eventComponent = new EventView(event);
-    const eventFormComponent = new EventFormView(event);
-
-    const replaceEventToForm = () => {
-      replace(eventFormComponent, eventComponent);
-    };
-
-    const replaceFormToEvent = () => {
-      replace(eventComponent, eventFormComponent);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (isEscKey(evt.key)) {
-        evt.preventDefault();
-        replaceFormToEvent();
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
-    eventComponent.setRollupButtonClickHandler(() => {
-      replaceEventToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-    eventFormComponent.setSubmitHandler(() => {
-      replaceFormToEvent();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    });
-
-    render(container, eventComponent, RenderPosition.BEFOREEND);
+    const eventPresenter = new EventPresenter(container);
+    eventPresenter.init(event);
   }
 
   _renderEvents(container, events) {
