@@ -1,7 +1,7 @@
 import EventView from "../view/event.js";
 import EventFormView from "../view/event-form.js";
 import {isEscKey} from "../utils/common.js";
-import {render, RenderPosition, replace} from "../utils/render.js";
+import {render, RenderPosition, replace, remove} from "../utils/render.js";
 
 export default class Event {
   constructor(eventContainer) {
@@ -18,13 +18,30 @@ export default class Event {
   init(event) {
     this._event = event;
 
+    const prevEventComponent = this._eventComponent;
+    const prevEventFormComponent = this._eventFormComponent;
+
     this._eventComponent = new EventView(event);
     this._eventFormComponent = new EventFormView(event);
 
     this._eventComponent.setRollupClickHandler(this._handleRollupClick);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
 
-    render(this._eventContainer, this._eventComponent, RenderPosition.BEFOREEND);
+    if (prevEventComponent === null || prevEventFormComponent === null) {
+      render(this._eventContainer, this._eventComponent, RenderPosition.BEFOREEND);
+      return;
+    }
+
+    if (this._eventContainer.contains(prevEventFormComponent.getElement())) {
+      replace(this._eventContainer, prevEventComponent);
+    }
+
+    if (this._eventContainer.contains(prevEventFormComponent.getElement())) {
+      replace(this._eventFormComponent, prevEventFormComponent);
+    }
+
+    remove(prevEventComponent);
+    remove(prevEventFormComponent);
   }
 
   _replaceEventToForm() {
@@ -51,5 +68,10 @@ export default class Event {
 
   _handleFormSubmit() {
     this._replaceFormToEvent();
+  }
+
+  destroy() {
+    remove(this._eventComponent);
+    remove(this._eventFormComponent);
   }
 }
