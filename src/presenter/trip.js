@@ -3,7 +3,7 @@ import NoEventView from "../view/no-event.js";
 import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition} from "../utils/render.js";
-import {sortByTime, sortByPrice} from "../utils/event.js";
+import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
 import {SortType} from "../const.js";
 import EventPresenter from "./event.js";
 
@@ -71,22 +71,9 @@ export default class Trip {
 
   _renderDays() {
     if (this._currentSortType === SortType.EVENT) {
-      const eventsByDate = new Map();
+      const eventsByDates = groupByDates(this._events);
 
-      this._events.slice()
-        .sort((a, b) => a.date.start - b.date.start)
-        .forEach((event) => {
-          const day = +event.date.start.getDate();
-
-          if (!eventsByDate.has(day)) {
-            eventsByDate.set(day, []);
-          }
-
-          const dayEvents = eventsByDate.get(day);
-          dayEvents.push(event);
-        });
-
-      Array.from(eventsByDate.entries()).forEach((entry, index) => {
+      Array.from(eventsByDates.entries()).forEach((entry, index) => {
         const [, eventsForDay] = entry;
 
         if (eventsForDay.length && eventsForDay.length !== 0) {

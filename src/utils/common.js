@@ -63,7 +63,8 @@ const localizeDate = (date) => {
   return `${day}/${month}/${year} ${time}`;
 };
 
-export {isEscKey,
+export {
+  isEscKey,
   getRandomInteger,
   getRandomItem,
   getLocalTime,
