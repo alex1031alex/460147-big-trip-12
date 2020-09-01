@@ -69,30 +69,8 @@ export default class Trip {
     render(this._tripContainer, this._dayListView, RenderPosition.BEFOREEND);
   }
 
-  _renderDays() {
-    if (this._currentSortType === SortType.EVENT) {
-      const eventsByDates = groupByDates(this._events);
-
-      Array.from(eventsByDates.entries()).forEach((entry, index) => {
-        const [, eventsForDay] = entry;
-
-        if (eventsForDay.length && eventsForDay.length !== 0) {
-          const date = eventsForDay[0].date.start;
-          const dayNumber = index + 1;
-          const dayView = new DayView(dayNumber, date);
-          const eventsList = dayView.getEventsList();
-
-          render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
-          this._renderEvents(eventsList, eventsForDay);
-        }
-      });
-    } else {
-      const emptyDayView = new DayView();
-      const eventsList = emptyDayView.getEventsList();
-
-      render(this._eventsContainer, emptyDayView, RenderPosition.BEFOREEND);
-      this._renderEvents(eventsList, this._events);
-    }
+  _renderDay(dayView) {
+    render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
   }
 
   _renderEvent(container, event) {
@@ -104,6 +82,36 @@ export default class Trip {
     events.forEach((event)=> {
       this._renderEvent(container, event);
     });
+  }
+
+  _renderEventsByDates(eventsByDates) {
+    Array.from(eventsByDates.entries()).forEach((entry, index) => {
+      const [, eventsForDay] = entry;
+
+      if (eventsForDay.length && eventsForDay.length !== 0) {
+        const date = eventsForDay[0].date.start;
+        const dayNumber = index + 1;
+        const dayView = new DayView(dayNumber, date);
+        const eventsList = dayView.getEventsList();
+
+        this._renderDay(dayView);
+        this._renderEvents(eventsList, eventsForDay);
+      }
+    });
+  }
+
+  _renderDays() {
+    if (this._currentSortType === SortType.EVENT) {
+      const eventsByDates = groupByDates(this._events);
+      this._renderEventsByDates(eventsByDates);
+
+    } else {
+      const emptyDayView = new DayView();
+      const eventsList = emptyDayView.getEventsList();
+
+      this._renderDay(emptyDayView);
+      this._renderEvents(eventsList, this._events);
+    }
   }
 
   _renderTrip() {
