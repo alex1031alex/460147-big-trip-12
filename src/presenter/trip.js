@@ -4,6 +4,7 @@ import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
+import {updateItem} from "../utils/common.js";
 import {SortType} from "../const.js";
 import EventPresenter from "./event.js";
 
@@ -19,7 +20,9 @@ export default class Trip {
     this._dayListView = new DayListView();
 
     this._eventsContainer = this._dayListView.getElement();
+
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._handleEventChange = this._handleEventChange.bind(this);
   }
 
   render(events) {
@@ -27,6 +30,12 @@ export default class Trip {
     this._sourcedEvents = events.slice();
 
     this._renderTrip();
+  }
+
+  _handleEventChange(updatedEvent) {
+    this._events = updateItem(this._events, updatedEvent);
+    this._sourcedEvents = updateItem(this._sourcedEvents, updatedEvent);
+    this._eventPresenter[updatedEvent.id].init(updatedEvent);
   }
 
   _sortEvents(sortType) {
