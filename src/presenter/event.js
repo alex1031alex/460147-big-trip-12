@@ -4,8 +4,9 @@ import {isEscKey} from "../utils/common.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 
 export default class Event {
-  constructor(eventContainer) {
+  constructor(eventContainer, changeData) {
     this._eventContainer = eventContainer;
+    this._changeData = changeData;
 
     this._eventComponent = null;
     this._eventFormComponent = null;
@@ -13,6 +14,7 @@ export default class Event {
     this._handleRollupClick = this._handleRollupClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleEscKeyDown = this._handleEscKeyDown.bind(this);
+    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
   }
 
   init(event) {
@@ -26,14 +28,15 @@ export default class Event {
 
     this._eventComponent.setRollupClickHandler(this._handleRollupClick);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
+    this._eventFormComponent.setFavoriteClickHandler(this._handleFavoriteClick);
 
     if (prevEventComponent === null || prevEventFormComponent === null) {
       render(this._eventContainer, this._eventComponent, RenderPosition.BEFOREEND);
       return;
     }
 
-    if (this._eventContainer.contains(prevEventFormComponent.getElement())) {
-      replace(this._eventContainer, prevEventComponent);
+    if (this._eventContainer.contains(prevEventComponent.getElement())) {
+      replace(this._eventComponent, prevEventComponent);
     }
 
     if (this._eventContainer.contains(prevEventFormComponent.getElement())) {
@@ -68,6 +71,10 @@ export default class Event {
 
   _handleFormSubmit() {
     this._replaceFormToEvent();
+  }
+
+  _handleFavoriteClick() {
+    this._changeData(Object.assign({}, this._event, {isFavorite: !this._event.isFavorite}));
   }
 
   destroy() {

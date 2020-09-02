@@ -145,9 +145,10 @@ const createEventFormTemplate = (event) => {
     );
   }
 
-  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
+  const {isTransferEvent, type, destination, date: {start, end}, offers, cost, isFavorite} = event;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
+  const isFavoriteChecked = isFavorite ? `checked` : ``;
 
   const transferEventTypesTemplate = transferTypes
     .map((it) => createEventTypeTemplate(it, it === name))
@@ -241,7 +242,7 @@ const createEventFormTemplate = (event) => {
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked>
+        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavoriteChecked}>
         <label class="event__favorite-btn" for="event-favorite-1">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -278,7 +279,9 @@ export default class EventForm extends AbstractView {
     super();
 
     this._event = event;
+    this._callback = {};
     this._submitHandler = this._submitHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
@@ -290,8 +293,21 @@ export default class EventForm extends AbstractView {
     this._callback.submit();
   }
 
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
   setSubmitHandler(callback) {
     this._callback.submit = callback;
     this.getElement().addEventListener(`submit`, this._submitHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, this._favoriteClickHandler);
   }
 }

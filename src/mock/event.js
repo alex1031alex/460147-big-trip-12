@@ -132,6 +132,7 @@ const generateEvent = () => {
   event.date = generateDate();
   event.offers = generateOffers();
   event.cost = getRandomInteger(2, 120) * 5;
+  event.isFavorite = false;
 
   return event;
 };
