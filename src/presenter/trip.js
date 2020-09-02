@@ -2,7 +2,7 @@ import SortingView from "../view/sorting.js";
 import NoEventView from "../view/no-event.js";
 import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
-import {render, RenderPosition} from "../utils/render.js";
+import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
 import {SortType} from "../const.js";
 import EventPresenter from "./event.js";
@@ -11,6 +11,8 @@ export default class Trip {
   constructor(tripContainer) {
     this._tripContainer = tripContainer;
     this._currentSortType = SortType.EVENT;
+    this._eventPresenter = {};
+    this._days = [];
 
     this._noEventView = new NoEventView();
     this._sortingView = new SortingView();
@@ -43,7 +45,13 @@ export default class Trip {
   }
 
   _clearEventsList() {
-    this._eventsContainer.innerHTML = ``;
+    Object
+      .values(this._eventPresenter)
+      .forEach((eventPresenter) => eventPresenter.destroy());
+    this._eventPresenter = {};
+
+    this._days.forEach((day) => remove(day));
+    this._days = [];
   }
 
   _handleSortTypeChange(sortType) {
@@ -76,6 +84,7 @@ export default class Trip {
   _renderEvent(container, event) {
     const eventPresenter = new EventPresenter(container);
     eventPresenter.init(event);
+    this._eventPresenter[event.id] = eventPresenter;
   }
 
   _renderEvents(container, events) {
@@ -93,6 +102,7 @@ export default class Trip {
         const dayNumber = index + 1;
         const dayView = new DayView(dayNumber, date);
         const eventsList = dayView.getEventsList();
+        this._days.push(dayView);
 
         this._renderDay(dayView);
         this._renderEvents(eventsList, eventsForDay);
@@ -108,6 +118,7 @@ export default class Trip {
     } else {
       const emptyDayView = new DayView();
       const eventsList = emptyDayView.getEventsList();
+      this._days.push(emptyDayView);
 
       this._renderDay(emptyDayView);
       this._renderEvents(eventsList, this._events);
