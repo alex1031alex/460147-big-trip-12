@@ -322,6 +322,20 @@ export default class EventForm extends AbstractView {
     prevElement = null;
   }
 
+  updateDraftData(update) {
+    if (!update) {
+      return;
+    }
+
+    this._draftData = Object.assign(
+        {},
+        this._draftData,
+        update
+    );
+
+    this.updateElement();
+  }
+
   static parseEventToDraftData(event) {
     return Object.assign(
         {},
