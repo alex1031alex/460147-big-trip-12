@@ -1,5 +1,6 @@
 import AbstractView from "./abstract.js";
 import {getLocalTime, getTimeInterval, formatTimeInterval, convertToMachineFormat} from "../utils/common.js";
+import {EventCategory} from "../const.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
 
@@ -20,8 +21,9 @@ const createOfferTemplate = (offer) => {
 };
 
 const createEventTemplate = (event) => {
-  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
+  const {eventCategory, type, destination, date: {start, end}, offers, cost} = event;
 
+  const isTransferEvent = eventCategory === EventCategory.TRANSFER;
   const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
 
   const chosenOffers = offers.filter((offer) => offer.isChecked);

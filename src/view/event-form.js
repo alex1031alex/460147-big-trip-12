@@ -1,6 +1,7 @@
 import AbstractView from "./abstract.js";
 import {transferTypes, activityTypes} from "../mock/event.js";
 import {localizeDate} from "../utils/common.js";
+import {EventCategory} from "../const.js";
 
 const DEFAULT_EVENT_NAME = `Bus`;
 
@@ -51,7 +52,7 @@ const createOffersTemplate = (offers) => {
          </div>`;
 };
 
-const createEventFormTemplate = (event) => {
+const createEventFormTemplate = (draftData) => {
 
   if (event === null) {
     const transferEventNamesTemplate = transferTypes
@@ -145,10 +146,9 @@ const createEventFormTemplate = (event) => {
     );
   }
 
-  const {isTransferEvent, type, destination, date: {start, end}, offers, cost, isFavorite} = event;
+  const {type, destination, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
-  const isFavoriteChecked = isFavorite ? `checked` : ``;
 
   const transferEventTypesTemplate = transferTypes
     .map((it) => createEventTypeTemplate(it, it === name))
@@ -278,19 +278,19 @@ export default class EventForm extends AbstractView {
   constructor(event) {
     super();
 
-    this._event = event;
+    this._draftData = EventForm.parseEventToDraftData(event);
     this._callback = {};
     this._submitHandler = this._submitHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
   }
 
   getTemplate() {
-    return createEventFormTemplate(this._event);
+    return createEventFormTemplate(this._draftData);
   }
 
   _submitHandler(evt) {
     evt.preventDefault();
-    this._callback.submit();
+    this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
   }
 
   _favoriteClickHandler(evt) {
@@ -309,5 +309,25 @@ export default class EventForm extends AbstractView {
       .getElement()
       .querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, this._favoriteClickHandler);
+  }
+
+  static parseEventToDraftData(event) {
+    return Object.assign(
+        {},
+        event,
+        {
+          isTransferEvent: event.eventCategory === EventCategory.TRANSFER,
+          isFavoriteChecked: event.isFavorite ? `checked` : ``
+        }
+    );
+  }
+
+  static parseDraftDataToEvent(draftData) {
+    draftData = Object.assign({}, draftData);
+
+    delete draftData.isTransferEvent;
+    delete draftData.isFavoriteChecked;
+
+    return draftData;
   }
 }

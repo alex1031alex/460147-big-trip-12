@@ -112,12 +112,11 @@ const generateOffers = () => {
 
 const generateEvent = () => {
   const event = {};
-  const eventCategory = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
+  event.eventCategory = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
   event.id = eventIdCounter++;
-  event.isTransferEvent = eventCategory === EventCategory.TRANSFER;
 
-  if (event.isTransferEvent) {
+  if (event.eventCategory === EventCategory.TRANSFER) {
     event.type = getRandomItem(transferTypes);
   } else {
     event.type = getRandomItem(activityTypes);
