@@ -8,6 +8,9 @@ import {
 } from "../mock/event.js";
 import {localizeDate, capitalizeWord} from "../utils/common.js";
 import {EventCategory} from "../const.js";
+import flatpickr from "flatpickr";
+
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const DEFAULT_EVENT_TYPE = `Bus`;
 
