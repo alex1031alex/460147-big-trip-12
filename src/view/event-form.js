@@ -60,6 +60,16 @@ const createOffersTemplate = (offers) => {
   </section>`;
 };
 
+const createDestinationListTemplate = (destinations) => {
+  const destinationOptions = destinations
+    .map((destination) => `<option value="${destination}"></option>`)
+    .join(`\n`);
+
+  return `<datalist id="destination-list-1">
+    ${destinationOptions}
+  </datalist>`;
+};
+
 const createDestinationTemplate = (destination) => {
   if (destination === null) {
     return ``;
@@ -177,7 +187,7 @@ const createEventFormTemplate = (draftData) => {
     );
   }
 
-  const {type, destination, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
+  const {type, destination, destinations, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
@@ -191,6 +201,7 @@ const createEventFormTemplate = (draftData) => {
 
   const offersTemplate = createOffersTemplate(offers);
 
+  const destinationListTemplate = createDestinationListTemplate(destinations);
   const destinationTempate = createDestinationTemplate(destination);
   const destinationNameTemplate = !destination ? `` : destination.name;
 
@@ -222,12 +233,7 @@ const createEventFormTemplate = (draftData) => {
             ${type} ${isTransferEvent ? `to` : `in`}
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationNameTemplate}" list="destination-list-1">
-          <datalist id="destination-list-1">
-            <option value="Amsterdam"></option>
-            <option value="Geneva"></option>
-            <option value="Chamonix"></option>
-            <option value="Saint Petersburg"></option>
-          </datalist>
+          ${destinationListTemplate}
         </div>
 
         <div class="event__field-group  event__field-group--time">
@@ -318,13 +324,21 @@ export default class EventForm extends AbstractView {
   }
 
   _destinationChoseHandler(evt) {
-    this.updateDraftData({
+    const userDestination = evt.target.value;
+    const update = {
       destination: {
-        name: evt.target.value,
         info: generateDestinationInfo(),
         photos: generateDestinationPhotos(),
       }
-    });
+    };
+
+    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
+      update.destination.name = userDestination;
+    } else {
+      update.destination.name = ``;
+    }
+
+    this.updateDraftData(update);
   }
 
   _submitHandler(evt) {

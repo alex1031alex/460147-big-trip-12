@@ -121,7 +121,7 @@ const generateEvent = () => {
   } else {
     event.type = getRandomItem(activityTypes);
   }
-
+  event.destinations = destinations;
   event.destination = {
     name: getRandomItem(destinations),
     info: generateDestinationInfo(),
