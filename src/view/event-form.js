@@ -1,4 +1,4 @@
-import AbstractView from "./abstract.js";
+import SmartView from "./smart.js";
 import {
   transferTypes,
   activityTypes,
@@ -296,7 +296,7 @@ const createEventFormTemplate = (draftData) => {
   );
 };
 
-export default class EventForm extends AbstractView {
+export default class EventForm extends SmartView {
   constructor(event) {
     super();
 
@@ -380,33 +380,6 @@ export default class EventForm extends AbstractView {
       .getElement()
       .querySelector(`.event__favorite-checkbox`)
       .addEventListener(`click`, this._favoriteClickHandler);
-  }
-
-  updateElement() {
-    let prevElement = this.getElement();
-    const parent = prevElement.parentElement;
-    this.removeElement();
-
-    const newElement = this.getElement();
-
-    parent.replaceChild(newElement, prevElement);
-    prevElement = null;
-
-    this.restoreHandlers();
-  }
-
-  updateDraftData(update) {
-    if (!update) {
-      return;
-    }
-
-    this._draftData = Object.assign(
-        {},
-        this._draftData,
-        update
-    );
-
-    this.updateElement();
   }
 
   static parseEventToDraftData(event) {
