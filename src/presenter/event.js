@@ -76,8 +76,8 @@ export default class Event {
   _handleEscKeyDown(evt) {
     if (isEscKey(evt.key)) {
       evt.preventDefault();
+      this._eventFormComponent.reset(this._event);
       this._replaceFormToEvent();
-      document.removeEventListener(`keydown`, this._handleEscKeyDown);
     }
   }
 

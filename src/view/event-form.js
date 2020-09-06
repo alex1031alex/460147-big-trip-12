@@ -314,6 +314,10 @@ export default class EventForm extends SmartView {
     return createEventFormTemplate(this._draftData);
   }
 
+  reset(event) {
+    this.updateDraftData(EventForm.parseEventToDraftData(event));
+  }
+
   _eventTypeChangeHandler(evt) {
     this.updateDraftData({
       type: capitalizeWord(evt.target.value),
