@@ -21,9 +21,9 @@ const createOfferTemplate = (offer) => {
 };
 
 const createEventTemplate = (event) => {
-  const {eventCategory, type, destination, date: {start, end}, offers, cost} = event;
+  const {category, type, destination, date: {start, end}, offers, cost} = event;
 
-  const isTransferEvent = eventCategory === EventCategory.TRANSFER;
+  const isTransferEvent = category === EventCategory.TRANSFER;
   const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
 
   const chosenOffers = offers.filter((offer) => offer.isChecked);
