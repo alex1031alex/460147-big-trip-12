@@ -292,12 +292,9 @@ export default class EventForm extends AbstractView {
     this._callback = {};
     this._submitHandler = this._submitHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+    this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
 
-    this.getElement()
-      .querySelectorAll(`.event__type-group`)
-      .forEach((eventTypeGroup) => {
-        eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler.bind(this));
-      });
+    this._setInnerHandlers();
   }
 
   getTemplate() {
@@ -322,6 +319,20 @@ export default class EventForm extends AbstractView {
     this._callback.favoriteClick();
   }
 
+  _setInnerHandlers() {
+    this.getElement()
+    .querySelectorAll(`.event__type-group`)
+    .forEach((eventTypeGroup) => {
+      eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
+    });
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setSubmitHandler(this._callback.submit);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
+  }
+
   setSubmitHandler(callback) {
     this._callback.submit = callback;
     this.getElement().addEventListener(`submit`, this._submitHandler);
@@ -344,6 +355,8 @@ export default class EventForm extends AbstractView {
 
     parent.replaceChild(newElement, prevElement);
     prevElement = null;
+
+    this.restoreHandlers();
   }
 
   updateDraftData(update) {
