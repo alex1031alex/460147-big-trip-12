@@ -1,5 +1,11 @@
 import AbstractView from "./abstract.js";
-import {transferTypes, activityTypes, generateOffers} from "../mock/event.js";
+import {
+  transferTypes,
+  activityTypes,
+  generateOffers,
+  generateDestinationInfo,
+  generateDestinationPhotos
+} from "../mock/event.js";
 import {localizeDate, capitalizeWord} from "../utils/common.js";
 import {EventCategory} from "../const.js";
 
@@ -293,6 +299,7 @@ export default class EventForm extends AbstractView {
     this._submitHandler = this._submitHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
+    this._destinationChoseHandler = this._destinationChoseHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -309,6 +316,16 @@ export default class EventForm extends AbstractView {
     });
   }
 
+  _destinationChoseHandler(evt) {
+    this.updateDraftData({
+      destination: {
+        name: evt.target.value,
+        info: generateDestinationInfo(),
+        photos: generateDestinationPhotos(),
+      }
+    });
+  }
+
   _submitHandler(evt) {
     evt.preventDefault();
     this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
@@ -321,10 +338,14 @@ export default class EventForm extends AbstractView {
 
   _setInnerHandlers() {
     this.getElement()
-    .querySelectorAll(`.event__type-group`)
-    .forEach((eventTypeGroup) => {
-      eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
-    });
+      .querySelectorAll(`.event__type-group`)
+      .forEach((eventTypeGroup) => {
+        eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
+      });
+
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, this._destinationChoseHandler);
   }
 
   restoreHandlers() {

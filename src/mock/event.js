@@ -136,4 +136,11 @@ const generateEvent = () => {
   return event;
 };
 
-export {generateEvent, generateOffers, transferTypes, activityTypes};
+export {
+  generateEvent,
+  generateOffers,
+  generateDestinationInfo,
+  generateDestinationPhotos,
+  transferTypes,
+  activityTypes
+};
