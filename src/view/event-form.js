@@ -311,6 +311,7 @@ export default class EventForm extends AbstractView {
   _eventTypeChangeHandler(evt) {
     this.updateDraftData({
       type: capitalizeWord(evt.target.value),
+      isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
       destination: null,
       offers: generateOffers(false),
     });
@@ -399,14 +400,19 @@ export default class EventForm extends AbstractView {
         {},
         event,
         {
-          isTransferEvent: event.category === EventCategory.TRANSFER,
+          isTransferEvent: transferTypes.some((it) => it === event.type),
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
         }
     );
   }
 
   static parseDraftDataToEvent(draftData) {
-    draftData = Object.assign({}, draftData);
+    draftData = Object.assign(
+        {},
+        draftData,
+        {
+          category: draftData.isTransferEvent ? EventCategory.TRANSFER : EventCategory.ACTIVITY
+        });
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;
