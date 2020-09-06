@@ -90,7 +90,7 @@ const generateDate = () => {
   };
 };
 
-const generateOffers = () => {
+const generateOffers = (hasChosenOffers = true) => {
   const offers = [];
   const offerCount = getRandomInteger(MIN_OFFER_COUNT, MAX_OFFER_COUNT);
 
@@ -103,7 +103,7 @@ const generateOffers = () => {
     .map((offer) => {
       return Object.assign({}, offer, {
         cost: getRandomInteger(1, 10) * 5,
-        isChecked: Boolean(getRandomInteger(0, 1)),
+        isChecked: hasChosenOffers ? Boolean(getRandomInteger(0, 1)) : false,
       });
     });
 
@@ -112,11 +112,11 @@ const generateOffers = () => {
 
 const generateEvent = () => {
   const event = {};
-  event.eventCategory = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
+  event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
   event.id = eventIdCounter++;
 
-  if (event.eventCategory === EventCategory.TRANSFER) {
+  if (event.category === EventCategory.TRANSFER) {
     event.type = getRandomItem(transferTypes);
   } else {
     event.type = getRandomItem(activityTypes);
@@ -136,4 +136,4 @@ const generateEvent = () => {
   return event;
 };
 
-export {generateEvent, transferTypes, activityTypes};
+export {generateEvent, generateOffers, transferTypes, activityTypes};

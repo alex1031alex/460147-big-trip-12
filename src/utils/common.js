@@ -77,6 +77,10 @@ const updateItem = (items, update) => {
   ];
 };
 
+const capitalizeWord = (word) => {
+  return `${word[0].toUpperCase()}${word.substring(1)}`;
+};
+
 export {
   isEscKey,
   getRandomInteger,
@@ -87,4 +91,5 @@ export {
   convertToMachineFormat,
   localizeDate,
   updateItem,
+  capitalizeWord,
 };
