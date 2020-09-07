@@ -2,25 +2,28 @@ import SortingView from "../view/sorting.js";
 import NoEventView from "../view/no-event.js";
 import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
-import EventView from "../view/event.js";
-import EventFormView from "../view/event-form.js";
-import {render, RenderPosition, replace} from "../utils/render.js";
-import {isEscKey} from "../utils/common.js";
-import {sortByTime, sortByPrice} from "../utils/event.js";
+import {render, RenderPosition, remove} from "../utils/render.js";
+import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
+import {updateItem} from "../utils/common.js";
 import {SortType} from "../const.js";
+import EventPresenter from "./event.js";
 
 export default class Trip {
   constructor(tripContainer) {
     this._tripContainer = tripContainer;
     this._currentSortType = SortType.EVENT;
+    this._eventPresenter = {};
+    this._days = [];
 
     this._noEventView = new NoEventView();
     this._sortingView = new SortingView();
     this._dayListView = new DayListView();
 
     this._eventsContainer = this._dayListView.getElement();
-    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+    this._handleEventChange = this._handleEventChange.bind(this);
+    this._handleModeChange = this._handleModeChange.bind(this);
   }
 
   render(events) {
@@ -28,6 +31,18 @@ export default class Trip {
     this._sourcedEvents = events.slice();
 
     this._renderTrip();
+  }
+
+  _handleEventChange(updatedEvent) {
+    this._events = updateItem(this._events, updatedEvent);
+    this._sourcedEvents = updateItem(this._sourcedEvents, updatedEvent);
+    this._eventPresenter[updatedEvent.id].init(updatedEvent);
+  }
+
+  _handleModeChange() {
+    Object
+      .values(this._eventPresenter)
+      .forEach((presenter) => presenter.resetView());
   }
 
   _sortEvents(sortType) {
@@ -46,7 +61,13 @@ export default class Trip {
   }
 
   _clearEventsList() {
-    this._eventsContainer.innerHTML = ``;
+    Object
+      .values(this._eventPresenter)
+      .forEach((eventPresenter) => eventPresenter.destroy());
+    this._eventPresenter = {};
+
+    this._days.forEach((day) => remove(day));
+    this._days = [];
   }
 
   _handleSortTypeChange(sortType) {
@@ -72,82 +93,52 @@ export default class Trip {
     render(this._tripContainer, this._dayListView, RenderPosition.BEFOREEND);
   }
 
-  _renderDays() {
-    if (this._currentSortType === SortType.EVENT) {
-      const eventsByDate = new Map();
-
-      this._events.slice()
-        .sort((a, b) => a.date.start - b.date.start)
-        .forEach((event) => {
-          const day = +event.date.start.getDate();
-
-          if (!eventsByDate.has(day)) {
-            eventsByDate.set(day, []);
-          }
-
-          const dayEvents = eventsByDate.get(day);
-          dayEvents.push(event);
-        });
-
-      Array.from(eventsByDate.entries()).forEach((entry, index) => {
-        const [, eventsForDay] = entry;
-
-        if (eventsForDay.length && eventsForDay.length !== 0) {
-          const date = eventsForDay[0].date.start;
-          const dayNumber = index + 1;
-          const dayView = new DayView(dayNumber, date);
-          const eventsList = dayView.getEventsList();
-
-          render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
-          this._renderEvents(eventsList, eventsForDay);
-        }
-      });
-    } else {
-      const emptyDayView = new DayView();
-      const eventsList = emptyDayView.getEventsList();
-
-      render(this._eventsContainer, emptyDayView, RenderPosition.BEFOREEND);
-      this._renderEvents(eventsList, this._events);
-    }
+  _renderDay(dayView) {
+    render(this._eventsContainer, dayView, RenderPosition.BEFOREEND);
   }
 
   _renderEvent(container, event) {
-    const eventComponent = new EventView(event);
-    const eventFormComponent = new EventFormView(event);
-
-    const replaceEventToForm = () => {
-      replace(eventFormComponent, eventComponent);
-    };
-
-    const replaceFormToEvent = () => {
-      replace(eventComponent, eventFormComponent);
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (isEscKey(evt.key)) {
-        evt.preventDefault();
-        replaceFormToEvent();
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
-    eventComponent.setRollupButtonClickHandler(() => {
-      replaceEventToForm();
-      document.addEventListener(`keydown`, onEscKeyDown);
-    });
-
-    eventFormComponent.setSubmitHandler(() => {
-      replaceFormToEvent();
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    });
-
-    render(container, eventComponent, RenderPosition.BEFOREEND);
+    const eventPresenter = new EventPresenter(container, this._handleEventChange, this._handleModeChange);
+    eventPresenter.init(event);
+    this._eventPresenter[event.id] = eventPresenter;
   }
 
   _renderEvents(container, events) {
     events.forEach((event)=> {
       this._renderEvent(container, event);
     });
+  }
+
+  _renderEventsByDates(eventsByDates) {
+    Array.from(eventsByDates.entries()).forEach((entry, index) => {
+      const [, eventsForDay] = entry;
+
+      if (eventsForDay.length && eventsForDay.length !== 0) {
+        const date = eventsForDay[0].date.start;
+        const dayNumber = index + 1;
+        const dayView = new DayView(dayNumber, date);
+        const eventsList = dayView.getEventsList();
+        this._days.push(dayView);
+
+        this._renderDay(dayView);
+        this._renderEvents(eventsList, eventsForDay);
+      }
+    });
+  }
+
+  _renderDays() {
+    if (this._currentSortType === SortType.EVENT) {
+      const eventsByDates = groupByDates(this._events);
+      this._renderEventsByDates(eventsByDates);
+
+    } else {
+      const emptyDayView = new DayView();
+      const eventsList = emptyDayView.getEventsList();
+      this._days.push(emptyDayView);
+
+      this._renderDay(emptyDayView);
+      this._renderEvents(eventsList, this._events);
+    }
   }
 
   _renderTrip() {

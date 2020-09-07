@@ -11,4 +11,23 @@ const sortByPrice = (eventA, eventB) => {
   return eventB.cost - eventA.cost;
 };
 
-export {sortByPrice, sortByTime};
+const groupByDates = (events) => {
+  const eventsByDates = new Map();
+
+  events.slice()
+    .sort((a, b) => a.date.start - b.date.start)
+    .forEach((event) => {
+      const day = +event.date.start.getDate();
+
+      if (!eventsByDates.has(day)) {
+        eventsByDates.set(day, []);
+      }
+
+      const dayEvents = eventsByDates.get(day);
+      dayEvents.push(event);
+    });
+
+  return eventsByDates;
+};
+
+export {sortByPrice, sortByTime, groupByDates};

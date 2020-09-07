@@ -1,8 +1,15 @@
-import AbstractView from "./abstract.js";
-import {transferTypes, activityTypes} from "../mock/event.js";
-import {localizeDate} from "../utils/common.js";
+import SmartView from "./smart.js";
+import {
+  transferTypes,
+  activityTypes,
+  generateOffers,
+  generateDestinationInfo,
+  generateDestinationPhotos
+} from "../mock/event.js";
+import {localizeDate, capitalizeWord} from "../utils/common.js";
+import {EventCategory} from "../const.js";
 
-const DEFAULT_EVENT_NAME = `Bus`;
+const DEFAULT_EVENT_TYPE = `Bus`;
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
@@ -41,22 +48,57 @@ const createOfferTemplate = (offer) => {
 };
 
 const createOffersTemplate = (offers) => {
-  if (offers.length === 0) {
+  if (!offers || offers.length === 0) {
     return ``;
   }
 
-  return `<h3 class="event__section-title  event__section-title--offers">Offers</h3>
-          <div class="event__available-offers">
-            ${offers.map(createOfferTemplate).join(`\n`)}
-         </div>`;
+  return `<section class="event__section  event__section--offers">
+    <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+    <div class="event__available-offers">
+      ${offers.map(createOfferTemplate).join(`\n`)}
+    </div>
+  </section>`;
 };
 
-const createEventFormTemplate = (event) => {
+const createDestinationListTemplate = (destinations) => {
+  const destinationOptions = destinations
+    .map((destination) => `<option value="${destination}"></option>`)
+    .join(`\n`);
+
+  return `<datalist id="destination-list-1">
+    ${destinationOptions}
+  </datalist>`;
+};
+
+const createDestinationTemplate = (destination) => {
+  if (destination === null) {
+    return ``;
+  }
+
+  const photosTemplate = destination.photos
+  .map((photo) => {
+    return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
+  })
+  .join(`\n`);
+
+  return `<section class="event__section  event__section--destination">
+            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+            <p class="event__destination-description">${destination.info}</p>
+
+            <div class="event__photos-container">
+              <div class="event__photos-tape">
+                ${photosTemplate}
+              </div>
+            </div>
+          </section>`;
+};
+
+const createEventFormTemplate = (draftData) => {
 
   if (event === null) {
     const transferEventNamesTemplate = transferTypes
       .map((it) => {
-        return createEventTypeTemplate(it, it === DEFAULT_EVENT_NAME);
+        return createEventTypeTemplate(it, it === DEFAULT_EVENT_TYPE);
       })
       .join(`\n\n`);
     const activityEventNamesTemplate = activityTypes
@@ -145,25 +187,23 @@ const createEventFormTemplate = (event) => {
     );
   }
 
-  const {isTransferEvent, type, destination, date: {start, end}, offers, cost} = event;
+  const {type, destination, destinations, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
   const transferEventTypesTemplate = transferTypes
-    .map((it) => createEventTypeTemplate(it, it === name))
+    .map((it) => createEventTypeTemplate(it, it === type))
     .join(`\n\n`);
 
   const activityEventTypesTemplate = activityTypes
-    .map((it) => createEventTypeTemplate(it, it === name))
+    .map((it) => createEventTypeTemplate(it, it === type))
     .join(`\n\n`);
 
   const offersTemplate = createOffersTemplate(offers);
 
-  const photosTemplate = destination.photos
-    .map((photo) => {
-      return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
-    })
-    .join(`\n`);
+  const destinationListTemplate = createDestinationListTemplate(destinations);
+  const destinationTempate = createDestinationTemplate(destination);
+  const destinationNameTemplate = !destination ? `` : destination.name;
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -192,13 +232,8 @@ const createEventFormTemplate = (event) => {
           <label class="event__label  event__type-output" for="event-destination-1">
             ${type} ${isTransferEvent ? `to` : `in`}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destination.name}" list="destination-list-1">
-          <datalist id="destination-list-1">
-            <option value="Amsterdam"></option>
-            <option value="Geneva"></option>
-            <option value="Chamonix"></option>
-            <option value="Saint Petersburg"></option>
-          </datalist>
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationNameTemplate}" list="destination-list-1">
+          ${destinationListTemplate}
         </div>
 
         <div class="event__field-group  event__field-group--time">
@@ -241,7 +276,7 @@ const createEventFormTemplate = (event) => {
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
         <button class="event__reset-btn" type="reset">Delete</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" checked>
+        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavoriteChecked}>
         <label class="event__favorite-btn" for="event-favorite-1">
           <span class="visually-hidden">Add to favorite</span>
           <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
@@ -254,44 +289,125 @@ const createEventFormTemplate = (event) => {
         </button>
       </header>
       <section class="event__details">
-        <section class="event__section  event__section--offers">
-          ${offersTemplate}
-        </section>
-
-        <section class="event__section  event__section--destination">
-          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destination.info}</p>
-
-          <div class="event__photos-container">
-            <div class="event__photos-tape">
-              ${photosTemplate}
-            </div>
-          </div>
-        </section>
+        ${offersTemplate}
+        ${destinationTempate}
       </section>
     </form>`
   );
 };
 
-export default class EventForm extends AbstractView {
+export default class EventForm extends SmartView {
   constructor(event) {
     super();
 
-    this._event = event;
+    this._draftData = EventForm.parseEventToDraftData(event);
+    this._callback = {};
     this._submitHandler = this._submitHandler.bind(this);
+    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
+    this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
+    this._destinationChoseHandler = this._destinationChoseHandler.bind(this);
+
+    this._setInnerHandlers();
   }
 
   getTemplate() {
-    return createEventFormTemplate(this._event);
+    return createEventFormTemplate(this._draftData);
+  }
+
+  reset(event) {
+    this.updateDraftData(EventForm.parseEventToDraftData(event));
+  }
+
+  _eventTypeChangeHandler(evt) {
+    this.updateDraftData({
+      type: capitalizeWord(evt.target.value),
+      isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
+      destination: null,
+      offers: generateOffers(false),
+    });
+  }
+
+  _destinationChoseHandler(evt) {
+    const userDestination = evt.target.value;
+    const update = {
+      destination: {
+        info: generateDestinationInfo(),
+        photos: generateDestinationPhotos(),
+      }
+    };
+
+    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
+      update.destination.name = userDestination;
+    } else {
+      update.destination.name = ``;
+    }
+
+    this.updateDraftData(update);
   }
 
   _submitHandler(evt) {
     evt.preventDefault();
-    this._callback.submit();
+    this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
+  }
+
+  _favoriteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteClick();
+  }
+
+  _setInnerHandlers() {
+    this.getElement()
+      .querySelectorAll(`.event__type-group`)
+      .forEach((eventTypeGroup) => {
+        eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
+      });
+
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, this._destinationChoseHandler);
+  }
+
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setSubmitHandler(this._callback.submit);
+    this.setFavoriteClickHandler(this._callback.favoriteClick);
   }
 
   setSubmitHandler(callback) {
     this._callback.submit = callback;
     this.getElement().addEventListener(`submit`, this._submitHandler);
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, this._favoriteClickHandler);
+  }
+
+  static parseEventToDraftData(event) {
+    return Object.assign(
+        {},
+        event,
+        {
+          isTransferEvent: transferTypes.some((it) => it === event.type),
+          isFavoriteChecked: event.isFavorite ? `checked` : ``,
+        }
+    );
+  }
+
+  static parseDraftDataToEvent(draftData) {
+    draftData = Object.assign(
+        {},
+        draftData,
+        {
+          category: draftData.isTransferEvent ? EventCategory.TRANSFER : EventCategory.ACTIVITY
+        });
+
+    delete draftData.isTransferEvent;
+    delete draftData.isFavoriteChecked;
+
+    return draftData;
   }
 }
