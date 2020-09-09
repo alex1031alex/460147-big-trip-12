@@ -304,11 +304,14 @@ export default class EventForm extends SmartView {
     super();
 
     this._draftData = EventForm.parseEventToDraftData(event);
-    this._callback = {};
+    this._datepicker = null;
+
     this._submitHandler = this._submitHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationChoseHandler = this._destinationChoseHandler.bind(this);
+    this._startDateFocusHandler = this._startDateFocusHandler.bind(this);
+    this._endDateFocusHandler = this._endDateFocusHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -319,6 +322,44 @@ export default class EventForm extends SmartView {
 
   reset(event) {
     this.updateDraftData(EventForm.parseEventToDraftData(event));
+  }
+
+  _destroyDatepicker() {
+    if (this._datepicker) {
+      this._datepicker.destroy();
+      this._datepicker = null;
+    }
+  }
+
+  _startDateFocusHandler() {
+    this._destroyDatepicker();
+    this._datepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        {
+          enableTime: true,
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._draftData.date.start,
+          onChange: ([userDate]) => {
+            this.updateDraftData({date: {start: userDate, end: this._draftData.date.end}}, true);
+          }
+        }
+    );
+  }
+
+  _endDateFocusHandler() {
+    this._destroyDatepicker();
+    this._datepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        {
+          enableTime: true,
+          dateFormat: `d/m/y H:i`,
+          minDate: this._draftData.date.start,
+          defaultDate: this._draftData.date.end,
+          onChange: ([userDate]) => {
+            this.updateDraftData({date: {start: this._draftData.date.start, end: userDate}}, true);
+          }
+        }
+    );
   }
 
   _eventTypeChangeHandler(evt) {
@@ -368,10 +409,17 @@ export default class EventForm extends SmartView {
     this.getElement()
       .querySelector(`.event__input--destination`)
       .addEventListener(`change`, this._destinationChoseHandler);
+
+    const startDateInput = this.getElement().querySelector(`#event-start-time-1`);
+    const endDateInput = this.getElement().querySelector(`#event-end-time-1`);
+
+    startDateInput.addEventListener(`focus`, this._startDateFocusHandler);
+    endDateInput.addEventListener(`focus`, this._endDateFocusHandler);
   }
 
   restoreHandlers() {
     this._setInnerHandlers();
+    this._setDatepicker();
     this.setSubmitHandler(this._callback.submit);
     this.setFavoriteClickHandler(this._callback.favoriteClick);
   }
