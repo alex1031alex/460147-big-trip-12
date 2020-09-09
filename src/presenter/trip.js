@@ -36,7 +36,8 @@ export default class Trip {
   _handleEventChange(updatedEvent) {
     this._events = updateItem(this._events, updatedEvent);
     this._sourcedEvents = updateItem(this._sourcedEvents, updatedEvent);
-    this._eventPresenter[updatedEvent.id].init(updatedEvent);
+    this._clearEventsList();
+    this._renderDays();
   }
 
   _handleModeChange() {
