@@ -391,6 +391,11 @@ export default class EventForm extends SmartView {
 
   _submitHandler(evt) {
     evt.preventDefault();
+
+    if (this._draftData.date.start > this._draftData.date.end) {
+      return;
+    }
+
     this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
   }
 
