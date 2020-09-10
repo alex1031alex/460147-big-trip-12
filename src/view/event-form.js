@@ -79,10 +79,10 @@ const createDestinationTemplate = (destination) => {
   }
 
   const photosTemplate = destination.photos
-  .map((photo) => {
-    return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
-  })
-  .join(`\n`);
+    .map((photo) => {
+      return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
+    })
+    .join(`\n`);
 
   return `<section class="event__section  event__section--destination">
             <h3 class="event__section-title  event__section-title--destination">Destination</h3>
