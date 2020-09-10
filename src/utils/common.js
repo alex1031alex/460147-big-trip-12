@@ -1,5 +1,11 @@
+import moment from "moment";
+
 const FULL_ESC_KEY = `Escape`;
 const SHORT_ESC_KEY = `Esc`;
+const MILLISECONDS_IN_DAY = 86340000;
+const MINUTES_IN_HOUR = 60;
+const HOURS_IN_DAY = 24;
+const MAX_DAYS_IN_MONTH = 31;
 
 const isEscKey = (key) => key === FULL_ESC_KEY || key === SHORT_ESC_KEY;
 
@@ -22,27 +28,30 @@ const getTimeInterval = (startDate, endDate) => {
   return endDate.getTime() - startDate.getTime();
 };
 
-const formatTimeInterval = (milliseconds) => {
-  const totalSeconds = Math.trunc(milliseconds / 1000);
-  if (totalSeconds < 60) {
-    return `0M`;
+const formatTimeInterval = (interval) => {
+  const totalMinutes = moment.duration(interval).asMinutes();
+  if (totalMinutes < MINUTES_IN_HOUR) {
+    return moment.utc(interval).format(`mm[m]`);
   }
 
-  const totalMinutes = Math.trunc(totalSeconds / 60);
-  if (totalMinutes < 60) {
-    return `${totalMinutes}M`;
+  const totalHours = moment.duration(interval).asHours();
+  if (totalHours < HOURS_IN_DAY) {
+    return moment.utc(interval).format(`hh[h] mm[m]`);
   }
 
-  const totalHours = Math.trunc(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (totalHours < 24) {
-    return `${totalHours}H ${minutes}M`;
+  const totalDays = moment.duration(interval).asDays();
+  if (totalDays < MAX_DAYS_IN_MONTH) {
+    return moment.utc(interval - MILLISECONDS_IN_DAY).format(`DD[D] hh[h] mm[m]`);
   }
 
-  const days = Math.trunc(totalHours / 24);
-  const hours = totalHours % 24;
+  const wholeDays = Math.trunc(totalDays);
+  const remainingHours = Math.trunc(totalHours - (wholeDays * HOURS_IN_DAY));
 
-  return `${days}D ${hours}H ${minutes}M`;
+  const wholeDaysAsMinutes = wholeDays * HOURS_IN_DAY * MINUTES_IN_HOUR;
+  const remainingHoursAsMinutes = remainingHours * MINUTES_IN_HOUR;
+  const remainingMinutes = Math.trunc(Math.ceil(totalMinutes - wholeDaysAsMinutes - remainingHoursAsMinutes));
+
+  return `${wholeDays}D ${remainingHours}H ${remainingMinutes}M`;
 };
 
 const convertToMachineFormat = (date, isTimeShown = true) => {
