@@ -23,7 +23,7 @@ export default class Smart extends AbstractView {
     this.restoreHandlers();
   }
 
-  updateDraftData(update) {
+  updateDraftData(update, justDataUpdating = false) {
     if (!update) {
       return;
     }
@@ -33,6 +33,10 @@ export default class Smart extends AbstractView {
         this._draftData,
         update
     );
+
+    if (justDataUpdating) {
+      return;
+    }
 
     this.updateElement();
   }
