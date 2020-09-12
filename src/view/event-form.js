@@ -393,6 +393,7 @@ export default class EventForm extends SmartView {
     evt.preventDefault();
 
     if (this._draftData.date.start > this._draftData.date.end) {
+      alert(`Start date can't be more than end date`); //Temporary by alert.WIP
       return;
     }
 

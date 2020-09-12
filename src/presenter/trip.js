@@ -4,7 +4,7 @@ import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
-import {SortType} from "../const.js";
+import {SortType, UserAction, UpdateType} from "../const.js";
 import EventPresenter from "./event.js";
 
 export default class Trip {
@@ -45,11 +45,31 @@ export default class Trip {
   }
 
   _handleViewAction(actionType, updateType, update) {
-    console.log(actionType, updateType, update);
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this._eventsModel.updateEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this._eventsModel.addEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this._eventsModel.deleteEvent(updateType, update);
+        break;
+    }
   }
 
   _handleModelUpdate(updateType, update) {
-    console.log(updateType, update);
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this._eventPresenter[update.id].init(update);
+        break;
+      case UpdateType.MINOR:
+        this._clearEventsList();
+        this._renderDays();
+        break;
+      case UpdateType.MAJOR:
+        break;
+    }
   }
 
   _handleModeChange() {
