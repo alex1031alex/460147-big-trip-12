@@ -79,22 +79,22 @@ export default class Event extends AbstractView {
     super();
     this._event = event;
 
-    this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
+    this._expandButtonClickHandler = this._expandButtonClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEventTemplate(this._event);
   }
 
-  _rollupButtonClickHandler(evt) {
+  _expandButtonClickHandler(evt) {
     evt.preventDefault();
-    this._callback.rollupButtonClick();
+    this._callback.expandButtonClick();
   }
 
-  setRollupClickHandler(callback) {
-    this._callback.rollupButtonClick = callback;
+  setExpandButtonClickHandler(callback) {
+    this._callback.expandButtonClick = callback;
     this.getElement()
       .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, this._rollupButtonClickHandler);
+      .addEventListener(`click`, this._expandButtonClickHandler);
   }
 }

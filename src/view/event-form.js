@@ -312,6 +312,7 @@ export default class EventForm extends SmartView {
     this._destinationChoseHandler = this._destinationChoseHandler.bind(this);
     this._startDateFocusHandler = this._startDateFocusHandler.bind(this);
     this._endDateFocusHandler = this._endDateFocusHandler.bind(this);
+    this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -405,6 +406,16 @@ export default class EventForm extends SmartView {
     this._callback.favoriteClick();
   }
 
+  _rollupButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollupButtonClick();
+  }
+
+  setRollupButtonClickHandler(callback) {
+    this._callback.rollupButtonClick = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollupButtonClickHandler);
+  }
+
   _setInnerHandlers() {
     this.getElement()
       .querySelectorAll(`.event__type-group`)
@@ -427,6 +438,7 @@ export default class EventForm extends SmartView {
     this._setInnerHandlers();
     this.setSubmitHandler(this._callback.submit);
     this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
   }
 
   setSubmitHandler(callback) {

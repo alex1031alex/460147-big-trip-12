@@ -19,7 +19,8 @@ export default class Event {
     this._eventFormComponent = null;
     this._mode = Mode.DEFAULT;
 
-    this._handleRollupClick = this._handleRollupClick.bind(this);
+    this._handleRollupButtonClick = this._handleRollupButtonClick.bind(this);
+    this._handleExpandButtonClick = this._handleExpandButtonClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleEscKeyDown = this._handleEscKeyDown.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
@@ -34,9 +35,10 @@ export default class Event {
     this._eventComponent = new EventView(event);
     this._eventFormComponent = new EventFormView(event);
 
-    this._eventComponent.setRollupClickHandler(this._handleRollupClick);
+    this._eventComponent.setExpandButtonClickHandler(this._handleExpandButtonClick);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
     this._eventFormComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+    this._eventFormComponent.setRollupButtonClickHandler(this._handleRollupButtonClick);
 
     if (prevEventComponent === null || prevEventFormComponent === null) {
       render(this._eventContainer, this._eventComponent, RenderPosition.BEFOREEND);
@@ -82,7 +84,12 @@ export default class Event {
     }
   }
 
-  _handleRollupClick() {
+  _handleRollupButtonClick() {
+    this._eventFormComponent.reset(this._event);
+    this._replaceFormToEvent();
+  }
+
+  _handleExpandButtonClick() {
     this._replaceEventToForm();
   }
 
