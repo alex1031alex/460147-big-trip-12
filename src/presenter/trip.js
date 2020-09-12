@@ -21,9 +21,12 @@ export default class Trip {
 
     this._eventsContainer = this._dayListView.getElement();
 
+    this._handleViewAction = this._handleViewAction.bind(this);
+    this._handleModelUpdate = this._handleModelUpdate.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-    this._handleEventChange = this._handleEventChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
+
+    this._eventsModel.addObserver(this._handleModelUpdate);
   }
 
   render() {
@@ -41,8 +44,12 @@ export default class Trip {
     return this._eventsModel.getEvents();
   }
 
-  _handleEventChange(updatedEvent) {
-    this._eventPresenter[updatedEvent.id].init(updatedEvent);
+  _handleViewAction(actionType, updateType, update) {
+    console.log(actionType, updateType, update);
+  }
+
+  _handleModelUpdate(updateType, update) {
+    console.log(updateType, update);
   }
 
   _handleModeChange() {
@@ -89,7 +96,7 @@ export default class Trip {
   }
 
   _renderEvent(container, event) {
-    const eventPresenter = new EventPresenter(container, this._handleEventChange, this._handleModeChange);
+    const eventPresenter = new EventPresenter(container, this._handleViewAction, this._handleModeChange);
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
   }
