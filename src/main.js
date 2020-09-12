@@ -24,4 +24,4 @@ render(pageMenuWrapper, new MenuView(), RenderPosition.AFTERBEGIN);
 render(controlsContainer, new FilterView(), RenderPosition.BEFOREEND);
 
 const tripPresenter = new TripPresenter(eventsContainer, eventsModel);
-tripPresenter.render(events);
+tripPresenter.render();

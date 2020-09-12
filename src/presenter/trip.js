@@ -4,7 +4,6 @@ import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
-import {updateItem} from "../utils/common.js";
 import {SortType} from "../const.js";
 import EventPresenter from "./event.js";
 
@@ -27,43 +26,29 @@ export default class Trip {
     this._handleModeChange = this._handleModeChange.bind(this);
   }
 
-  render(events) {
-    this._events = events.slice();
-    this._sourcedEvents = events.slice();
-
+  render() {
     this._renderTrip();
   }
 
   _getEvents() {
+    switch (this._currentSortType) {
+      case SortType.TIME:
+        return this._eventsModel.getEvents().slice().sort(sortByTime);
+      case SortType.PRICE:
+        return this._eventsModel.getEvents().slice().sort(sortByPrice);
+    }
+
     return this._eventsModel.getEvents();
   }
 
   _handleEventChange(updatedEvent) {
-    this._events = updateItem(this._events, updatedEvent);
-    this._sourcedEvents = updateItem(this._sourcedEvents, updatedEvent);
-    this._clearEventsList();
-    this._renderDays();
+    this._eventPresenter[updatedEvent.id].init(updatedEvent);
   }
 
   _handleModeChange() {
     Object
       .values(this._eventPresenter)
       .forEach((presenter) => presenter.resetView());
-  }
-
-  _sortEvents(sortType) {
-    switch (sortType) {
-      case SortType.TIME:
-        this._events.sort(sortByTime);
-        break;
-      case SortType.PRICE:
-        this._events.sort(sortByPrice);
-        break;
-      default:
-        this._events = this._sourcedEvents.slice();
-    }
-
-    this._currentSortType = sortType;
   }
 
   _clearEventsList() {
@@ -81,7 +66,7 @@ export default class Trip {
       return;
     }
 
-    this._sortEvents(sortType);
+    this._currentSortType = sortType;
     this._clearEventsList();
     this._renderDays();
   }
@@ -133,8 +118,10 @@ export default class Trip {
   }
 
   _renderDays() {
+    const events = this._getEvents();
+
     if (this._currentSortType === SortType.EVENT) {
-      const eventsByDates = groupByDates(this._events);
+      const eventsByDates = groupByDates(events);
       this._renderEventsByDates(eventsByDates);
 
     } else {
@@ -143,12 +130,12 @@ export default class Trip {
       this._days.push(emptyDayView);
 
       this._renderDay(emptyDayView);
-      this._renderEvents(eventsList, this._events);
+      this._renderEvents(eventsList, events);
     }
   }
 
   _renderTrip() {
-    if (this._events.length === 0) {
+    if (this._getEvents().length === 0) {
       this._renderNoEvents();
       return;
     }
