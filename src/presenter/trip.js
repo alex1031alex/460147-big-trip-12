@@ -9,8 +9,9 @@ import {SortType} from "../const.js";
 import EventPresenter from "./event.js";
 
 export default class Trip {
-  constructor(tripContainer) {
+  constructor(tripContainer, eventsModel) {
     this._tripContainer = tripContainer;
+    this._eventsModel = eventsModel;
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
@@ -31,6 +32,10 @@ export default class Trip {
     this._sourcedEvents = events.slice();
 
     this._renderTrip();
+  }
+
+  _getEvents() {
+    return this._eventsModel.getEvents();
   }
 
   _handleEventChange(updatedEvent) {
