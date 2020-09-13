@@ -72,7 +72,7 @@ const generateDestinationPhotos = () => {
   return photos;
 };
 
-let currentDate = new Date();
+let currentDate = new Date(2020, 8, 11);
 let eventIdCounter = 0;
 
 const generateDate = () => {

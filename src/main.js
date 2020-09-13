@@ -5,6 +5,7 @@ import {render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
 import EventsModel from "./model/events.js";
 import FilterModel from "./model/filter.js";
+import FilterPresenter from "./presenter/filter.js";
 import {FilterType} from "./const.js";
 
 const EVENT_COUNT = 20;
@@ -25,7 +26,9 @@ const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 
 render(pageMenuWrapper, new MenuView(), RenderPosition.AFTERBEGIN);
-render(controlsContainer, new FilterView(FilterType.EVERYTHING), RenderPosition.BEFOREEND);
+const filterPresenter = new FilterPresenter(controlsContainer, filterModel);
+filterPresenter.init();
+// render(controlsContainer, new FilterView(FilterType.EVERYTHING), RenderPosition.BEFOREEND);
 
-const tripPresenter = new TripPresenter(eventsContainer, eventsModel);
+const tripPresenter = new TripPresenter(eventsContainer, eventsModel, filterModel);
 tripPresenter.render();

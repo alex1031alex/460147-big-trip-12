@@ -3,14 +3,15 @@ import NoEventView from "../view/no-event.js";
 import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
-import {sortByTime, sortByPrice, groupByDates} from "../utils/event.js";
+import {sortByTime, sortByPrice, groupByDates, filter} from "../utils/event.js";
 import {SortType, UserAction, UpdateType} from "../const.js";
 import EventPresenter from "./event.js";
 
 export default class Trip {
-  constructor(tripContainer, eventsModel) {
+  constructor(tripContainer, eventsModel, filterModel) {
     this._tripContainer = tripContainer;
     this._eventsModel = eventsModel;
+    this._filterModel = filterModel;
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
@@ -27,6 +28,7 @@ export default class Trip {
     this._handleModeChange = this._handleModeChange.bind(this);
 
     this._eventsModel.addObserver(this._handleModelUpdate);
+    this._filterModel.addObserver(this._handleModelUpdate);
   }
 
   render() {
@@ -34,14 +36,18 @@ export default class Trip {
   }
 
   _getEvents() {
+    const filterType = this._filterModel.getFilter();
+    const events = this._eventsModel.getEvents();
+    const filteredEvents = filter[filterType](events);
+
     switch (this._currentSortType) {
       case SortType.TIME:
-        return this._eventsModel.getEvents().slice().sort(sortByTime);
+        return filteredEvents.sort(sortByTime);
       case SortType.PRICE:
-        return this._eventsModel.getEvents().slice().sort(sortByPrice);
+        return filteredEvents.sort(sortByPrice);
     }
 
-    return this._eventsModel.getEvents();
+    return filteredEvents;
   }
 
   _handleViewAction(actionType, updateType, update) {
@@ -68,6 +74,9 @@ export default class Trip {
         this._renderDays();
         break;
       case UpdateType.MAJOR:
+        this._clearEventsList();
+        this._renderDays();
+        console.log(`works`);
         break;
     }
   }
