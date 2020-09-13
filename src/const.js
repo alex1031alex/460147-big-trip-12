@@ -21,4 +21,10 @@ const UpdateType = {
   MAJOR: `Major`
 };
 
-export {EventCategory, SortType, UserAction, UpdateType};
+const FilterType = {
+  EVERYTHING: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
+
+export {EventCategory, SortType, UserAction, UpdateType, FilterType};

@@ -4,6 +4,7 @@ import {generateEvent} from "./mock/event.js";
 import {render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
 import EventsModel from "./model/events.js";
+import FilterModel from "./model/filter.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -14,6 +15,8 @@ for (let i = 0; i < EVENT_COUNT; i++) {
 
 const eventsModel = new EventsModel();
 eventsModel.setEvents(events);
+
+const filterModel = new FilterModel();
 
 const page = document.querySelector(`.page-body`);
 const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
