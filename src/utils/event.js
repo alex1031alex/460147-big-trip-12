@@ -1,4 +1,5 @@
 import {getTimeInterval} from "./common.js";
+import {FilterType} from "../const.js";
 
 const sortByTime = (eventA, eventB) => {
   const eventADuration = getTimeInterval(eventA.date.start, eventA.date.end);
@@ -30,4 +31,10 @@ const groupByDates = (events) => {
   return eventsByDates;
 };
 
-export {sortByPrice, sortByTime, groupByDates};
+const filter = {
+  [FilterType.EVERYTHING]: (events) => events,
+  [FilterType.FUTURE]: (events) => events.filter((event) => event.date.start > new Date()),
+  [FilterType.PAST]: (events) => events.filter((event) => event.date.end < new Date())
+};
+
+export {sortByPrice, sortByTime, groupByDates, filter};
