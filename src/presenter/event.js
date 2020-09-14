@@ -19,12 +19,12 @@ export default class Event {
     this._eventFormComponent = null;
     this._mode = Mode.DEFAULT;
 
-    this._handleRollupButtonClick = this._handleRollupButtonClick.bind(this);
     this._handleExpandButtonClick = this._handleExpandButtonClick.bind(this);
-    this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleEscKeyDown = this._handleEscKeyDown.bind(this);
-    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
-    this._handleDeleteClick = this._handleDeleteClick.bind(this);
+    this._handleDeleteButtonClick = this._handleDeleteButtonClick.bind(this);
+    this._handleFavoriteButtonClick = this._handleFavoriteButtonClick.bind(this);
+    this._handleRollupButtonClick = this._handleRollupButtonClick.bind(this);
+    this._handleFormSubmit = this._handleFormSubmit.bind(this);
   }
 
   init(event) {
@@ -34,13 +34,13 @@ export default class Event {
     const prevEventFormComponent = this._eventFormComponent;
 
     this._eventComponent = new EventView(event);
-    this._eventFormComponent = new EventFormView(event);
-
     this._eventComponent.setExpandButtonClickHandler(this._handleExpandButtonClick);
-    this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
-    this._eventFormComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+
+    this._eventFormComponent = new EventFormView(event);
+    this._eventFormComponent.setDeleteButtonClickHandler(this._handleDeleteButtonClick);
+    this._eventFormComponent.setFavoriteButtonClickHandler(this._handleFavoriteButtonClick);
     this._eventFormComponent.setRollupButtonClickHandler(this._handleRollupButtonClick);
-    this._eventFormComponent.setDeleteClickHandler(this._handleDeleteClick);
+    this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
 
     if (prevEventComponent === null || prevEventFormComponent === null) {
       render(this._eventContainer, this._eventComponent, RenderPosition.BEFOREEND);
@@ -78,6 +78,10 @@ export default class Event {
     this._mode = Mode.DEFAULT;
   }
 
+  _handleExpandButtonClick() {
+    this._replaceEventToForm();
+  }
+
   _handleEscKeyDown(evt) {
     if (isEscKey(evt.key)) {
       evt.preventDefault();
@@ -86,13 +90,30 @@ export default class Event {
     }
   }
 
+  _handleDeleteButtonClick(deletedEvent) {
+    this._changeData(
+        UserAction.DELETE_EVENT,
+        UpdateType.MINOR,
+        deletedEvent
+    );
+  }
+
+  _handleFavoriteButtonClick() {
+    this._changeData(
+        UserAction.UPDATE_EVENT,
+        UpdateType.PATCH,
+        Object.assign(
+            {},
+            this._event, {
+              isFavorite: !this._event.isFavorite
+            }
+        )
+    );
+  }
+
   _handleRollupButtonClick() {
     this._eventFormComponent.reset(this._event);
     this._replaceFormToEvent();
-  }
-
-  _handleExpandButtonClick() {
-    this._replaceEventToForm();
   }
 
   _handleFormSubmit(updatedEvent) {
@@ -107,27 +128,6 @@ export default class Event {
     );
 
     this._replaceFormToEvent();
-  }
-
-  _handleFavoriteClick() {
-    this._changeData(
-        UserAction.UPDATE_EVENT,
-        UpdateType.PATCH,
-        Object.assign(
-            {},
-            this._event, {
-              isFavorite: !this._event.isFavorite
-            }
-        )
-    );
-  }
-
-  _handleDeleteClick(deletedEvent) {
-    this._changeData(
-        UserAction.DELETE_EVENT,
-        UpdateType.MINOR,
-        deletedEvent
-    );
   }
 
   destroy() {

@@ -306,20 +306,26 @@ export default class EventForm extends SmartView {
     this._draftData = EventForm.parseEventToDraftData(event);
     this._datepicker = null;
 
-    this._submitHandler = this._submitHandler.bind(this);
-    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationChoseHandler = this._destinationChoseHandler.bind(this);
     this._startDateFocusHandler = this._startDateFocusHandler.bind(this);
     this._endDateFocusHandler = this._endDateFocusHandler.bind(this);
+
+    this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
+    this._favoriteButtonClickHandler = this._favoriteButtonClickHandler.bind(this);
     this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
-    this._deleteClickHandler = this._deleteClickHandler.bind(this);
+    this._submitHandler = this._submitHandler.bind(this);
 
     this._setInnerHandlers();
   }
 
   getTemplate() {
     return createEventFormTemplate(this._draftData);
+  }
+
+  removeElement() {
+    this._destroyDatepicker();
+    super.removeElement();
   }
 
   reset(event) {
@@ -331,6 +337,33 @@ export default class EventForm extends SmartView {
       this._datepicker.destroy();
       this._datepicker = null;
     }
+  }
+
+  _eventTypeChangeHandler(evt) {
+    this.updateDraftData({
+      type: capitalizeWord(evt.target.value),
+      isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
+      destination: null,
+      offers: generateOffers(false),
+    });
+  }
+
+  _destinationChoseHandler(evt) {
+    const userDestination = evt.target.value;
+    const update = {
+      destination: {
+        info: generateDestinationInfo(),
+        photos: generateDestinationPhotos(),
+      }
+    };
+
+    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
+      update.destination.name = userDestination;
+    } else {
+      update.destination.name = ``;
+    }
+
+    this.updateDraftData(update);
   }
 
   _startDateFocusHandler() {
@@ -364,31 +397,43 @@ export default class EventForm extends SmartView {
     );
   }
 
-  _eventTypeChangeHandler(evt) {
-    this.updateDraftData({
-      type: capitalizeWord(evt.target.value),
-      isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
-      destination: null,
-      offers: generateOffers(false),
-    });
+  _deleteButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteButtonClick(EventForm.parseDraftDataToEvent(this._draftData));
   }
 
-  _destinationChoseHandler(evt) {
-    const userDestination = evt.target.value;
-    const update = {
-      destination: {
-        info: generateDestinationInfo(),
-        photos: generateDestinationPhotos(),
-      }
-    };
+  setDeleteButtonClickHandler(callback) {
+    this._callback.deleteButtonClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, this._deleteButtonClickHandler);
+  }
 
-    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
-      update.destination.name = userDestination;
-    } else {
-      update.destination.name = ``;
-    }
+  _favoriteButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteButtonClick();
+  }
 
-    this.updateDraftData(update);
+  setFavoriteButtonClickHandler(callback) {
+    this._callback.favoriteButtonClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, this._favoriteButtonClickHandler);
+  }
+
+  _rollupButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollupButtonClick();
+  }
+
+  setRollupButtonClickHandler(callback) {
+    this._callback.rollupButtonClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__rollup-btn`)
+      .addEventListener(`click`, this._rollupButtonClickHandler);
   }
 
   _submitHandler(evt) {
@@ -405,42 +450,6 @@ export default class EventForm extends SmartView {
   setSubmitHandler(callback) {
     this._callback.submit = callback;
     this.getElement().addEventListener(`submit`, this._submitHandler);
-  }
-
-  _favoriteClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.favoriteClick();
-  }
-
-  setFavoriteClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this
-      .getElement()
-      .querySelector(`.event__favorite-checkbox`)
-      .addEventListener(`click`, this._favoriteClickHandler);
-  }
-
-  _rollupButtonClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.rollupButtonClick();
-  }
-
-  setRollupButtonClickHandler(callback) {
-    this._callback.rollupButtonClick = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollupButtonClickHandler);
-  }
-
-  _deleteClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.deleteClick(EventForm.parseDraftDataToEvent(this._draftData));
-  }
-
-  setDeleteClickHandler(callback) {
-    this._callback.deleteClick = callback;
-    this
-      .getElement()
-      .querySelector(`.event__reset-btn`)
-      .addEventListener(`click`, this._deleteClickHandler);
   }
 
   _setInnerHandlers() {
