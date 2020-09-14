@@ -17,7 +17,7 @@ export default class Trip {
     this._days = [];
 
     this._noEventView = new NoEventView();
-    this._sortingView = new SortingView();
+    this._sortingView = null;
     this._dayListView = new DayListView();
 
     this._eventsContainer = this._dayListView.getElement();
@@ -70,13 +70,12 @@ export default class Trip {
         this._eventPresenter[update.id].init(update);
         break;
       case UpdateType.MINOR:
-        this._clearEventsList();
+        this._clearDayList();
         this._renderDays();
         break;
       case UpdateType.MAJOR:
-        this._clearEventsList();
-        this._renderDays();
-        console.log(`works`);
+        this._clearTripContainer();
+        this._renderTrip();
         break;
     }
   }
@@ -87,7 +86,7 @@ export default class Trip {
       .forEach((presenter) => presenter.resetView());
   }
 
-  _clearEventsList() {
+  _clearDayList() {
     Object
       .values(this._eventPresenter)
       .forEach((eventPresenter) => eventPresenter.destroy());
@@ -97,13 +96,23 @@ export default class Trip {
     this._days = [];
   }
 
+  _clearTripContainer(resetSortType = true) {
+    this._clearDayList();
+
+    remove(this._sortingView);
+
+    if (resetSortType) {
+      this._currentSortType = SortType.EVENT;
+    }
+  }
+
   _handleSortTypeChange(sortType) {
     if (this._currentSortType === sortType) {
       return;
     }
 
     this._currentSortType = sortType;
-    this._clearEventsList();
+    this._clearDayList();
     this._renderDays();
   }
 
@@ -112,8 +121,14 @@ export default class Trip {
   }
 
   _renderSorting() {
-    render(this._tripContainer, this._sortingView, RenderPosition.BEFOREEND);
+    if (this._sortingView !== null) {
+      this._sortingView = null;
+    }
+
+    this._sortingView = new SortingView(this._currentSortType);
     this._sortingView.setSortTypeChangeHandler(this._handleSortTypeChange);
+
+    render(this._tripContainer, this._sortingView, RenderPosition.AFTERBEGIN);
   }
 
   _renderDayList() {
@@ -175,7 +190,6 @@ export default class Trip {
       this._renderNoEvents();
       return;
     }
-
     this._renderSorting();
     this._renderDayList();
 
