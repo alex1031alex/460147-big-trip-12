@@ -1,6 +1,6 @@
 import EventView from "../view/event.js";
 import EventFormView from "../view/event-form.js";
-import {isEscKey} from "../utils/common.js";
+import {isEscKey, isDatesEqual} from "../utils/common.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType} from "../const.js";
 
@@ -94,9 +94,13 @@ export default class Event {
   }
 
   _handleFormSubmit(updatedEvent) {
+    const isMinorUpdate =
+    !isDatesEqual(this._event.date.start, updatedEvent.date.start) ||
+    !isDatesEqual(this._event.date.end, updatedEvent.date.end);
+
     this._changeData(
         UserAction.UPDATE_EVENT,
-        UpdateType.MINOR,
+        isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
         updatedEvent
     );
 

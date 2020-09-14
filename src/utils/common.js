@@ -76,6 +76,14 @@ const capitalizeWord = (word) => {
   return `${word[0].toUpperCase()}${word.substring(1)}`;
 };
 
+const isDatesEqual = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return true;
+  }
+
+  return moment(dateA).isSame(dateB);
+};
+
 export {
   isEscKey,
   getRandomInteger,
@@ -86,4 +94,5 @@ export {
   convertToMachineFormat,
   localizeDate,
   capitalizeWord,
+  isDatesEqual,
 };
