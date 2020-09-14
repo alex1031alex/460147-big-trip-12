@@ -24,6 +24,7 @@ export default class Event {
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleEscKeyDown = this._handleEscKeyDown.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(event) {
@@ -39,6 +40,7 @@ export default class Event {
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
     this._eventFormComponent.setFavoriteClickHandler(this._handleFavoriteClick);
     this._eventFormComponent.setRollupButtonClickHandler(this._handleRollupButtonClick);
+    this._eventFormComponent.setDeleteClickHandler(this._handleDeleteClick);
 
     if (prevEventComponent === null || prevEventFormComponent === null) {
       render(this._eventContainer, this._eventComponent, RenderPosition.BEFOREEND);
@@ -117,6 +119,14 @@ export default class Event {
               isFavorite: !this._event.isFavorite
             }
         )
+    );
+  }
+
+  _handleDeleteClick(deletedEvent) {
+    this._changeData(
+        UserAction.DELETE_EVENT,
+        UpdateType.MINOR,
+        deletedEvent
     );
   }
 

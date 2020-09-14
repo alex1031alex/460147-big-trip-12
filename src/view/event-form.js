@@ -313,6 +313,7 @@ export default class EventForm extends SmartView {
     this._startDateFocusHandler = this._startDateFocusHandler.bind(this);
     this._endDateFocusHandler = this._endDateFocusHandler.bind(this);
     this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
+    this._deleteClickHandler = this._deleteClickHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -401,9 +402,22 @@ export default class EventForm extends SmartView {
     this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
   }
 
+  setSubmitHandler(callback) {
+    this._callback.submit = callback;
+    this.getElement().addEventListener(`submit`, this._submitHandler);
+  }
+
   _favoriteClickHandler(evt) {
     evt.preventDefault();
     this._callback.favoriteClick();
+  }
+
+  setFavoriteClickHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__favorite-checkbox`)
+      .addEventListener(`click`, this._favoriteClickHandler);
   }
 
   _rollupButtonClickHandler(evt) {
@@ -414,6 +428,19 @@ export default class EventForm extends SmartView {
   setRollupButtonClickHandler(callback) {
     this._callback.rollupButtonClick = callback;
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._rollupButtonClickHandler);
+  }
+
+  _deleteClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteClick(EventForm.parseDraftDataToEvent(this._draftData));
+  }
+
+  setDeleteClickHandler(callback) {
+    this._callback.deleteClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, this._deleteClickHandler);
   }
 
   _setInnerHandlers() {
@@ -439,19 +466,7 @@ export default class EventForm extends SmartView {
     this.setSubmitHandler(this._callback.submit);
     this.setFavoriteClickHandler(this._callback.favoriteClick);
     this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
-  }
-
-  setSubmitHandler(callback) {
-    this._callback.submit = callback;
-    this.getElement().addEventListener(`submit`, this._submitHandler);
-  }
-
-  setFavoriteClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this
-      .getElement()
-      .querySelector(`.event__favorite-checkbox`)
-      .addEventListener(`click`, this._favoriteClickHandler);
+    this.setDeleteClickHandler(this._callback.deleteClick);
   }
 
   static parseEventToDraftData(event) {
