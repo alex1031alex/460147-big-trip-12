@@ -3,6 +3,7 @@ import {
   transferTypes,
   activityTypes,
   generateOffers,
+  getDestinations,
   generateDestinationInfo,
   generateDestinationPhotos
 } from "../mock/event.js";
@@ -13,6 +14,24 @@ import flatpickr from "flatpickr";
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 const DEFAULT_EVENT_TYPE = `Bus`;
+const currentDate = new Date();
+
+const BLANK_EVENT = {
+  category: EventCategory.TRANSFER,
+  type: DEFAULT_EVENT_TYPE,
+  destination: {
+    name: null,
+    info: ``,
+    photos: []
+  },
+  date: {
+    start: currentDate,
+    end: currentDate
+  },
+  offers: [],
+  cost: ``,
+  isFavorite: null,
+};
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
@@ -23,6 +42,26 @@ const createEventTypeTemplate = (eventType, isChecked) => {
       <label class="event__type-label  event__type-label--${eventType.toLowerCase()}" for="event-type-${eventType.toLowerCase()}-1">${eventType}</label>
     </div>`
   );
+};
+
+const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
+  if (eventId || eventId === 0) {
+    return `<input
+    id="event-favorite-1"
+    class="event__favorite-checkbox  visually-hidden"
+    type="checkbox"
+    name="event-favorite"
+    ${isFavoriteChecked}
+    >
+    <label class="event__favorite-btn" for="event-favorite-1">
+      <span class="visually-hidden">Add to favorite</span>
+      <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+        <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+      </svg>
+    </label>`;
+  }
+
+  return ``;
 };
 
 const createOfferTemplate = (offer) => {
@@ -74,7 +113,7 @@ const createDestinationListTemplate = (destinations) => {
 };
 
 const createDestinationTemplate = (destination) => {
-  if (destination === null) {
+  if (!destination.name || destination.name === null) {
     return ``;
   }
 
@@ -97,100 +136,7 @@ const createDestinationTemplate = (destination) => {
 };
 
 const createEventFormTemplate = (draftData) => {
-
-  if (event === null) {
-    const transferEventNamesTemplate = transferTypes
-      .map((it) => {
-        return createEventTypeTemplate(it, it === DEFAULT_EVENT_TYPE);
-      })
-      .join(`\n\n`);
-    const activityEventNamesTemplate = activityTypes
-      .map((it) => createEventTypeTemplate(it, false))
-      .join(`\n\n`);
-
-    const initialDate = localizeDate(new Date());
-
-    return (
-      `<form class="trip-events__item  event  event--edit" action="#" method="post">
-        <header class="event__header">
-          <div class="event__type-wrapper">
-            <label class="event__type  event__type-btn" for="event-type-toggle-1">
-              <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/Bus.png" alt="Event type icon">
-            </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
-
-            <div class="event__type-list">
-              <fieldset class="event__type-group">
-                <legend class="visually-hidden">Transfer</legend>
-                ${transferEventNamesTemplate}
-              </fieldset>
-
-              <fieldset class="event__type-group">
-                <legend class="visually-hidden">Activity</legend>
-                ${activityEventNamesTemplate}
-              </fieldset>
-            </div>
-          </div>
-
-          <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">
-              Bus to
-            </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="" list="destination-list-1">
-            <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
-              <option value="Saint Petersburg"></option>
-            </datalist>
-          </div>
-
-          <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-1">
-              From
-            </label>
-            <input
-              class="event__input  event__input--time" 
-              id="event-start-time-1" 
-              type="text" 
-              name="event-start-time" 
-              value="${initialDate}"
-            >
-            &mdash;
-            <label class="visually-hidden" for="event-end-time-1">
-              To
-            </label>
-            <input
-              class="event__input  event__input--time" 
-              id="event-end-time-1" 
-              type="text" 
-              name="event-end-time" 
-              value="${initialDate}"
-            >
-          </div>
-
-          <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-1">
-              <span class="visually-hidden">Price</span>
-              &euro;
-            </label>
-            <input
-              class="event__input  event__input--price" 
-              id="event-price-1" type="text" 
-              name="event-price" 
-              value=""
-            >
-          </div>
-
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
-        </header>
-      </form>`
-    );
-  }
-
-  const {type, destination, destinations, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
+  const {id, type, destination, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
@@ -204,9 +150,12 @@ const createEventFormTemplate = (draftData) => {
 
   const offersTemplate = createOffersTemplate(offers);
 
+  const destinations = getDestinations();
   const destinationListTemplate = createDestinationListTemplate(destinations);
   const destinationTempate = createDestinationTemplate(destination);
   const destinationNameTemplate = !destination ? `` : destination.name;
+  const resetButtonName = id || id === 0 ? `Delete` : `Cancel`;
+  const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked);
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -277,16 +226,9 @@ const createEventFormTemplate = (draftData) => {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__reset-btn" type="reset">${resetButtonName}</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavoriteChecked}>
-        <label class="event__favorite-btn" for="event-favorite-1">
-          <span class="visually-hidden">Add to favorite</span>
-          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-            <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
-          </svg>
-        </label>
-
+        ${favoriteButtonTemplate}
         <button class="event__rollup-btn" type="button">
           <span class="visually-hidden">Open event</span>
         </button>
@@ -300,7 +242,7 @@ const createEventFormTemplate = (draftData) => {
 };
 
 export default class EventForm extends SmartView {
-  constructor(event) {
+  constructor(event = BLANK_EVENT) {
     super();
 
     this._draftData = EventForm.parseEventToDraftData(event);
@@ -314,6 +256,7 @@ export default class EventForm extends SmartView {
     this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
     this._favoriteButtonClickHandler = this._favoriteButtonClickHandler.bind(this);
     this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
+    this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
     this._submitHandler = this._submitHandler.bind(this);
 
     this._setInnerHandlers();
@@ -397,6 +340,19 @@ export default class EventForm extends SmartView {
     );
   }
 
+  _cancelButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.cancelButtonClick();
+  }
+
+  setCancelButtonClickHandler(callback) {
+    this._callback.cancelButtonClick = callback;
+    this
+    .getElement()
+    .querySelector(`.event__reset-btn`)
+    .addEventListener(`click`, this._cancelButtonClickHandler);
+  }
+
   _deleteButtonClickHandler(evt) {
     evt.preventDefault();
     this._callback.deleteButtonClick(EventForm.parseDraftDataToEvent(this._draftData));
@@ -473,9 +429,9 @@ export default class EventForm extends SmartView {
   restoreHandlers() {
     this._setInnerHandlers();
     this.setSubmitHandler(this._callback.submit);
-    this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this.setFavoriteButtonClickHandler(this._callback.favoriteClick);
     this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
-    this.setDeleteClickHandler(this._callback.deleteClick);
+    this.setDeleteButtonClickHandler(this._callback.deleteClick);
   }
 
   static parseEventToDraftData(event) {

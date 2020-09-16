@@ -29,3 +29,8 @@ filterPresenter.init();
 
 const tripPresenter = new TripPresenter(eventsContainer, eventsModel, filterModel);
 tripPresenter.render();
+
+document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
+  evt.preventDefault();
+  tripPresenter.addNewEvent();
+});

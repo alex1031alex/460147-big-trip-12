@@ -4,8 +4,10 @@ import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortByTime, sortByPrice, groupByDates, filter} from "../utils/event.js";
-import {SortType, UserAction, UpdateType} from "../const.js";
+import {SortType, UserAction, UpdateType, FilterType} from "../const.js";
 import EventPresenter from "./event.js";
+import EventNewPresenter from "./event-new.js";
+import {getDestinations} from "../mock/event.js";
 
 export default class Trip {
   constructor(tripContainer, eventsModel, filterModel) {
@@ -15,6 +17,8 @@ export default class Trip {
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
+
+    this._destinations = [];
 
     this._noEventView = new NoEventView();
     this._sortingView = null;
@@ -29,10 +33,18 @@ export default class Trip {
 
     this._eventsModel.addObserver(this._handleModelUpdate);
     this._filterModel.addObserver(this._handleModelUpdate);
+
+    this._eventNewPresenter = new EventNewPresenter(this._dayListView, this._handleViewAction);
   }
 
   render() {
+    this._destinations = getDestinations();
     this._renderTrip();
+  }
+
+  addNewEvent() {
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this._eventNewPresenter.init();
   }
 
   _getEvents() {

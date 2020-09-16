@@ -37,6 +37,8 @@ const destinations = [
   `Rome`,
 ];
 
+const getDestinations = () => destinations;
+
 const offerSamples = [
   {name: `Add luggage`, title: `luggage`, cost: 0, isChecked: false},
   {name: `Switch to comfort`, title: `comfort`, cost: 0, isChecked: false},
@@ -121,7 +123,6 @@ const generateEvent = () => {
   } else {
     event.type = getRandomItem(activityTypes);
   }
-  event.destinations = destinations;
   event.destination = {
     name: getRandomItem(destinations),
     info: generateDestinationInfo(),
@@ -141,6 +142,7 @@ export {
   generateOffers,
   generateDestinationInfo,
   generateDestinationPhotos,
+  getDestinations,
   transferTypes,
   activityTypes
 };
