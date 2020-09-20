@@ -39,13 +39,14 @@ export default class Trip {
     this._renderTrip();
   }
 
-  addNewEvent() {
+  addNewEvent(disableButton) {
+    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+
     if (this._noEventView) {
       remove(this._noEventView);
     }
 
-    this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._eventNewPresenter.init();
+    this._eventNewPresenter.init(disableButton);
   }
 
   _getEvents() {
@@ -88,6 +89,8 @@ export default class Trip {
       remove(this._noEventView);
     }
 
+    this._eventNewPresenter.destroy();
+
     switch (updateType) {
       case UpdateType.PATCH: {
         this._eventPresenter[update.id].init(update);
@@ -125,7 +128,9 @@ export default class Trip {
   _clearTripContainer(resetSortType = true) {
     this._clearDayList();
 
-    remove(this._sortingView);
+    if (this._sortingView) {
+      remove(this._sortingView);
+    }
 
     if (resetSortType) {
       this._currentSortType = SortType.EVENT;
@@ -218,6 +223,7 @@ export default class Trip {
 
   _renderTrip() {
     if (this._getEvents().length === 0) {
+      this._renderDayList();
       this._renderNoEvents();
       return;
     }

@@ -27,6 +27,15 @@ const page = document.querySelector(`.page-body`);
 const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
 const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
+const newEventButton = page.querySelector(`.trip-main__event-add-btn`);
+
+const newEventButtonDisableToggle = (isButtonDisabled) => {
+  if (isButtonDisabled) {
+    newEventButton.disabled = true;
+  } else {
+    newEventButton.disabled = false;
+  }
+};
 
 render(pageMenuWrapper, new MenuView(), RenderPosition.AFTERBEGIN);
 const filterPresenter = new FilterPresenter(controlsContainer, filterModel);
@@ -35,7 +44,7 @@ filterPresenter.init();
 const tripPresenter = new TripPresenter(eventsContainer, eventsModel, filterModel, destinationsModel);
 tripPresenter.render();
 
-document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (evt) => {
+newEventButton.addEventListener(`click`, (evt) => {
   evt.preventDefault();
-  tripPresenter.addNewEvent();
+  tripPresenter.addNewEvent(newEventButtonDisableToggle);
 });

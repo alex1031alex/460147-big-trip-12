@@ -20,7 +20,9 @@ export default class EventNew {
     this._handleDestinationsModelUpdate = this._handleDestinationsModelUpdate.bind(this);
   }
 
-  init() {
+  init(disableButton) {
+    this._disableButton = disableButton;
+
     if (this._eventFormComponent !== null) {
       return;
     }
@@ -31,12 +33,13 @@ export default class EventNew {
 
     render(this._tripDaysContainer, this._eventFormComponent, RenderPosition.BEFOREBEGIN);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
+    this._disableButton(true);
   }
 
   _handleFormSubmit(newEvent) {
     this._changeData(
         UserAction.ADD_EVENT,
-        UpdateType.MINOR,
+        UpdateType.MAJOR,
         Object.assign(
             {},
             newEvent,
@@ -44,17 +47,17 @@ export default class EventNew {
         )
     );
 
-    remove(this._eventFormComponent);
+    this.destroy();
   }
 
   _handleCancelButtonClick() {
-    remove(this._eventFormComponent);
+    this.destroy();
   }
 
   _escKeyDownHandler(evt) {
     if (isEscKey(evt.key)) {
       evt.preventDefault();
-      remove(this._eventFormComponent);
+      this.destroy();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     }
   }
@@ -65,6 +68,10 @@ export default class EventNew {
   }
 
   destroy() {
-    remove(this._eventFormComponent);
+    if (this._eventFormComponent !== null) {
+      remove(this._eventFormComponent);
+      this._eventFormComponent = null;
+      this._disableButton(false);
+    }
   }
 }
