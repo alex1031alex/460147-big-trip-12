@@ -34,7 +34,6 @@ export default class Event {
 
   init(event) {
     this._event = event;
-
     const prevEventComponent = this._eventComponent;
     const prevEventFormComponent = this._eventFormComponent;
 

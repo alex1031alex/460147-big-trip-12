@@ -77,6 +77,10 @@ const generateDestinationPhotos = () => {
 let currentDate = new Date(2020, 8, 11);
 let eventIdCounter = 0;
 
+const generateId = () => {
+  return eventIdCounter++;
+};
+
 const generateDate = () => {
   const startDate = new Date(currentDate);
   startDate.setMinutes(startDate.getMinutes() + getRandomInteger(MIN_INTERVAL_BETWEEN_EVENTS, MAX_INTERVAL_BETWEEN_EVENTS));
@@ -116,7 +120,7 @@ const generateEvent = () => {
   const event = {};
   event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
-  event.id = eventIdCounter++;
+  event.id = generateId();
 
   if (event.category === EventCategory.TRANSFER) {
     event.type = getRandomItem(transferTypes);
@@ -138,6 +142,7 @@ const generateEvent = () => {
 };
 
 export {
+  generateId,
   generateEvent,
   generateOffers,
   generateDestinationInfo,

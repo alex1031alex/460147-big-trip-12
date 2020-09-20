@@ -2,6 +2,7 @@ import {render, remove, RenderPosition} from "../utils/render.js";
 import EventFormView from "../view/event-form.js";
 import {BLANK_EVENT, UserAction, UpdateType} from "../const.js";
 import {isEscKey} from "../utils/common.js";
+import {generateId} from "../mock/event.js";
 
 export default class EventNew {
   constructor(tripDaysContainer, changeData, destinationsModel) {
@@ -36,7 +37,11 @@ export default class EventNew {
     this._changeData(
         UserAction.ADD_EVENT,
         UpdateType.MINOR,
-        newEvent
+        Object.assign(
+            {},
+            newEvent,
+            {id: generateId()}
+        )
     );
 
     remove(this._eventFormComponent);
