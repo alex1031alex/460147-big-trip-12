@@ -12,7 +12,13 @@ import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
-const DATE_ERROR_MESSAGE = `Input error! Start date can't be more than end date`;
+const ErrorMessage = {
+  DATE: `Input error! Start date can't be more than end date.`,
+  DESTINATION: `Input error! Please, chose destination from dropdown list.`,
+  PRICE: `Input error! Price must be a number.`
+};
+
+const MESSAGE_SHOW_TIME = 1200;
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
@@ -321,7 +327,9 @@ export default class EventForm extends SmartView {
     if (this._draftData.destinations.some((destination) => destination === userDestination)) {
       update.destination.name = userDestination;
     } else {
-      update.destination.name = ``;
+      this._showErrorMessage(ErrorMessage.DESTINATION);
+      evt.target.value = ``;
+      return;
     }
 
     this.updateDraftData(update);
@@ -359,7 +367,13 @@ export default class EventForm extends SmartView {
   }
 
   _priceChangeHandler(evt) {
-    const newPrice = evt.target.value;
+    const newPrice = evt.target.value === `` ? 0 : evt.target.value;
+
+    if ((typeof +newPrice) !== `number`) {
+      this._showErrorMessage(ErrorMessage.PRICE);
+      evt.target.value = ``;
+      return;
+    }
 
     this.updateDraftData({cost: newPrice});
   }
@@ -412,7 +426,7 @@ export default class EventForm extends SmartView {
     evt.preventDefault();
 
     if (this._draftData.date.start.getTime() > this._draftData.date.end.getTime()) {
-      this._showErrorMessage(DATE_ERROR_MESSAGE);
+      this._showErrorMessage(ErrorMessage.DATE);
       return;
     }
 
@@ -472,7 +486,7 @@ export default class EventForm extends SmartView {
       submitButton.disabled = false;
     };
 
-    setTimeout(removeMessage, 1200);
+    setTimeout(removeMessage, MESSAGE_SHOW_TIME);
   }
 
   static parseEventToDraftData(event, destinations) {
