@@ -53,6 +53,18 @@ const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
   return ``;
 };
 
+const createRollupButtonTemplate = (eventId) => {
+  if (eventId || eventId === 0) {
+    return (
+      `<button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Open event</span>
+      </button>`
+    );
+  }
+
+  return ``;
+};
+
 const createOfferTemplate = (offer) => {
   if (!offer) {
     return ``;
@@ -158,6 +170,7 @@ const createEventFormTemplate = (draftData) => {
   const destinationNameTemplate = !destination ? `` : destination.name;
   const resetButtonName = id || id === 0 ? `Delete` : `Cancel`;
   const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked);
+  const rollupButtonTemplate = createRollupButtonTemplate(id);
   const detailsTemplate = createDetailsTemplate(offers, destination);
 
   return (
@@ -232,9 +245,7 @@ const createEventFormTemplate = (draftData) => {
         <button class="event__reset-btn" type="reset">${resetButtonName}</button>
 
         ${favoriteButtonTemplate}
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        ${rollupButtonTemplate}
       </header>
       ${detailsTemplate}
     </form>`
@@ -386,11 +397,13 @@ export default class EventForm extends SmartView {
   }
 
   setRollupButtonClickHandler(callback) {
+    const rollupButton = this.getElement().querySelector(`.event__rollup-btn`);
+    if (!rollupButton) {
+      return;
+    }
+
     this._callback.rollupButtonClick = callback;
-    this
-      .getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, this._rollupButtonClickHandler);
+    rollupButton.addEventListener(`click`, this._rollupButtonClickHandler);
   }
 
   _submitHandler(evt) {

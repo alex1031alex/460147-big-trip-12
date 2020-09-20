@@ -1,6 +1,6 @@
 import {render, remove, RenderPosition} from "../utils/render.js";
 import EventFormView from "../view/event-form.js";
-import {BLANK_EVENT} from "../const.js";
+import {BLANK_EVENT, UserAction, UpdateType} from "../const.js";
 import {isEscKey} from "../utils/common.js";
 
 export default class EventNew {
@@ -32,8 +32,14 @@ export default class EventNew {
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
-  _handleFormSubmit() {
-    return;
+  _handleFormSubmit(newEvent) {
+    this._changeData(
+        UserAction.ADD_EVENT,
+        UpdateType.MINOR,
+        newEvent
+    );
+
+    remove(this._eventFormComponent);
   }
 
   _handleCancelButtonClick() {
