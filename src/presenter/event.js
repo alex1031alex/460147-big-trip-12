@@ -42,8 +42,10 @@ export default class Event {
     this._eventComponent.setExpandButtonClickHandler(this._handleExpandButtonClick);
 
     this._eventFormComponent = new EventFormView(event, this._destinations);
+
     this._eventFormComponent.setDeleteButtonClickHandler(this._handleDeleteButtonClick);
     this._eventFormComponent.setRollupButtonClickHandler(this._handleRollupButtonClick);
+    this._eventFormComponent.setFavoriteButtonClickHandler(this._handleFavoriteButtonClick);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
 
     if (prevEventComponent === null || prevEventFormComponent === null) {
@@ -58,8 +60,6 @@ export default class Event {
     if (this._mode === Mode.EDIT) {
       replace(this._eventFormComponent, prevEventFormComponent);
     }
-
-    this._eventFormComponent.setFavoriteButtonClickHandler(this._handleFavoriteButtonClick);
 
     remove(prevEventComponent);
     remove(prevEventFormComponent);

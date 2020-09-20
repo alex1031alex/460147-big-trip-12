@@ -40,6 +40,10 @@ export default class Trip {
   }
 
   addNewEvent() {
+    if (this._noEventView) {
+      remove(this._noEventView);
+    }
+
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this._eventNewPresenter.init();
   }
@@ -80,6 +84,10 @@ export default class Trip {
   }
 
   _handleModelUpdate(updateType, update) {
+    if (this._noEventView) {
+      remove(this._noEventView);
+    }
+
     switch (updateType) {
       case UpdateType.PATCH: {
         this._eventPresenter[update.id].init(update);
@@ -135,6 +143,10 @@ export default class Trip {
   }
 
   _renderNoEvents() {
+    if (this._noEventView === null) {
+      this._noEventView = new NoEventView();
+    }
+
     render(this._tripContainer, this._noEventView, RenderPosition.BEFOREEND);
   }
 

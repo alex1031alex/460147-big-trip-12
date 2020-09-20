@@ -355,13 +355,13 @@ export default class EventForm extends SmartView {
   }
 
   setFavoriteButtonClickHandler(callback) {
-    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    this._callback.favoriteButtonClick = callback;
 
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
     if (!favoriteButton) {
       return;
     }
 
-    this._callback.favoriteButtonClick = callback;
     favoriteButton.addEventListener(`click`, this._favoriteButtonClickHandler);
   }
 
@@ -417,9 +417,9 @@ export default class EventForm extends SmartView {
   restoreHandlers() {
     this._setInnerHandlers();
     this.setSubmitHandler(this._callback.submit);
-    this.setFavoriteButtonClickHandler(this._callback.favoriteClick);
+    this.setFavoriteButtonClickHandler(this._callback.favoriteButtonClick);
     this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
-    this.setDeleteButtonClickHandler(this._callback.deleteClick);
+    this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
   }
 
   static parseEventToDraftData(event, destinations) {
