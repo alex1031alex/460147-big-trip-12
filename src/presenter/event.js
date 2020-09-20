@@ -10,10 +10,12 @@ const Mode = {
 };
 
 export default class Event {
-  constructor(eventContainer, changeData, changeMode) {
+  constructor(eventContainer, changeData, changeMode, destinationsModel) {
     this._eventContainer = eventContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
+    this._destinationsModel = destinationsModel;
+    this._destinations = this._destinationsModel.getDestinations();
 
     this._eventComponent = null;
     this._eventFormComponent = null;
@@ -25,6 +27,9 @@ export default class Event {
     this._handleFavoriteButtonClick = this._handleFavoriteButtonClick.bind(this);
     this._handleRollupButtonClick = this._handleRollupButtonClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDestinationsModelUpdate = this._handleDestinationsModelUpdate.bind(this);
+
+    this._destinationsModel.addObserver(this._handleDestinationsModelUpdate);
   }
 
   init(event) {
@@ -36,7 +41,7 @@ export default class Event {
     this._eventComponent = new EventView(event);
     this._eventComponent.setExpandButtonClickHandler(this._handleExpandButtonClick);
 
-    this._eventFormComponent = new EventFormView(event);
+    this._eventFormComponent = new EventFormView(event, this._destinations);
     this._eventFormComponent.setDeleteButtonClickHandler(this._handleDeleteButtonClick);
     this._eventFormComponent.setRollupButtonClickHandler(this._handleRollupButtonClick);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
@@ -129,6 +134,11 @@ export default class Event {
     );
 
     this._replaceFormToEvent();
+  }
+
+  _handleDestinationsModelUpdate(destinations) {
+    this._destinations = destinations.slice();
+    this._eventFormComponent.updateDraftData({destinations: this._destinations});
   }
 
   destroy() {

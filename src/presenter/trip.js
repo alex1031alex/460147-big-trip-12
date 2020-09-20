@@ -7,18 +7,16 @@ import {sortByTime, sortByPrice, groupByDates, filter} from "../utils/event.js";
 import {SortType, UserAction, UpdateType, FilterType} from "../const.js";
 import EventPresenter from "./event.js";
 import EventNewPresenter from "./event-new.js";
-import {getDestinations} from "../mock/event.js";
 
 export default class Trip {
-  constructor(tripContainer, eventsModel, filterModel) {
+  constructor(tripContainer, eventsModel, filterModel, destinationsModel) {
     this._tripContainer = tripContainer;
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
+    this._destinationsModel = destinationsModel;
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
-
-    this._destinations = [];
 
     this._noEventView = new NoEventView();
     this._sortingView = null;
@@ -34,11 +32,10 @@ export default class Trip {
     this._eventsModel.addObserver(this._handleModelUpdate);
     this._filterModel.addObserver(this._handleModelUpdate);
 
-    this._eventNewPresenter = new EventNewPresenter(this._dayListView, this._handleViewAction);
+    this._eventNewPresenter = new EventNewPresenter(this._dayListView, this._handleViewAction, destinationsModel);
   }
 
   render() {
-    this._destinations = getDestinations();
     this._renderTrip();
   }
 
@@ -53,42 +50,51 @@ export default class Trip {
     const filteredEvents = filter[filterType](events);
 
     switch (this._currentSortType) {
-      case SortType.TIME:
+      case SortType.TIME: {
         return filteredEvents.sort(sortByTime);
-      case SortType.PRICE:
+      }
+      case SortType.PRICE: {
         return filteredEvents.sort(sortByPrice);
+      }
+      default: {
+        return filteredEvents;
+      }
     }
-
-    return filteredEvents;
   }
 
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
-      case UserAction.UPDATE_EVENT:
+      case UserAction.UPDATE_EVENT: {
         this._eventsModel.updateEvent(updateType, update);
         break;
-      case UserAction.ADD_EVENT:
+      }
+      case UserAction.ADD_EVENT: {
         this._eventsModel.addEvent(updateType, update);
         break;
-      case UserAction.DELETE_EVENT:
+      }
+      case UserAction.DELETE_EVENT: {
         this._eventsModel.deleteEvent(updateType, update);
         break;
+      }
     }
   }
 
   _handleModelUpdate(updateType, update) {
     switch (updateType) {
-      case UpdateType.PATCH:
+      case UpdateType.PATCH: {
         this._eventPresenter[update.id].init(update);
         break;
-      case UpdateType.MINOR:
+      }
+      case UpdateType.MINOR: {
         this._clearDayList();
         this._renderDays();
         break;
-      case UpdateType.MAJOR:
+      }
+      case UpdateType.MAJOR: {
         this._clearTripContainer();
         this._renderTrip();
         break;
+      }
     }
   }
 
@@ -152,7 +158,12 @@ export default class Trip {
   }
 
   _renderEvent(container, event) {
-    const eventPresenter = new EventPresenter(container, this._handleViewAction, this._handleModeChange);
+    const eventPresenter = new EventPresenter(
+        container,
+        this._handleViewAction,
+        this._handleModeChange,
+        this._destinationsModel
+    );
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
   }

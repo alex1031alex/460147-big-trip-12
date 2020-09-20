@@ -3,7 +3,6 @@ import {
   transferTypes,
   activityTypes,
   generateOffers,
-  getDestinations,
   generateDestinationInfo,
   generateDestinationPhotos
 } from "../mock/event.js";
@@ -12,26 +11,6 @@ import {EventCategory} from "../const.js";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
-
-const DEFAULT_EVENT_TYPE = `Bus`;
-const currentDate = new Date();
-
-const BLANK_EVENT = {
-  category: EventCategory.TRANSFER,
-  type: DEFAULT_EVENT_TYPE,
-  destination: {
-    name: null,
-    info: ``,
-    photos: []
-  },
-  date: {
-    start: currentDate,
-    end: currentDate
-  },
-  offers: [],
-  cost: ``,
-  isFavorite: null,
-};
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
@@ -42,6 +21,16 @@ const createEventTypeTemplate = (eventType, isChecked) => {
       <label class="event__type-label  event__type-label--${eventType.toLowerCase()}" for="event-type-${eventType.toLowerCase()}-1">${eventType}</label>
     </div>`
   );
+};
+
+const createDestinationListTemplate = (destinations) => {
+  const destinationOptions = destinations
+    .map((destination) => `<option value="${destination}"></option>`)
+    .join(`\n`);
+
+  return `<datalist id="destination-list-1">
+    ${destinationOptions}
+  </datalist>`;
 };
 
 const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
@@ -102,18 +91,8 @@ const createOffersTemplate = (offers) => {
   </section>`;
 };
 
-const createDestinationListTemplate = (destinations) => {
-  const destinationOptions = destinations
-    .map((destination) => `<option value="${destination}"></option>`)
-    .join(`\n`);
-
-  return `<datalist id="destination-list-1">
-    ${destinationOptions}
-  </datalist>`;
-};
-
 const createDestinationTemplate = (destination) => {
-  if (!destination.name || destination.name === null) {
+  if (!destination || destination.name === ``) {
     return ``;
   }
 
@@ -135,8 +114,24 @@ const createDestinationTemplate = (destination) => {
           </section>`;
 };
 
+const createDetailsTemplate = (offers, destination) => {
+  const offersTemplate = createOffersTemplate(offers);
+  const destinationTemplate = createDestinationTemplate(destination);
+
+  if (offersTemplate === `` && destinationTemplate === ``) {
+    return ``;
+  }
+
+  return (
+    `<section class="event__details">
+      ${offersTemplate}
+      ${destinationTemplate}
+    </section>`
+  );
+};
+
 const createEventFormTemplate = (draftData) => {
-  const {id, type, destination, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
+  const {id, type, destination, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked, destinations} = draftData;
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
@@ -148,14 +143,11 @@ const createEventFormTemplate = (draftData) => {
     .map((it) => createEventTypeTemplate(it, it === type))
     .join(`\n\n`);
 
-  const offersTemplate = createOffersTemplate(offers);
-
-  const destinations = getDestinations();
   const destinationListTemplate = createDestinationListTemplate(destinations);
-  const destinationTempate = createDestinationTemplate(destination);
   const destinationNameTemplate = !destination ? `` : destination.name;
   const resetButtonName = id || id === 0 ? `Delete` : `Cancel`;
   const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked);
+  const detailsTemplate = createDetailsTemplate(offers, destination);
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -233,19 +225,17 @@ const createEventFormTemplate = (draftData) => {
           <span class="visually-hidden">Open event</span>
         </button>
       </header>
-      <section class="event__details">
-        ${offersTemplate}
-        ${destinationTempate}
-      </section>
+      ${detailsTemplate}
     </form>`
   );
 };
 
 export default class EventForm extends SmartView {
-  constructor(event = BLANK_EVENT) {
+  constructor(event, destinations) {
     super();
 
-    this._draftData = EventForm.parseEventToDraftData(event);
+    this._destinations = destinations;
+    this._draftData = EventForm.parseEventToDraftData(event, this._destinations);
     this._datepicker = null;
 
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
@@ -256,7 +246,7 @@ export default class EventForm extends SmartView {
     this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
     this._favoriteButtonClickHandler = this._favoriteButtonClickHandler.bind(this);
     this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
-    this._cancelButtonClickHandler = this._cancelButtonClickHandler.bind(this);
+    this._priceChangeHandler = this._priceChangeHandler.bind(this);
     this._submitHandler = this._submitHandler.bind(this);
 
     this._setInnerHandlers();
@@ -272,7 +262,7 @@ export default class EventForm extends SmartView {
   }
 
   reset(event) {
-    this.updateDraftData(EventForm.parseEventToDraftData(event));
+    this.updateDraftData(EventForm.parseEventToDraftData(event, this._destinations));
   }
 
   _destroyDatepicker() {
@@ -340,17 +330,10 @@ export default class EventForm extends SmartView {
     );
   }
 
-  _cancelButtonClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.cancelButtonClick();
-  }
+  _priceChangeHandler(evt) {
+    const newPrice = evt.target.value;
 
-  setCancelButtonClickHandler(callback) {
-    this._callback.cancelButtonClick = callback;
-    this
-    .getElement()
-    .querySelector(`.event__reset-btn`)
-    .addEventListener(`click`, this._cancelButtonClickHandler);
+    this.updateDraftData({cost: newPrice});
   }
 
   _deleteButtonClickHandler(evt) {
@@ -372,11 +355,14 @@ export default class EventForm extends SmartView {
   }
 
   setFavoriteButtonClickHandler(callback) {
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+
+    if (!favoriteButton) {
+      return;
+    }
+
     this._callback.favoriteButtonClick = callback;
-    this
-      .getElement()
-      .querySelector(`.event__favorite-checkbox`)
-      .addEventListener(`click`, this._favoriteButtonClickHandler);
+    favoriteButton.addEventListener(`click`, this._favoriteButtonClickHandler);
   }
 
   _rollupButtonClickHandler(evt) {
@@ -421,9 +407,11 @@ export default class EventForm extends SmartView {
 
     const startDateInput = this.getElement().querySelector(`#event-start-time-1`);
     const endDateInput = this.getElement().querySelector(`#event-end-time-1`);
+    const priceField = this.getElement().querySelector(`.event__input--price`);
 
     startDateInput.addEventListener(`focus`, this._startDateFocusHandler);
     endDateInput.addEventListener(`focus`, this._endDateFocusHandler);
+    priceField.addEventListener(`change`, this._priceChangeHandler);
   }
 
   restoreHandlers() {
@@ -434,13 +422,14 @@ export default class EventForm extends SmartView {
     this.setDeleteButtonClickHandler(this._callback.deleteClick);
   }
 
-  static parseEventToDraftData(event) {
+  static parseEventToDraftData(event, destinations) {
     return Object.assign(
         {},
         event,
         {
           isTransferEvent: transferTypes.some((it) => it === event.type),
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
+          destinations,
         }
     );
   }
@@ -455,6 +444,7 @@ export default class EventForm extends SmartView {
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;
+    delete draftData.destinations;
 
     return draftData;
   }

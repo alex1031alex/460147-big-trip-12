@@ -3,6 +3,25 @@ const EventCategory = {
   ACTIVITY: `activity`,
 };
 
+const DEFAULT_EVENT_TYPE = `Bus`;
+const currentDate = new Date();
+const BLANK_EVENT = {
+  category: EventCategory.TRANSFER,
+  type: DEFAULT_EVENT_TYPE,
+  destination: {
+    name: ``,
+    info: ``,
+    photos: []
+  },
+  date: {
+    start: currentDate,
+    end: currentDate
+  },
+  offers: [],
+  cost: ``,
+  isFavorite: null,
+};
+
 const SortType = {
   EVENT: `event`,
   TIME: `time`,
@@ -27,4 +46,4 @@ const FilterType = {
   PAST: `past`
 };
 
-export {EventCategory, SortType, UserAction, UpdateType, FilterType};
+export {BLANK_EVENT, EventCategory, SortType, UserAction, UpdateType, FilterType};
