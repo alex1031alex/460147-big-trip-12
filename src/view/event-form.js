@@ -36,11 +36,11 @@ const createDestinationListTemplate = (destinations) => {
 const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
   if (eventId || eventId === 0) {
     return `<input
-    id="event-favorite-1"
-    class="event__favorite-checkbox  visually-hidden"
-    type="checkbox"
-    name="event-favorite"
-    ${isFavoriteChecked}
+      id="event-favorite-1"
+      class="event__favorite-checkbox  visually-hidden"
+      type="checkbox"
+      name="event-favorite"
+      ${isFavoriteChecked}
     >
     <label class="event__favorite-btn" for="event-favorite-1">
       <span class="visually-hidden">Add to favorite</span>
@@ -92,7 +92,7 @@ const createOffersTemplate = (offers) => {
 };
 
 const createDestinationTemplate = (destination) => {
-  if (!destination || destination.name === ``) {
+  if (!destination.name) {
     return ``;
   }
 
@@ -131,7 +131,18 @@ const createDetailsTemplate = (offers, destination) => {
 };
 
 const createEventFormTemplate = (draftData) => {
-  const {id, type, destination, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked, destinations} = draftData;
+  const {
+    id,
+    type,
+    destination,
+    date: {start, end},
+    offers,
+    cost,
+    isTransferEvent,
+    isFavoriteChecked,
+    destinations
+  } = draftData;
+
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
@@ -276,7 +287,11 @@ export default class EventForm extends SmartView {
     this.updateDraftData({
       type: capitalizeWord(evt.target.value),
       isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
-      destination: null,
+      destination: {
+        name: ``,
+        info: ``,
+        photos: []
+      },
       offers: generateOffers(false),
     });
   }

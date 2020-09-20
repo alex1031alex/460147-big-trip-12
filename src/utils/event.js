@@ -33,8 +33,16 @@ const groupByDates = (events) => {
 
 const filter = {
   [FilterType.EVERYTHING]: (events) => events,
-  [FilterType.FUTURE]: (events) => events.filter((event) => event.date.start > new Date()),
-  [FilterType.PAST]: (events) => events.filter((event) => event.date.end < new Date())
+  [FilterType.FUTURE]: (events) => {
+    const now = new Date();
+
+    return events.filter((event) => event.date.start.getTime() > now.getTime());
+  },
+  [FilterType.PAST]: (events) => {
+    const now = new Date();
+
+    return events.filter((event) => event.date.end.getTime() < now.getTime());
+  }
 };
 
 export {sortByPrice, sortByTime, groupByDates, filter};

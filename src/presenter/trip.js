@@ -151,10 +151,6 @@ export default class Trip {
   }
 
   _renderSorting() {
-    if (this._sortingView !== null) {
-      this._sortingView = null;
-    }
-
     this._sortingView = new SortingView(this._currentSortType);
     this._sortingView.setSortTypeChangeHandler(this._handleSortTypeChange);
 
