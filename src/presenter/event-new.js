@@ -1,6 +1,7 @@
-import {render, RenderPosition} from "../utils/render.js";
+import {render, remove, RenderPosition} from "../utils/render.js";
 import EventFormView from "../view/event-form.js";
 import {BLANK_EVENT} from "../const.js";
+import {isEscKey} from "../utils/common.js";
 
 export default class EventNew {
   constructor(tripDaysContainer, changeData, destinationsModel) {
@@ -36,15 +37,23 @@ export default class EventNew {
   }
 
   _handleCancelButtonClick() {
-    return;
+    remove(this._eventFormComponent);
   }
 
-  _escKeyDownHandler() {
-    return;
+  _escKeyDownHandler(evt) {
+    if (isEscKey(evt.key)) {
+      evt.preventDefault();
+      remove(this._eventFormComponent);
+      document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    }
   }
 
   _handleDestinationsModelUpdate(destinations) {
     this._destinations = destinations.slice();
     this._eventFormComponent.updateDraftData({destinations: this._destinations});
+  }
+
+  destroy() {
+    remove(this._eventFormComponent);
   }
 }
