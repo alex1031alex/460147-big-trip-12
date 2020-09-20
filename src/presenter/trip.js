@@ -89,8 +89,6 @@ export default class Trip {
       remove(this._noEventView);
     }
 
-    this._eventNewPresenter.destroy();
-
     switch (updateType) {
       case UpdateType.PATCH: {
         this._eventPresenter[update.id].init(update);
@@ -110,12 +108,16 @@ export default class Trip {
   }
 
   _handleModeChange() {
+    this._eventNewPresenter.destroy();
+
     Object
       .values(this._eventPresenter)
       .forEach((presenter) => presenter.resetView());
   }
 
   _clearDayList() {
+    this._eventNewPresenter.destroy();
+
     Object
       .values(this._eventPresenter)
       .forEach((eventPresenter) => eventPresenter.destroy());
@@ -141,6 +143,8 @@ export default class Trip {
     if (this._currentSortType === sortType) {
       return;
     }
+
+    this._eventNewPresenter.destroy();
 
     this._currentSortType = sortType;
     this._clearDayList();
