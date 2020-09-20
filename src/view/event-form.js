@@ -12,6 +12,8 @@ import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
+const DATE_ERROR_MESSAGE = `Input error! Start date can't be more than end date`;
+
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
 
@@ -409,8 +411,8 @@ export default class EventForm extends SmartView {
   _submitHandler(evt) {
     evt.preventDefault();
 
-    if (this._draftData.date.start > this._draftData.date.end) {
-      alert(`Start date can't be more than end date`); //Temporary by alert.WIP
+    if (this._draftData.date.start.getTime() > this._draftData.date.end.getTime()) {
+      this._showErrorMessage(DATE_ERROR_MESSAGE);
       return;
     }
 
@@ -448,6 +450,29 @@ export default class EventForm extends SmartView {
     this.setFavoriteButtonClickHandler(this._callback.favoriteButtonClick);
     this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
     this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
+  }
+
+  _showErrorMessage(message) {
+    const errorTemplate = document
+      .querySelector(`#error`)
+      .content.querySelector(`.error-message__wrap`)
+      .cloneNode(true);
+    const errorMessageContainer = this.getElement().querySelector(`.event__header`);
+    const submitButton = this.getElement().querySelector(`.event__save-btn`);
+
+    errorTemplate.querySelector(`.error-message__text`).textContent = message;
+    errorMessageContainer.style.flexWrap = `wrap`;
+    submitButton.disabled = true;
+
+    errorMessageContainer.prepend(errorTemplate);
+
+    const removeMessage = () => {
+      errorMessageContainer.style.flexWrap = `no-wrap`;
+      errorTemplate.remove();
+      submitButton.disabled = false;
+    };
+
+    setTimeout(removeMessage, 1200);
   }
 
   static parseEventToDraftData(event, destinations) {

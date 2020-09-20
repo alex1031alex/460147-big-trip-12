@@ -930,3 +930,25 @@ main {
 
 .statistics__item:not(:last-child) {
   margin-bottom: 78px; }
+
+.error-message__wrap {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 6px;
+
+}
+
+.error-message__text {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-size: 14px;
+  text-align: center;
+  line-height: 1;
+  background-color: pink;
+  border-radius: 10px;
+  border: 2px solid red;
+}
