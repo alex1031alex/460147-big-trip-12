@@ -80,16 +80,17 @@ const createOfferTemplate = (offer) => {
   const {title, price} = offer;
   const isChecked = offer.isChecked ? offer.isChecked : false;
   const checkedAttributeValue = isChecked ? `checked` : ``;
+  const titleAsHtml = title.toLowerCase().split(` `).join(`-`);
 
   return (
     `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden" 
-        id="event-offer-${title.toLowerCase()}-1" type="checkbox"    
-        name="event-offer-${title.toLowerCase()}" 
+        id="event-offer-${titleAsHtml}-1" type="checkbox"    
+        name="event-offer-${titleAsHtml}" 
         ${checkedAttributeValue}
       >
-      <label class="event__offer-label" for="event-offer-${title.toLowerCase()}-1">
+      <label class="event__offer-label" for="event-offer-${titleAsHtml}-1">
         <span class="event__offer-title">${title}</span>
         &plus;
         &euro;&nbsp;<span class="event__offer-price">${price}</span>
@@ -435,6 +436,13 @@ export default class EventForm extends SmartView {
     if (this._draftData.date.start.getTime() > this._draftData.date.end.getTime()) {
       this._showErrorMessage(ErrorMessage.DATE);
       return;
+    }
+
+    if (this._draftData.offers.length !== 0) {
+      const offerButtons = this.getElement().querySelectorAll(`.event__offer-checkbox`);
+      offerButtons.forEach((offerButton, index) => {
+        this._draftData.offers[index].isChecked = offerButton.checked;
+      });
     }
 
     this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));

@@ -9,13 +9,13 @@ const createOfferTemplate = (offer) => {
     return ``;
   }
 
-  const {name, cost} = offer;
+  const {title, price} = offer;
 
   return (
     `<li class="event__offer">
-      <span class="event__offer-title">${name}</span>
+      <span class="event__offer-title">${title}</span>
       &plus;
-      &euro;&nbsp;<span class="event__offer-price">${cost}</span>
+      &euro;&nbsp;<span class="event__offer-price">${price}</span>
     </li>`
   );
 };
@@ -26,8 +26,7 @@ const createEventTemplate = (event) => {
   const isTransferEvent = category === EventCategory.TRANSFER;
   const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
 
-  const chosenOffers = offers.filter((offer) => offer.isChecked);
-  const offersTemplate = chosenOffers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
+  const offersTemplate = offers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
 
   const eventStartTime = getLocalTime(start);
   const eventEndTime = getLocalTime(end);
