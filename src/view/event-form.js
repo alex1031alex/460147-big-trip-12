@@ -14,7 +14,9 @@ import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 const ErrorMessage = {
   DATE: `Input error! Start date can't be more than end date.`,
   DESTINATION: `Input error! Please, chose destination from dropdown list.`,
-  PRICE: `Input error! Price must be a number.`
+  PRICE: `Input error! Price must be a number.`,
+  NO_DESTINATION: `Please, set destination for this point!`,
+  NO_PRICE: `Please, set price for this point!`
 };
 
 const MESSAGE_SHOW_TIME = 1200;
@@ -433,8 +435,18 @@ export default class EventForm extends SmartView {
   _submitHandler(evt) {
     evt.preventDefault();
 
+    if (!this._draftData.destination.name) {
+      this._showErrorMessage(ErrorMessage.NO_DESTINATION);
+      return;
+    }
+
     if (this._draftData.date.start.getTime() > this._draftData.date.end.getTime()) {
       this._showErrorMessage(ErrorMessage.DATE);
+      return;
+    }
+
+    if (!this._draftData.cost) {
+      this._showErrorMessage(ErrorMessage.NO_PRICE);
       return;
     }
 

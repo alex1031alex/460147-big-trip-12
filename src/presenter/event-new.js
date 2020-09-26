@@ -5,12 +5,15 @@ import {isEscKey} from "../utils/common.js";
 import {generateId} from "../mock/event.js";
 
 export default class EventNew {
-  constructor(tripDaysContainer, changeData, destinationsModel) {
+  constructor(tripDaysContainer, changeData, destinationsModel, offersModel) {
     this._tripDaysContainer = tripDaysContainer;
     this._changeData = changeData;
     this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._destinations = destinationsModel.getDestinations();
 
+    this._type = BLANK_EVENT.type;
+    this._offers = this._offersModel.getOffers(this._type);
     this._eventFormComponent = null;
 
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
@@ -27,7 +30,7 @@ export default class EventNew {
       return;
     }
 
-    this._eventFormComponent = new EventFormView(BLANK_EVENT, this._destinations);
+    this._eventFormComponent = new EventFormView(BLANK_EVENT, this._destinations, this._offers);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
     this._eventFormComponent.setDeleteButtonClickHandler(this._handleCancelButtonClick);
 

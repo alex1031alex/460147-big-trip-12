@@ -39,7 +39,12 @@ export default class Trip {
     this._eventsModel.addObserver(this._handleModelUpdate);
     this._filterModel.addObserver(this._handleModelUpdate);
 
-    this._eventNewPresenter = new EventNewPresenter(this._dayListView, this._handleViewAction, destinationsModel);
+    this._eventNewPresenter = new EventNewPresenter(
+        this._dayListView,
+        this._handleViewAction,
+        this._destinationsModel,
+        this._offersModel
+    );
   }
 
   render() {

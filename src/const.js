@@ -3,7 +3,7 @@ const EventCategory = {
   ACTIVITY: `activity`,
 };
 
-const DEFAULT_EVENT_TYPE = `Bus`;
+const DEFAULT_EVENT_TYPE = `bus`;
 const currentDate = new Date();
 const BLANK_EVENT = {
   category: EventCategory.TRANSFER,
