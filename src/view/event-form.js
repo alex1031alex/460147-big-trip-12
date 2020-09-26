@@ -2,11 +2,10 @@ import SmartView from "./smart.js";
 import {
   transferTypes,
   activityTypes,
-  generateOffers,
   generateDestinationInfo,
   generateDestinationPhotos
 } from "../mock/event.js";
-import {localizeDate, capitalizeWord} from "../utils/common.js";
+import {localizeDate} from "../utils/common.js";
 import {EventCategory} from "../const.js";
 import flatpickr from "flatpickr";
 
@@ -78,28 +77,29 @@ const createOfferTemplate = (offer) => {
     return ``;
   }
 
-  const {name, title, cost, isChecked} = offer;
+  const {title, price} = offer;
+  const isChecked = offer.isChecked ? offer.isChecked : false;
   const checkedAttributeValue = isChecked ? `checked` : ``;
 
   return (
     `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden" 
-        id="event-offer-${title}-1" type="checkbox"    
-        name="event-offer-${title}" 
+        id="event-offer-${title.toLowerCase()}-1" type="checkbox"    
+        name="event-offer-${title.toLowerCase()}" 
         ${checkedAttributeValue}
       >
-      <label class="event__offer-label" for="event-offer-${title}-1">
-        <span class="event__offer-title">${name}</span>
+      <label class="event__offer-label" for="event-offer-${title.toLowerCase()}-1">
+        <span class="event__offer-title">${title}</span>
         &plus;
-        &euro;&nbsp;<span class="event__offer-price">${cost}</span>
+        &euro;&nbsp;<span class="event__offer-price">${price}</span>
       </label>
     </div>`
   );
 };
 
 const createOffersTemplate = (offers) => {
-  if (!offers || offers.length === 0) {
+  if (offers.length === 0) {
     return ``;
   }
 
@@ -261,11 +261,12 @@ const createEventFormTemplate = (draftData) => {
 };
 
 export default class EventForm extends SmartView {
-  constructor(event, destinations) {
+  constructor(event, destinations, offers) {
     super();
 
     this._destinations = destinations;
-    this._draftData = EventForm.parseEventToDraftData(event, this._destinations);
+    this._offers = offers;
+    this._draftData = EventForm.parseEventToDraftData(event, this._destinations, this._offers);
     this._datepicker = null;
 
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
@@ -292,7 +293,11 @@ export default class EventForm extends SmartView {
   }
 
   reset(event) {
-    this.updateDraftData(EventForm.parseEventToDraftData(event, this._destinations));
+    this.updateDraftData(EventForm.parseEventToDraftData(
+        event,
+        this._destinations,
+        this._offers
+    ));
   }
 
   _destroyDatepicker() {
@@ -300,19 +305,6 @@ export default class EventForm extends SmartView {
       this._datepicker.destroy();
       this._datepicker = null;
     }
-  }
-
-  _eventTypeChangeHandler(evt) {
-    this.updateDraftData({
-      type: capitalizeWord(evt.target.value),
-      isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
-      destination: {
-        name: ``,
-        info: ``,
-        photos: []
-      },
-      offers: generateOffers(false),
-    });
   }
 
   _destinationChoseHandler(evt) {
@@ -378,6 +370,21 @@ export default class EventForm extends SmartView {
     this.updateDraftData({cost: newPrice});
   }
 
+  _eventTypeChangeHandler(evt) {
+    evt.preventDefault();
+    this._callback.eventTypeChange(evt.target.value);
+  }
+
+  setEventTypeChangeHandler(callback) {
+    this._callback.eventTypeChange = callback;
+
+    this.getElement()
+    .querySelectorAll(`.event__type-group`)
+    .forEach((eventTypeGroup) => {
+      eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
+    });
+  }
+
   _deleteButtonClickHandler(evt) {
     evt.preventDefault();
     this._callback.deleteButtonClick(EventForm.parseDraftDataToEvent(this._draftData));
@@ -440,12 +447,6 @@ export default class EventForm extends SmartView {
 
   _setInnerHandlers() {
     this.getElement()
-      .querySelectorAll(`.event__type-group`)
-      .forEach((eventTypeGroup) => {
-        eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
-      });
-
-    this.getElement()
       .querySelector(`.event__input--destination`)
       .addEventListener(`change`, this._destinationChoseHandler);
 
@@ -464,6 +465,7 @@ export default class EventForm extends SmartView {
     this.setFavoriteButtonClickHandler(this._callback.favoriteButtonClick);
     this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
     this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
+    this.setEventTypeChangeHandler(this._callback.eventTypeChange);
   }
 
   _showErrorMessage(message) {
@@ -489,7 +491,18 @@ export default class EventForm extends SmartView {
     setTimeout(removeMessage, MESSAGE_SHOW_TIME);
   }
 
-  static parseEventToDraftData(event, destinations) {
+  static parseEventToDraftData(event, destinations, allOffers) {
+    const chosenOffers = event.offers;
+    const offers = allOffers.map((offer) => {
+      const isOfferChosen = chosenOffers.some((chosenOffer) => chosenOffer.title === offer.title);
+
+      if (isOfferChosen) {
+        return Object.assign({}, offer, {isChecked: true});
+      }
+
+      return Object.assign({}, offer, {isChecked: false});
+    });
+
     return Object.assign(
         {},
         event,
@@ -497,11 +510,20 @@ export default class EventForm extends SmartView {
           isTransferEvent: transferTypes.some((it) => it === event.type),
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
           destinations,
+          offers
         }
     );
   }
 
   static parseDraftDataToEvent(draftData) {
+    if (draftData.offers.length > 0) {
+      draftData.offers = draftData.offers.filter((offer) => {
+        const isChecked = offer.isChecked;
+        delete offer.isChecked;
+        return isChecked;
+      });
+    }
+
     draftData = Object.assign(
         {},
         draftData,

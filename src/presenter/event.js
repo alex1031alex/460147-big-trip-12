@@ -10,15 +10,24 @@ const Mode = {
 };
 
 export default class Event {
-  constructor(eventContainer, changeData, changeMode, destinationsModel) {
+  constructor(
+      eventContainer,
+      changeData,
+      changeMode,
+      destinationsModel,
+      offersModel
+  ) {
     this._eventContainer = eventContainer;
     this._changeData = changeData;
     this._changeMode = changeMode;
     this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._destinations = this._destinationsModel.getDestinations();
+    this._offers = [];
 
     this._eventComponent = null;
     this._eventFormComponent = null;
+    this._eventType = null;
     this._mode = Mode.DEFAULT;
 
     this._handleExpandButtonClick = this._handleExpandButtonClick.bind(this);
@@ -28,6 +37,7 @@ export default class Event {
     this._handleRollupButtonClick = this._handleRollupButtonClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDestinationsModelUpdate = this._handleDestinationsModelUpdate.bind(this);
+    this._handleEventTypeChange = this._handleEventTypeChange.bind(this);
 
     this._destinationsModel.addObserver(this._handleDestinationsModelUpdate);
   }
@@ -37,14 +47,17 @@ export default class Event {
     const prevEventComponent = this._eventComponent;
     const prevEventFormComponent = this._eventFormComponent;
 
+    this._eventType = this._event.type;
+    this._offers = this._offersModel.getOffers(this._eventType);
     this._eventComponent = new EventView(event);
     this._eventComponent.setExpandButtonClickHandler(this._handleExpandButtonClick);
 
-    this._eventFormComponent = new EventFormView(event, this._destinations);
+    this._eventFormComponent = new EventFormView(event, this._destinations, this._offers);
 
     this._eventFormComponent.setDeleteButtonClickHandler(this._handleDeleteButtonClick);
     this._eventFormComponent.setRollupButtonClickHandler(this._handleRollupButtonClick);
     this._eventFormComponent.setFavoriteButtonClickHandler(this._handleFavoriteButtonClick);
+    this._eventFormComponent.setEventTypeChangeHandler(this._handleEventTypeChange);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
 
     if (prevEventComponent === null || prevEventFormComponent === null) {
@@ -109,10 +122,22 @@ export default class Event {
         UpdateType.PATCH,
         Object.assign(
             {},
-            this._event, {
+            this._event,
+            {
               isFavorite: !this._event.isFavorite
             }
         )
+    );
+  }
+
+  _handleEventTypeChange(chosenType) {
+    const updatedOffers = this._offersModel.getOffers(chosenType);
+
+    this._eventFormComponent.updateDraftData(
+        {
+          type: chosenType,
+          offers: updatedOffers
+        }
     );
   }
 

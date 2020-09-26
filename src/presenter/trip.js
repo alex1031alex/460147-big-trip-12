@@ -9,11 +9,18 @@ import EventPresenter from "./event.js";
 import EventNewPresenter from "./event-new.js";
 
 export default class Trip {
-  constructor(tripContainer, eventsModel, filterModel, destinationsModel) {
+  constructor(
+      tripContainer,
+      eventsModel,
+      filterModel,
+      destinationsModel,
+      offersModel
+  ) {
     this._tripContainer = tripContainer;
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
     this._destinationsModel = destinationsModel;
+    this._offersModel = offersModel;
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
@@ -179,7 +186,8 @@ export default class Trip {
         container,
         this._handleViewAction,
         this._handleModeChange,
-        this._destinationsModel
+        this._destinationsModel,
+        this._offersModel
     );
     eventPresenter.init(event);
     this._eventPresenter[event.id] = eventPresenter;
