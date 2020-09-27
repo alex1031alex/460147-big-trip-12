@@ -362,7 +362,7 @@ export default class EventForm extends SmartView {
   }
 
   _priceChangeHandler(evt) {
-    const newPrice = evt.target.value === `` ? 0 : evt.target.value;
+    const newPrice = evt.target.value === `` ? 0 : +evt.target.value;
 
     if ((typeof +newPrice) !== `number`) {
       this._showErrorMessage(ErrorMessage.PRICE);

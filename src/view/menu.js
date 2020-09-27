@@ -52,6 +52,10 @@ export default class Menu extends AbstractView {
     }
   }
 
+  resetMenuToDefaultView() {
+    this._toggleMenuItem(MenuItem.TABLE);
+  }
+
   _menuClickHandler(evt) {
     evt.preventDefault();
     const targetItem = evt.target.dataset.item;

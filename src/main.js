@@ -63,6 +63,10 @@ render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);
 const handleMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuItem.ADD_NEW_EVENT: {
+      remove(statsComponent);
+      menuComponent.resetMenuToDefaultView();
+      tripPresenter.render();
+      tripPresenter.addNewEvent(newEventButtonDisableToggle);
       break;
     }
     case MenuItem.TABLE: {
@@ -86,5 +90,10 @@ tripPresenter.render();
 
 newEventButton.addEventListener(`click`, (evt) => {
   evt.preventDefault();
-  tripPresenter.addNewEvent(newEventButtonDisableToggle);
+
+  if (statsComponent) {
+    handleMenuClick(MenuItem.ADD_NEW_EVENT);
+  } else {
+    tripPresenter.addNewEvent(newEventButtonDisableToggle);
+  }
 });
