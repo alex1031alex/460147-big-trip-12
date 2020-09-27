@@ -21,6 +21,7 @@ export default class EventNew {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleCancelButtonClick = this._handleCancelButtonClick.bind(this);
     this._handleDestinationsModelUpdate = this._handleDestinationsModelUpdate.bind(this);
+    this._handleEventTypeChange = this._handleEventTypeChange.bind(this);
   }
 
   init(disableButton) {
@@ -33,6 +34,7 @@ export default class EventNew {
     this._eventFormComponent = new EventFormView(BLANK_EVENT, this._destinations, this._offers);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
     this._eventFormComponent.setDeleteButtonClickHandler(this._handleCancelButtonClick);
+    this._eventFormComponent.setEventTypeChangeHandler(this._handleEventTypeChange);
 
     render(this._tripDaysContainer, this._eventFormComponent, RenderPosition.BEFOREBEGIN);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
@@ -63,6 +65,17 @@ export default class EventNew {
       this.destroy();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     }
+  }
+
+  _handleEventTypeChange(chosenType) {
+    const updatedOffers = this._offersModel.getOffers(chosenType);
+
+    this._eventFormComponent.updateDraftData(
+        {
+          type: chosenType,
+          offers: updatedOffers
+        }
+    );
   }
 
   _handleDestinationsModelUpdate(destinations) {
