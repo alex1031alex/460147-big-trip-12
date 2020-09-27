@@ -80,7 +80,7 @@ const createOfferTemplate = (offer) => {
   }
 
   const {title, price} = offer;
-  const isChecked = offer.isChecked ? offer.isChecked : false;
+  const isChecked = !!offer.isChecked;
   const checkedAttributeValue = isChecked ? `checked` : ``;
   const titleAsHtml = title.toLowerCase().split(` `).join(`-`);
 

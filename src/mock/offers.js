@@ -4,7 +4,7 @@ import {getRandomInteger, getRandomItem} from "../utils/common.js";
 const MIN_OFFER_COUNT = 0;
 const MAX_OFFER_COUNT = 5;
 
-const types = [...transferTypes, ...activityTypes];
+const eventTypes = [...transferTypes, ...activityTypes];
 const offerSamples = [
   {title: `Add luggage`, price: 20},
   {title: `Switch to comfort`, price: 45},
@@ -21,7 +21,7 @@ const offerSamples = [
 const offers = [];
 
 const generateOffers = () => {
-  types
+  eventTypes
     .map((type) => {
       const offerCount = getRandomInteger(MIN_OFFER_COUNT, MAX_OFFER_COUNT);
       const draftOffers = [];
@@ -30,10 +30,8 @@ const generateOffers = () => {
         draftOffers.push(getRandomItem(offerSamples));
       }
 
-      const updatedOffers = Array.from(new Set(draftOffers));
-
-      offers.push({type, offers: updatedOffers});
-
+      const uniqueOffers = Array.from(new Set(draftOffers));
+      offers.push({type, offers: uniqueOffers});
     });
 
   return offers;

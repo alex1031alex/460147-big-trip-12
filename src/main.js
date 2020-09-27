@@ -49,13 +49,8 @@ const tripPresenter = new TripPresenter(
     offersModel
 );
 
-
 const newEventButtonDisableToggle = (isButtonDisabled) => {
-  if (isButtonDisabled) {
-    newEventButton.disabled = true;
-  } else {
-    newEventButton.disabled = false;
-  }
+  newEventButton.disabled = isButtonDisabled;
 };
 
 render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);

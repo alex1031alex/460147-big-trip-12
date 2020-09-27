@@ -10,7 +10,6 @@ export default class EventNew {
     this._changeData = changeData;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
-    this._destinations = destinationsModel.getDestinations();
 
     this._type = BLANK_EVENT.type;
     this._offers = this._offersModel.getOffers(this._type);
@@ -24,21 +23,22 @@ export default class EventNew {
     this._handleEventTypeChange = this._handleEventTypeChange.bind(this);
   }
 
-  init(disableButton) {
-    this._disableButton = disableButton;
+  init(disableNewEventButton) {
+    this._disableNewEventButton = disableNewEventButton;
 
     if (this._eventFormComponent !== null) {
       return;
     }
+    const destinations = this._destinationsModel.getDestinations();
 
-    this._eventFormComponent = new EventFormView(BLANK_EVENT, this._destinations, this._offers);
+    this._eventFormComponent = new EventFormView(BLANK_EVENT, destinations, this._offers);
     this._eventFormComponent.setSubmitHandler(this._handleFormSubmit);
     this._eventFormComponent.setDeleteButtonClickHandler(this._handleCancelButtonClick);
     this._eventFormComponent.setEventTypeChangeHandler(this._handleEventTypeChange);
 
     render(this._tripDaysContainer, this._eventFormComponent, RenderPosition.BEFOREBEGIN);
     document.addEventListener(`keydown`, this._escKeyDownHandler);
-    this._disableButton(true);
+    this._disableNewEventButton(true);
   }
 
   _handleFormSubmit(newEvent) {
@@ -87,7 +87,7 @@ export default class EventNew {
     if (this._eventFormComponent !== null) {
       remove(this._eventFormComponent);
       this._eventFormComponent = null;
-      this._disableButton(false);
+      this._disableNewEventButton(false);
     }
   }
 }

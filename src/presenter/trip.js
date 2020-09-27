@@ -62,14 +62,14 @@ export default class Trip {
     this._filterModel.addObserver(this._handleModelUpdate);
   }
 
-  addNewEvent(disableButton) {
+  addNewEvent(disableNewEventButton) {
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
     if (this._noEventView) {
       remove(this._noEventView);
     }
 
-    this._eventNewPresenter.init(disableButton);
+    this._eventNewPresenter.init(disableNewEventButton);
   }
 
   _getEvents() {
