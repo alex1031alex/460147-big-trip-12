@@ -69,11 +69,12 @@ export default class EventNew {
 
   _handleEventTypeChange(chosenType) {
     const updatedOffers = this._offersModel.getOffers(chosenType);
+    this._eventFormComponent.setAvailableOffers(updatedOffers);
 
     this._eventFormComponent.updateDraftData(
         {
           type: chosenType,
-          offers: updatedOffers
+          offers: []
         }
     );
   }

@@ -74,13 +74,13 @@ const createRollupButtonTemplate = (eventId) => {
   return ``;
 };
 
-const createOfferTemplate = (offer) => {
+const createOfferTemplate = (offer, chosenOffers) => {
   if (!offer) {
     return ``;
   }
 
   const {title, price} = offer;
-  const isChecked = !!offer.isChecked;
+  const isChecked = chosenOffers.some((chosenOffer) => chosenOffer.title === offer.title);
   const checkedAttributeValue = isChecked ? `checked` : ``;
   const titleAsHtml = title.toLowerCase().split(` `).join(`-`);
 
@@ -101,15 +101,17 @@ const createOfferTemplate = (offer) => {
   );
 };
 
-const createOffersTemplate = (offers) => {
-  if (offers.length === 0) {
+const createOffersTemplate = (availableOffers, chosenOffers) => {
+  if (availableOffers.length === 0) {
     return ``;
   }
 
   return `<section class="event__section  event__section--offers">
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
-      ${offers.map(createOfferTemplate).join(`\n`)}
+      ${availableOffers
+          .map((availableOffer) => createOfferTemplate(availableOffer, chosenOffers))
+          .join(`\n`)}
     </div>
   </section>`;
 };
@@ -137,8 +139,8 @@ const createDestinationTemplate = (destination) => {
           </section>`;
 };
 
-const createDetailsTemplate = (offers, destination) => {
-  const offersTemplate = createOffersTemplate(offers);
+const createDetailsTemplate = (availableOffers, chosenOffers, destination) => {
+  const offersTemplate = createOffersTemplate(availableOffers, chosenOffers);
   const destinationTemplate = createDestinationTemplate(destination);
 
   if (offersTemplate === `` && destinationTemplate === ``) {
@@ -153,7 +155,7 @@ const createDetailsTemplate = (offers, destination) => {
   );
 };
 
-const createEventFormTemplate = (draftData) => {
+const createEventFormTemplate = (draftData, availableOffers) => {
   const {
     id,
     type,
@@ -182,7 +184,7 @@ const createEventFormTemplate = (draftData) => {
   const resetButtonName = id || id === 0 ? `Delete` : `Cancel`;
   const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked);
   const rollupButtonTemplate = createRollupButtonTemplate(id);
-  const detailsTemplate = createDetailsTemplate(offers, destination);
+  const detailsTemplate = createDetailsTemplate(availableOffers, offers, destination);
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -264,12 +266,12 @@ const createEventFormTemplate = (draftData) => {
 };
 
 export default class EventForm extends SmartView {
-  constructor(event, destinations, offers) {
+  constructor(event, destinations, availableOffers) {
     super();
 
     this._destinations = destinations;
-    this._offers = offers;
-    this._draftData = EventForm.parseEventToDraftData(event, this._destinations, this._offers);
+    this._availableOffers = availableOffers;
+    this._draftData = EventForm.parseEventToDraftData(event, this._destinations, this._availableOffers);
     this._datepicker = null;
 
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
@@ -287,7 +289,7 @@ export default class EventForm extends SmartView {
   }
 
   getTemplate() {
-    return createEventFormTemplate(this._draftData);
+    return createEventFormTemplate(this._draftData, this._availableOffers);
   }
 
   removeElement() {
@@ -299,8 +301,12 @@ export default class EventForm extends SmartView {
     this.updateDraftData(EventForm.parseEventToDraftData(
         event,
         this._destinations,
-        this._offers
+        this._availableOffers
     ));
+  }
+
+  setAvailableOffers(offers) {
+    this._availableOffers = offers;
   }
 
   _destroyDatepicker() {
@@ -450,10 +456,13 @@ export default class EventForm extends SmartView {
       return;
     }
 
-    if (this._draftData.offers.length !== 0) {
+    if (this._availableOffers.length !== 0) {
       const offerButtons = this.getElement().querySelectorAll(`.event__offer-checkbox`);
+      this._draftData.offers = [];
       offerButtons.forEach((offerButton, index) => {
-        this._draftData.offers[index].isChecked = offerButton.checked;
+        if (offerButton.checked) {
+          this._draftData.offers.push(this._availableOffers[index]);
+        }
       });
     }
 
@@ -511,39 +520,19 @@ export default class EventForm extends SmartView {
     setTimeout(removeMessage, MESSAGE_SHOW_TIME);
   }
 
-  static parseEventToDraftData(event, destinations, allOffers) {
-    const chosenOffers = event.offers;
-    const offers = allOffers.map((offer) => {
-      const isOfferChosen = chosenOffers.some((chosenOffer) => chosenOffer.title === offer.title);
-
-      if (isOfferChosen) {
-        return Object.assign({}, offer, {isChecked: true});
-      }
-
-      return Object.assign({}, offer, {isChecked: false});
-    });
-
+  static parseEventToDraftData(event, destinations) {
     return Object.assign(
         {},
         event,
         {
           isTransferEvent: transferTypes.some((it) => it === event.type),
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
-          destinations,
-          offers
+          destinations
         }
     );
   }
 
   static parseDraftDataToEvent(draftData) {
-    if (draftData.offers.length > 0) {
-      draftData.offers = draftData.offers.filter((offer) => {
-        const isChecked = offer.isChecked;
-        delete offer.isChecked;
-        return isChecked;
-      });
-    }
-
     draftData = Object.assign(
         {},
         draftData,
