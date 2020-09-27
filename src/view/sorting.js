@@ -6,18 +6,20 @@ const DayColumnHead = {
   EMPTY: ``
 };
 
-const createSortingTemplate = () => {
+const createSortingTemplate = (sortType) => {
+  const dayTextContent = sortType === SortType.EVENT ? DayColumnHead.DAY : DayColumnHead.EMPTY;
+
   return (
     `<form class="trip-events__trip-sort  trip-sort" action="#" method="get">
-      <span class="trip-sort__item  trip-sort__item--day">Day</span>
+      <span class="trip-sort__item  trip-sort__item--day">${dayTextContent}</span>
 
       <div class="trip-sort__item  trip-sort__item--event">
-        <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-event" data-sort-type="${SortType.EVENT}" checked>
+        <input id="sort-event" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-event" data-sort-type="${SortType.EVENT}" ${sortType === SortType.EVENT ? `checked` : ``}>
         <label class="trip-sort__btn" for="sort-event">Event</label>
       </div>
 
       <div class="trip-sort__item  trip-sort__item--time">
-        <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" data-sort-type="${SortType.TIME}">
+        <input id="sort-time" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-time" data-sort-type="${SortType.TIME}" ${sortType === SortType.TIME ? `checked` : ``}>
         <label class="trip-sort__btn" for="sort-time">
           Time
           <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -27,7 +29,7 @@ const createSortingTemplate = () => {
       </div>
 
       <div class="trip-sort__item  trip-sort__item--price">
-        <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" data-sort-type="${SortType.PRICE}">
+        <input id="sort-price" class="trip-sort__input  visually-hidden" type="radio" name="trip-sort" value="sort-price" data-sort-type="${SortType.PRICE}" ${sortType === SortType.PRICE ? `checked` : ``}>
         <label class="trip-sort__btn" for="sort-price">
           Price
           <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -42,9 +44,10 @@ const createSortingTemplate = () => {
 };
 
 export default class Sorting extends AbstractView {
-  constructor() {
+  constructor(sortType) {
     super();
 
+    this._sortType = sortType;
     this._sortTypeChangeHandler = this._sortTypeChangeHandler.bind(this);
   }
 
@@ -62,6 +65,7 @@ export default class Sorting extends AbstractView {
     evt.preventDefault(evt);
     const sortType = evt.target.dataset.sortType;
 
+    this._sortType = sortType;
     this._dayColumnHeadToggle(sortType);
     this._callback.sortTypeChange(sortType);
   }
@@ -72,6 +76,6 @@ export default class Sorting extends AbstractView {
   }
 
   getTemplate() {
-    return createSortingTemplate();
+    return createSortingTemplate(this._sortType);
   }
 }

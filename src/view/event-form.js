@@ -2,17 +2,24 @@ import SmartView from "./smart.js";
 import {
   transferTypes,
   activityTypes,
-  generateOffers,
   generateDestinationInfo,
   generateDestinationPhotos
 } from "../mock/event.js";
-import {localizeDate, capitalizeWord} from "../utils/common.js";
+import {localizeDate} from "../utils/common.js";
 import {EventCategory} from "../const.js";
 import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
-const DEFAULT_EVENT_TYPE = `Bus`;
+const ErrorMessage = {
+  DATE: `Input error! Start date can't be more than end date.`,
+  DESTINATION: `Input error! Please, chose destination from dropdown list.`,
+  PRICE: `Input error! Price must be a number.`,
+  NO_DESTINATION: `Please, set destination for this point!`,
+  NO_PRICE: `Please, set price for this point!`
+};
+
+const MESSAGE_SHOW_TIME = 1200;
 
 const createEventTypeTemplate = (eventType, isChecked) => {
   const checkedAttributeValue = isChecked ? `checked` : ``;
@@ -25,33 +32,77 @@ const createEventTypeTemplate = (eventType, isChecked) => {
   );
 };
 
+const createDestinationListTemplate = (destinations) => {
+  const destinationOptions = destinations
+    .map((destination) => `<option value="${destination}"></option>`)
+    .join(`\n`);
+
+  return `<datalist id="destination-list-1">
+    ${destinationOptions}
+  </datalist>`;
+};
+
+const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
+  if (eventId || eventId === 0) {
+    return `<input
+      id="event-favorite-1"
+      class="event__favorite-checkbox  visually-hidden"
+      type="checkbox"
+      name="event-favorite"
+      ${isFavoriteChecked}
+    >
+    <label class="event__favorite-btn" for="event-favorite-1">
+      <span class="visually-hidden">Add to favorite</span>
+      <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+        <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+      </svg>
+    </label>`;
+  }
+
+  return ``;
+};
+
+const createRollupButtonTemplate = (eventId) => {
+  if (eventId || eventId === 0) {
+    return (
+      `<button class="event__rollup-btn" type="button">
+        <span class="visually-hidden">Open event</span>
+      </button>`
+    );
+  }
+
+  return ``;
+};
+
 const createOfferTemplate = (offer) => {
   if (!offer) {
     return ``;
   }
 
-  const {name, title, cost, isChecked} = offer;
+  const {title, price} = offer;
+  const isChecked = offer.isChecked ? offer.isChecked : false;
   const checkedAttributeValue = isChecked ? `checked` : ``;
+  const titleAsHtml = title.toLowerCase().split(` `).join(`-`);
 
   return (
     `<div class="event__offer-selector">
       <input
         class="event__offer-checkbox  visually-hidden" 
-        id="event-offer-${title}-1" type="checkbox"    
-        name="event-offer-${title}" 
+        id="event-offer-${titleAsHtml}-1" type="checkbox"    
+        name="event-offer-${titleAsHtml}" 
         ${checkedAttributeValue}
       >
-      <label class="event__offer-label" for="event-offer-${title}-1">
-        <span class="event__offer-title">${name}</span>
+      <label class="event__offer-label" for="event-offer-${titleAsHtml}-1">
+        <span class="event__offer-title">${title}</span>
         &plus;
-        &euro;&nbsp;<span class="event__offer-price">${cost}</span>
+        &euro;&nbsp;<span class="event__offer-price">${price}</span>
       </label>
     </div>`
   );
 };
 
 const createOffersTemplate = (offers) => {
-  if (!offers || offers.length === 0) {
+  if (offers.length === 0) {
     return ``;
   }
 
@@ -63,18 +114,8 @@ const createOffersTemplate = (offers) => {
   </section>`;
 };
 
-const createDestinationListTemplate = (destinations) => {
-  const destinationOptions = destinations
-    .map((destination) => `<option value="${destination}"></option>`)
-    .join(`\n`);
-
-  return `<datalist id="destination-list-1">
-    ${destinationOptions}
-  </datalist>`;
-};
-
 const createDestinationTemplate = (destination) => {
-  if (destination === null) {
+  if (!destination.name) {
     return ``;
   }
 
@@ -96,101 +137,35 @@ const createDestinationTemplate = (destination) => {
           </section>`;
 };
 
-const createEventFormTemplate = (draftData) => {
+const createDetailsTemplate = (offers, destination) => {
+  const offersTemplate = createOffersTemplate(offers);
+  const destinationTemplate = createDestinationTemplate(destination);
 
-  if (event === null) {
-    const transferEventNamesTemplate = transferTypes
-      .map((it) => {
-        return createEventTypeTemplate(it, it === DEFAULT_EVENT_TYPE);
-      })
-      .join(`\n\n`);
-    const activityEventNamesTemplate = activityTypes
-      .map((it) => createEventTypeTemplate(it, false))
-      .join(`\n\n`);
-
-    const initialDate = localizeDate(new Date());
-
-    return (
-      `<form class="trip-events__item  event  event--edit" action="#" method="post">
-        <header class="event__header">
-          <div class="event__type-wrapper">
-            <label class="event__type  event__type-btn" for="event-type-toggle-1">
-              <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/Bus.png" alt="Event type icon">
-            </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
-
-            <div class="event__type-list">
-              <fieldset class="event__type-group">
-                <legend class="visually-hidden">Transfer</legend>
-                ${transferEventNamesTemplate}
-              </fieldset>
-
-              <fieldset class="event__type-group">
-                <legend class="visually-hidden">Activity</legend>
-                ${activityEventNamesTemplate}
-              </fieldset>
-            </div>
-          </div>
-
-          <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">
-              Bus to
-            </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="" list="destination-list-1">
-            <datalist id="destination-list-1">
-              <option value="Amsterdam"></option>
-              <option value="Geneva"></option>
-              <option value="Chamonix"></option>
-              <option value="Saint Petersburg"></option>
-            </datalist>
-          </div>
-
-          <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-1">
-              From
-            </label>
-            <input
-              class="event__input  event__input--time" 
-              id="event-start-time-1" 
-              type="text" 
-              name="event-start-time" 
-              value="${initialDate}"
-            >
-            &mdash;
-            <label class="visually-hidden" for="event-end-time-1">
-              To
-            </label>
-            <input
-              class="event__input  event__input--time" 
-              id="event-end-time-1" 
-              type="text" 
-              name="event-end-time" 
-              value="${initialDate}"
-            >
-          </div>
-
-          <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-1">
-              <span class="visually-hidden">Price</span>
-              &euro;
-            </label>
-            <input
-              class="event__input  event__input--price" 
-              id="event-price-1" type="text" 
-              name="event-price" 
-              value=""
-            >
-          </div>
-
-          <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
-        </header>
-      </form>`
-    );
+  if (offersTemplate === `` && destinationTemplate === ``) {
+    return ``;
   }
 
-  const {type, destination, destinations, date: {start, end}, offers, cost, isTransferEvent, isFavoriteChecked} = draftData;
+  return (
+    `<section class="event__details">
+      ${offersTemplate}
+      ${destinationTemplate}
+    </section>`
+  );
+};
+
+const createEventFormTemplate = (draftData) => {
+  const {
+    id,
+    type,
+    destination,
+    date: {start, end},
+    offers,
+    cost,
+    isTransferEvent,
+    isFavoriteChecked,
+    destinations
+  } = draftData;
+
   const localizedStartDate = localizeDate(start);
   const localizedEndDate = localizeDate(end);
 
@@ -202,11 +177,12 @@ const createEventFormTemplate = (draftData) => {
     .map((it) => createEventTypeTemplate(it, it === type))
     .join(`\n\n`);
 
-  const offersTemplate = createOffersTemplate(offers);
-
   const destinationListTemplate = createDestinationListTemplate(destinations);
-  const destinationTempate = createDestinationTemplate(destination);
   const destinationNameTemplate = !destination ? `` : destination.name;
+  const resetButtonName = id || id === 0 ? `Delete` : `Cancel`;
+  const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked);
+  const rollupButtonTemplate = createRollupButtonTemplate(id);
+  const detailsTemplate = createDetailsTemplate(offers, destination);
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -277,41 +253,35 @@ const createEventFormTemplate = (draftData) => {
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">Delete</button>
+        <button class="event__reset-btn" type="reset">${resetButtonName}</button>
 
-        <input id="event-favorite-1" class="event__favorite-checkbox  visually-hidden" type="checkbox" name="event-favorite" ${isFavoriteChecked}>
-        <label class="event__favorite-btn" for="event-favorite-1">
-          <span class="visually-hidden">Add to favorite</span>
-          <svg class="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
-            <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
-          </svg>
-        </label>
-
-        <button class="event__rollup-btn" type="button">
-          <span class="visually-hidden">Open event</span>
-        </button>
+        ${favoriteButtonTemplate}
+        ${rollupButtonTemplate}
       </header>
-      <section class="event__details">
-        ${offersTemplate}
-        ${destinationTempate}
-      </section>
+      ${detailsTemplate}
     </form>`
   );
 };
 
 export default class EventForm extends SmartView {
-  constructor(event) {
+  constructor(event, destinations, offers) {
     super();
 
-    this._draftData = EventForm.parseEventToDraftData(event);
+    this._destinations = destinations;
+    this._offers = offers;
+    this._draftData = EventForm.parseEventToDraftData(event, this._destinations, this._offers);
     this._datepicker = null;
 
-    this._submitHandler = this._submitHandler.bind(this);
-    this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
     this._destinationChoseHandler = this._destinationChoseHandler.bind(this);
     this._startDateFocusHandler = this._startDateFocusHandler.bind(this);
     this._endDateFocusHandler = this._endDateFocusHandler.bind(this);
+
+    this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
+    this._favoriteButtonClickHandler = this._favoriteButtonClickHandler.bind(this);
+    this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
+    this._priceChangeHandler = this._priceChangeHandler.bind(this);
+    this._submitHandler = this._submitHandler.bind(this);
 
     this._setInnerHandlers();
   }
@@ -320,8 +290,17 @@ export default class EventForm extends SmartView {
     return createEventFormTemplate(this._draftData);
   }
 
+  removeElement() {
+    this._destroyDatepicker();
+    super.removeElement();
+  }
+
   reset(event) {
-    this.updateDraftData(EventForm.parseEventToDraftData(event));
+    this.updateDraftData(EventForm.parseEventToDraftData(
+        event,
+        this._destinations,
+        this._offers
+    ));
   }
 
   _destroyDatepicker() {
@@ -329,6 +308,26 @@ export default class EventForm extends SmartView {
       this._datepicker.destroy();
       this._datepicker = null;
     }
+  }
+
+  _destinationChoseHandler(evt) {
+    const userDestination = evt.target.value;
+    const update = {
+      destination: {
+        info: generateDestinationInfo(),
+        photos: generateDestinationPhotos(),
+      }
+    };
+
+    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
+      update.destination.name = userDestination;
+    } else {
+      this._showErrorMessage(ErrorMessage.DESTINATION);
+      evt.target.value = ``;
+      return;
+    }
+
+    this.updateDraftData(update);
   }
 
   _startDateFocusHandler() {
@@ -362,70 +361,103 @@ export default class EventForm extends SmartView {
     );
   }
 
+  _priceChangeHandler(evt) {
+    const newPrice = evt.target.value === `` ? 0 : evt.target.value;
+
+    if ((typeof +newPrice) !== `number`) {
+      this._showErrorMessage(ErrorMessage.PRICE);
+      evt.target.value = ``;
+      return;
+    }
+
+    this.updateDraftData({cost: newPrice});
+  }
+
   _eventTypeChangeHandler(evt) {
-    this.updateDraftData({
-      type: capitalizeWord(evt.target.value),
-      isTransferEvent: transferTypes.some((it) => it === capitalizeWord(evt.target.value)),
-      destination: null,
-      offers: generateOffers(false),
+    evt.preventDefault();
+    this._callback.eventTypeChange(evt.target.value);
+  }
+
+  setEventTypeChangeHandler(callback) {
+    this._callback.eventTypeChange = callback;
+
+    this.getElement()
+    .querySelectorAll(`.event__type-group`)
+    .forEach((eventTypeGroup) => {
+      eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
     });
   }
 
-  _destinationChoseHandler(evt) {
-    const userDestination = evt.target.value;
-    const update = {
-      destination: {
-        info: generateDestinationInfo(),
-        photos: generateDestinationPhotos(),
-      }
-    };
+  _deleteButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.deleteButtonClick(EventForm.parseDraftDataToEvent(this._draftData));
+  }
 
-    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
-      update.destination.name = userDestination;
-    } else {
-      update.destination.name = ``;
+  setDeleteButtonClickHandler(callback) {
+    this._callback.deleteButtonClick = callback;
+    this
+      .getElement()
+      .querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, this._deleteButtonClickHandler);
+  }
+
+  _favoriteButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.favoriteButtonClick();
+  }
+
+  setFavoriteButtonClickHandler(callback) {
+    this._callback.favoriteButtonClick = callback;
+
+    const favoriteButton = this.getElement().querySelector(`.event__favorite-checkbox`);
+    if (!favoriteButton) {
+      return;
     }
 
-    this.updateDraftData(update);
+    favoriteButton.addEventListener(`click`, this._favoriteButtonClickHandler);
+  }
+
+  _rollupButtonClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.rollupButtonClick();
+  }
+
+  setRollupButtonClickHandler(callback) {
+    const rollupButton = this.getElement().querySelector(`.event__rollup-btn`);
+    if (!rollupButton) {
+      return;
+    }
+
+    this._callback.rollupButtonClick = callback;
+    rollupButton.addEventListener(`click`, this._rollupButtonClickHandler);
   }
 
   _submitHandler(evt) {
     evt.preventDefault();
 
-    if (this._draftData.date.start > this._draftData.date.end) {
+    if (!this._draftData.destination.name) {
+      this._showErrorMessage(ErrorMessage.NO_DESTINATION);
       return;
     }
 
-    this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
-  }
+    if (this._draftData.date.start.getTime() > this._draftData.date.end.getTime()) {
+      this._showErrorMessage(ErrorMessage.DATE);
+      return;
+    }
 
-  _favoriteClickHandler(evt) {
-    evt.preventDefault();
-    this._callback.favoriteClick();
-  }
+    if (!this._draftData.cost) {
+      this._showErrorMessage(ErrorMessage.NO_PRICE);
+      return;
+    }
 
-  _setInnerHandlers() {
-    this.getElement()
-      .querySelectorAll(`.event__type-group`)
-      .forEach((eventTypeGroup) => {
-        eventTypeGroup.addEventListener(`change`, this._eventTypeChangeHandler);
+    if (this._draftData.offers.length !== 0) {
+      const offerButtons = this.getElement().querySelectorAll(`.event__offer-checkbox`);
+      offerButtons.forEach((offerButton, index) => {
+        this._draftData.offers[index].isChecked = offerButton.checked;
       });
+    }
 
-    this.getElement()
-      .querySelector(`.event__input--destination`)
-      .addEventListener(`change`, this._destinationChoseHandler);
-
-    const startDateInput = this.getElement().querySelector(`#event-start-time-1`);
-    const endDateInput = this.getElement().querySelector(`#event-end-time-1`);
-
-    startDateInput.addEventListener(`focus`, this._startDateFocusHandler);
-    endDateInput.addEventListener(`focus`, this._endDateFocusHandler);
-  }
-
-  restoreHandlers() {
-    this._setInnerHandlers();
-    this.setSubmitHandler(this._callback.submit);
-    this.setFavoriteClickHandler(this._callback.favoriteClick);
+    this._callback.submit(EventForm.parseDraftDataToEvent(this._draftData));
   }
 
   setSubmitHandler(callback) {
@@ -433,26 +465,85 @@ export default class EventForm extends SmartView {
     this.getElement().addEventListener(`submit`, this._submitHandler);
   }
 
-  setFavoriteClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this
-      .getElement()
-      .querySelector(`.event__favorite-checkbox`)
-      .addEventListener(`click`, this._favoriteClickHandler);
+  _setInnerHandlers() {
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, this._destinationChoseHandler);
+
+    const startDateInput = this.getElement().querySelector(`#event-start-time-1`);
+    const endDateInput = this.getElement().querySelector(`#event-end-time-1`);
+    const priceField = this.getElement().querySelector(`.event__input--price`);
+
+    startDateInput.addEventListener(`focus`, this._startDateFocusHandler);
+    endDateInput.addEventListener(`focus`, this._endDateFocusHandler);
+    priceField.addEventListener(`change`, this._priceChangeHandler);
   }
 
-  static parseEventToDraftData(event) {
+  restoreHandlers() {
+    this._setInnerHandlers();
+    this.setSubmitHandler(this._callback.submit);
+    this.setFavoriteButtonClickHandler(this._callback.favoriteButtonClick);
+    this.setRollupButtonClickHandler(this._callback.rollupButtonClick);
+    this.setDeleteButtonClickHandler(this._callback.deleteButtonClick);
+    this.setEventTypeChangeHandler(this._callback.eventTypeChange);
+  }
+
+  _showErrorMessage(message) {
+    const errorTemplate = document
+      .querySelector(`#error`)
+      .content.querySelector(`.error-message__wrap`)
+      .cloneNode(true);
+    const errorMessageContainer = this.getElement().querySelector(`.event__header`);
+    const submitButton = this.getElement().querySelector(`.event__save-btn`);
+
+    errorTemplate.querySelector(`.error-message__text`).textContent = message;
+    errorMessageContainer.style.flexWrap = `wrap`;
+    submitButton.disabled = true;
+
+    errorMessageContainer.prepend(errorTemplate);
+
+    const removeMessage = () => {
+      errorMessageContainer.style.flexWrap = `no-wrap`;
+      errorTemplate.remove();
+      submitButton.disabled = false;
+    };
+
+    setTimeout(removeMessage, MESSAGE_SHOW_TIME);
+  }
+
+  static parseEventToDraftData(event, destinations, allOffers) {
+    const chosenOffers = event.offers;
+    const offers = allOffers.map((offer) => {
+      const isOfferChosen = chosenOffers.some((chosenOffer) => chosenOffer.title === offer.title);
+
+      if (isOfferChosen) {
+        return Object.assign({}, offer, {isChecked: true});
+      }
+
+      return Object.assign({}, offer, {isChecked: false});
+    });
+
     return Object.assign(
         {},
         event,
         {
           isTransferEvent: transferTypes.some((it) => it === event.type),
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
+          destinations,
+          offers
         }
     );
   }
 
   static parseDraftDataToEvent(draftData) {
+    if (draftData.offers.length > 0) {
+      draftData.offers = draftData.offers.filter((offer) => {
+        const isChecked = offer.isChecked;
+        delete offer.isChecked;
+        return isChecked;
+      });
+    }
+
     draftData = Object.assign(
         {},
         draftData,
@@ -462,6 +553,7 @@ export default class EventForm extends SmartView {
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;
+    delete draftData.destinations;
 
     return draftData;
   }

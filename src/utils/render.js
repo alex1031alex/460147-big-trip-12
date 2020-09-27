@@ -1,6 +1,7 @@
 import Abstract from "../view/abstract.js";
 
 const RenderPosition = {
+  BEFOREBEGIN: `beforebegin`,
   AFTERBEGIN: `afterbegin`,
   BEFOREEND: `beforeend`,
 };
@@ -30,6 +31,9 @@ const render = (container, child, place) => {
   }
 
   switch (place) {
+    case RenderPosition.BEFOREBEGIN:
+      container.before(child);
+      break;
     case RenderPosition.AFTERBEGIN:
       container.prepend(child);
       break;

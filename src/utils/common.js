@@ -72,22 +72,16 @@ const localizeDate = (date) => {
   return `${day}/${month}/${year} ${time}`;
 };
 
-const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
-  if (index === -1) {
-    return items;
-  }
-
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1)
-  ];
-};
-
 const capitalizeWord = (word) => {
   return `${word[0].toUpperCase()}${word.substring(1)}`;
+};
+
+const isDatesEqual = (dateA, dateB) => {
+  if (dateA === null && dateB === null) {
+    return true;
+  }
+
+  return moment(dateA).isSame(dateB);
 };
 
 export {
@@ -99,6 +93,6 @@ export {
   formatTimeInterval,
   convertToMachineFormat,
   localizeDate,
-  updateItem,
   capitalizeWord,
+  isDatesEqual,
 };

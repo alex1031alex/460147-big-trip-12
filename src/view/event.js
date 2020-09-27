@@ -9,13 +9,13 @@ const createOfferTemplate = (offer) => {
     return ``;
   }
 
-  const {name, cost} = offer;
+  const {title, price} = offer;
 
   return (
     `<li class="event__offer">
-      <span class="event__offer-title">${name}</span>
+      <span class="event__offer-title">${title}</span>
       &plus;
-      &euro;&nbsp;<span class="event__offer-price">${cost}</span>
+      &euro;&nbsp;<span class="event__offer-price">${price}</span>
     </li>`
   );
 };
@@ -26,8 +26,7 @@ const createEventTemplate = (event) => {
   const isTransferEvent = category === EventCategory.TRANSFER;
   const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
 
-  const chosenOffers = offers.filter((offer) => offer.isChecked);
-  const offersTemplate = chosenOffers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
+  const offersTemplate = offers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
 
   const eventStartTime = getLocalTime(start);
   const eventEndTime = getLocalTime(end);
@@ -79,22 +78,22 @@ export default class Event extends AbstractView {
     super();
     this._event = event;
 
-    this._rollupButtonClickHandler = this._rollupButtonClickHandler.bind(this);
+    this._expandButtonClickHandler = this._expandButtonClickHandler.bind(this);
   }
 
   getTemplate() {
     return createEventTemplate(this._event);
   }
 
-  _rollupButtonClickHandler(evt) {
+  _expandButtonClickHandler(evt) {
     evt.preventDefault();
-    this._callback.rollupButtonClick();
+    this._callback.expandButtonClick();
   }
 
-  setRollupClickHandler(callback) {
-    this._callback.rollupButtonClick = callback;
+  setExpandButtonClickHandler(callback) {
+    this._callback.expandButtonClick = callback;
     this.getElement()
       .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, this._rollupButtonClickHandler);
+      .addEventListener(`click`, this._expandButtonClickHandler);
   }
 }

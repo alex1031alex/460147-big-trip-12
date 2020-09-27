@@ -3,8 +3,6 @@ import {getRandomInteger, getRandomItem} from "../utils/common.js";
 
 const MIN_SENTENCE_COUNT = 1;
 const MAX_SENTENCE_COUNT = 5;
-const MIN_OFFER_COUNT = 0;
-const MAX_OFFER_COUNT = 5;
 const MIN_EVENT_DURATION = 30;
 const MAX_EVENT_DURATION = 600;
 const MIN_INTERVAL_BETWEEN_EVENTS = 20;
@@ -13,19 +11,19 @@ const MIN_PHOTO_COUNT = 1;
 const MAX_PHOTO_COUNT = 5;
 
 const transferTypes = [
-  `Taxi`,
-  `Bus`,
-  `Train`,
-  `Ship`,
-  `Transport`,
-  `Drive`,
-  `Flight`,
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `drive`,
+  `flight`,
 ];
 
 const activityTypes = [
-  `Check-in`,
-  `Sightseeing`,
-  `Restaurant`,
+  `check-in`,
+  `sightseeing`,
+  `restaurant`,
 ];
 
 const destinations = [
@@ -37,18 +35,7 @@ const destinations = [
   `Rome`,
 ];
 
-const offerSamples = [
-  {name: `Add luggage`, title: `luggage`, cost: 0, isChecked: false},
-  {name: `Switch to comfort`, title: `comfort`, cost: 0, isChecked: false},
-  {name: `Add meal`, title: `meal`, cost: 0, isChecked: false},
-  {name: `Choose seats`, title: `seats`, cost: 0, isChecked: false},
-  {name: `Travel by Train`, title: `train`, cost: 0, isChecked: false},
-  {name: `Watch moovie`, title: `moovie`, cost: 0, isChecked: false},
-  {name: `Order Uber`, title: `uber`, cost: 0, isChecked: false},
-  {name: `Rent a car`, title: `car`, cost: 0, isChecked: false},
-  {name: `Add breakfast`, title: `breakfast`, cost: 0, isChecked: false},
-  {name: `Lunch in city`, title: `lunch`, cost: 0, isChecked: false},
-];
+const getDestinations = () => destinations;
 
 const descriptionText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`;
 
@@ -72,8 +59,12 @@ const generateDestinationPhotos = () => {
   return photos;
 };
 
-let currentDate = new Date();
+let currentDate = new Date(2020, 8, 11);
 let eventIdCounter = 0;
+
+const generateId = () => {
+  return eventIdCounter++;
+};
 
 const generateDate = () => {
   const startDate = new Date(currentDate);
@@ -90,57 +81,37 @@ const generateDate = () => {
   };
 };
 
-const generateOffers = (hasChosenOffers = true) => {
-  const offers = [];
-  const offerCount = getRandomInteger(MIN_OFFER_COUNT, MAX_OFFER_COUNT);
-
-  for (let i = 1; i <= offerCount; i++) {
-    offers.push(getRandomItem(offerSamples));
-  }
-
-  const updatedOffers = Array
-    .from(new Set(offers))
-    .map((offer) => {
-      return Object.assign({}, offer, {
-        cost: getRandomInteger(1, 10) * 5,
-        isChecked: hasChosenOffers ? Boolean(getRandomInteger(0, 1)) : false,
-      });
-    });
-
-  return updatedOffers;
-};
-
 const generateEvent = () => {
   const event = {};
   event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
-  event.id = eventIdCounter++;
+  event.id = generateId();
 
   if (event.category === EventCategory.TRANSFER) {
     event.type = getRandomItem(transferTypes);
   } else {
     event.type = getRandomItem(activityTypes);
   }
-  event.destinations = destinations;
   event.destination = {
     name: getRandomItem(destinations),
     info: generateDestinationInfo(),
     photos: generateDestinationPhotos(),
   };
 
+  event.offers = [];
   event.date = generateDate();
-  event.offers = generateOffers();
+
   event.cost = getRandomInteger(2, 120) * 5;
   event.isFavorite = false;
-
   return event;
 };
 
 export {
+  generateId,
   generateEvent,
-  generateOffers,
   generateDestinationInfo,
   generateDestinationPhotos,
+  getDestinations,
   transferTypes,
   activityTypes
 };
