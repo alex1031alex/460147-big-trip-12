@@ -2,14 +2,14 @@ import MenuView from "./view/menu.js";
 import StatsView from "./view/stats.js";
 import {generateEvent, getDestinations} from "./mock/event.js";
 import {generateOffers} from "./mock/offers.js";
-import {render, RenderPosition} from "./utils/render.js";
+import {remove, render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
 import EventsModel from "./model/events.js";
 import FilterModel from "./model/filter.js";
 import DestinationsModel from "./model/destinations.js";
 import OffersModel from "./model/offers.js";
 import FilterPresenter from "./presenter/filter.js";
-import {UpdateType} from "./const.js";
+import {UpdateType, MenuItem} from "./const.js";
 
 const EVENT_COUNT = 20;
 const events = [];
@@ -37,6 +37,19 @@ const controlsContainer = page.querySelector(`.trip-controls`);
 const eventsContainer = page.querySelector(`.trip-events`);
 const newEventButton = page.querySelector(`.trip-main__event-add-btn`);
 
+const menuComponent = new MenuView();
+let statsComponent = null;
+
+const filterPresenter = new FilterPresenter(controlsContainer, filterModel);
+const tripPresenter = new TripPresenter(
+    eventsContainer,
+    eventsModel,
+    filterModel,
+    destinationsModel,
+    offersModel
+);
+
+
 const newEventButtonDisableToggle = (isButtonDisabled) => {
   if (isButtonDisabled) {
     newEventButton.disabled = true;
@@ -45,22 +58,33 @@ const newEventButtonDisableToggle = (isButtonDisabled) => {
   }
 };
 
-render(pageMenuWrapper, new MenuView(), RenderPosition.AFTERBEGIN);
-const filterPresenter = new FilterPresenter(controlsContainer, filterModel);
-filterPresenter.init();
+render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);
 
-const tripPresenter = new TripPresenter(
-    eventsContainer,
-    eventsModel,
-    filterModel,
-    destinationsModel,
-    offersModel);
+const handleMenuClick = (menuItem) => {
+  switch (menuItem) {
+    case MenuItem.ADD_NEW_EVENT: {
+      break;
+    }
+    case MenuItem.TABLE: {
+      remove(statsComponent);
+      tripPresenter.render();
+      break;
+    }
+    case MenuItem.STATS: {
+      tripPresenter.destroy();
+      statsComponent = new StatsView(eventsModel.getEvents());
+      render(eventsContainer, statsComponent, RenderPosition.AFTEREND);
+      break;
+    }
+  }
+};
+
+menuComponent.setMenuClickHandler(handleMenuClick);
+
+filterPresenter.init();
 tripPresenter.render();
 
 newEventButton.addEventListener(`click`, (evt) => {
   evt.preventDefault();
   tripPresenter.addNewEvent(newEventButtonDisableToggle);
 });
-
-const statsComponent = new StatsView(eventsModel.getEvents());
-render(eventsContainer, statsComponent, RenderPosition.AFTEREND);
