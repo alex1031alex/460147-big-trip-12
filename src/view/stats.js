@@ -1,17 +1,34 @@
-import SmartView from "./smart.js";
+import AbstractView from "./abstract.js";
+import {activityTypes} from "../const.js";
+import {getTimeInterval, formatTimeInterval} from "../utils/common.js";
 import Chart from "chart.js";
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const BAR_HEIGHT = 55;
 
-const renderMoneyChart = (moneyCtx) => {
+const renderMoneyChart = (moneyCtx, events) => {
+  const eventTypeCost = {};
+  events.forEach((event) => {
+    if (!eventTypeCost[event.type]) {
+      eventTypeCost[event.type] = event.cost;
+    } else {
+      eventTypeCost[event.type] = eventTypeCost[event.type] + event.cost;
+    }
+  });
+
+  const sortedTypesByCost = Object.entries(eventTypeCost).slice().sort((a, b) => b[1] - a[1]);
+  moneyCtx.height = BAR_HEIGHT * sortedTypesByCost.length;
+
+  const chartDataLabels = sortedTypesByCost.map((type) => type[0].toUpperCase());
+  const chartDataValues = sortedTypesByCost.map((type) => type[1]);
+
   return new Chart(moneyCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: [`✈️ FLY`, `???? STAY`, `???? DRIVE`, `????️ LOOK`, `???? EAT`, `???? RIDE`],
+      labels: chartDataLabels,
       datasets: [{
-        data: [400, 300, 200, 160, 150, 100],
+        data: chartDataValues,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -24,8 +41,8 @@ const renderMoneyChart = (moneyCtx) => {
             size: 13
           },
           color: `#000000`,
-          anchor: 'end',
-          align: 'start',
+          anchor: `end`,
+          align: `start`,
           formatter: (val) => `€ ${val}`
         }
       },
@@ -71,14 +88,40 @@ const renderMoneyChart = (moneyCtx) => {
   });
 };
 
-const renderTransportChart = (transportCtx) => {
+const renderTransportChart = (transportCtx, events) => {
+  const transferEventsCount = {};
+
+  events.forEach((event) => {
+    const isActivityEvent = activityTypes.some((type) => type === event.type);
+
+    if (isActivityEvent) {
+      return;
+    }
+
+    if (!transferEventsCount[event.type]) {
+      transferEventsCount[event.type] = 1;
+    } else {
+      transferEventsCount[event.type]++;
+    }
+  });
+
+  const sortedTransferTypes = Object
+    .entries(transferEventsCount)
+    .slice()
+    .sort((a, b) => b[1] - a[1]);
+
+  transportCtx.height = BAR_HEIGHT * sortedTransferTypes.length;
+
+  const chartDataLabels = sortedTransferTypes.map((type) => type[0].toUpperCase());
+  const chartDataValues = sortedTransferTypes.map((type) => type[1]);
+
   return new Chart(transportCtx, {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: [`???? DRIVE`, `???? RIDE`, `✈️ FLY`, `????️ SAIL`],
+      labels: chartDataLabels,
       datasets: [{
-        data: [4, 3, 2, 1],
+        data: chartDataValues,
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -91,14 +134,102 @@ const renderTransportChart = (transportCtx) => {
             size: 13
           },
           color: `#000000`,
-          anchor: 'end',
-          align: 'start',
+          anchor: `end`,
+          align: `start`,
           formatter: (val) => `${val}x`
         }
       },
       title: {
         display: true,
         text: `TRANSPORT`,
+        fontColor: `#000000`,
+        fontSize: 23,
+        position: `left`
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            fontColor: `#000000`,
+            padding: 5,
+            fontSize: 13,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          barThickness: 44,
+        }],
+        xAxes: [{
+          ticks: {
+            display: false,
+            beginAtZero: true,
+          },
+          gridLines: {
+            display: false,
+            drawBorder: false
+          },
+          minBarLength: 50
+        }],
+      },
+      legend: {
+        display: false
+      },
+      tooltips: {
+        enabled: false,
+      }
+    }
+  });
+};
+
+const renderTimeSpendChart = (timeSpendCtx, events) => {
+  const timeByEventTypes = {};
+  events.forEach((event) => {
+    const eventDuration = getTimeInterval(event.date.start, event.date.end);
+
+    if (!timeByEventTypes[event.type]) {
+      timeByEventTypes[event.type] = eventDuration;
+    } else {
+      timeByEventTypes[event.type] += eventDuration;
+    }
+  });
+
+  const sortedEventTypesByDuration = Object
+    .entries(timeByEventTypes)
+    .slice()
+    .sort((a, b) => b[1] - a[1]);
+
+  timeSpendCtx.height = BAR_HEIGHT * sortedEventTypesByDuration.length;
+
+  const chartDataLabels = sortedEventTypesByDuration.map((type) => type[0].toUpperCase());
+  const chartDataValues = sortedEventTypesByDuration.map((type) => type[1]);
+
+  return new Chart(timeSpendCtx, {
+    plugins: [ChartDataLabels],
+    type: `horizontalBar`,
+    data: {
+      labels: chartDataLabels,
+      datasets: [{
+        data: chartDataValues,
+        backgroundColor: `#ffffff`,
+        hoverBackgroundColor: `#ffffff`,
+        anchor: `start`
+      }]
+    },
+    options: {
+      plugins: {
+        datalabels: {
+          font: {
+            size: 13
+          },
+          color: `#000000`,
+          anchor: `end`,
+          align: `start`,
+          formatter: (val) => `${formatTimeInterval(val)}`
+        }
+      },
+      title: {
+        display: true,
+        text: `SPENT TIME`,
         fontColor: `#000000`,
         fontSize: 23,
         position: `left`
@@ -156,29 +287,35 @@ const createStatsTemplate = () => {
   </section>`;
 };
 
-export default class Stats extends SmartView {
+export default class Stats extends AbstractView {
   constructor(events) {
     super();
 
-    this._draftData = events;
+    this._events = events;
+    this._moneyChart = null;
+    this._transportChart = null;
+    this._timeSpendChart = null;
+
+    this._setCharts();
   }
 
   getTemplate() {
     return createStatsTemplate();
   }
 
-  restoreHandlers() {
-    return;
-  }
-
   _setCharts() {
     const moneyCtx = this.getElement().querySelector(`.statistics__chart--money`);
-    const transportCtx = document.querySelector(`.statistics__chart--transport`);
-    const timeSpendCtx = document.querySelector(`.statistics__chart--time`);
+    const transportCtx = this.getElement().querySelector(`.statistics__chart--transport`);
+    const timeSpendCtx = this.getElement().querySelector(`.statistics__chart--time`);
 
-    moneyCtx.height = BAR_HEIGHT * 6;
-    transportCtx.height = BAR_HEIGHT * 4;
-    timeSpendCtx.height = BAR_HEIGHT * 4;
+    if (this._moneyChart !== null || this._transportChart !== null || this._timeSpendChart !== null) {
+      this._moneyChart = null;
+      this._transportChart = null;
+      this._timeSpendChart = null;
+    }
 
+    this._moneyChart = renderMoneyChart(moneyCtx, this._events);
+    this._transportChart = renderTransportChart(transportCtx, this._events);
+    this._timeSpendChart = renderTimeSpendChart(timeSpendCtx, this._events);
   }
 }

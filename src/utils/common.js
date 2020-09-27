@@ -41,7 +41,7 @@ const formatTimeInterval = (interval) => {
 
   const totalDays = moment.duration(interval).asDays();
   if (totalDays < MAX_DAYS_IN_MONTH) {
-    return moment.utc(interval - MILLISECONDS_IN_DAY).format(`DD[D] hh[h] mm[m]`);
+    return moment.utc(interval - MILLISECONDS_IN_DAY).format(`D[D] hh[h] mm[m]`);
   }
 
   const wholeDays = Math.trunc(totalDays);

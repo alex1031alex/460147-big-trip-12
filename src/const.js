@@ -3,6 +3,22 @@ const EventCategory = {
   ACTIVITY: `activity`,
 };
 
+const transferTypes = [
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `drive`,
+  `flight`,
+];
+
+const activityTypes = [
+  `check-in`,
+  `sightseeing`,
+  `restaurant`,
+];
+
 const DEFAULT_EVENT_TYPE = `bus`;
 const currentDate = new Date();
 const BLANK_EVENT = {
@@ -58,5 +74,7 @@ export {
   SortType, UserAction,
   UpdateType,
   FilterType,
-  MenuItem
+  MenuItem,
+  transferTypes,
+  activityTypes
 };
