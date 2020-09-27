@@ -1,4 +1,5 @@
 import MenuView from "./view/menu.js";
+import StatsView from "./view/stats.js";
 import {generateEvent, getDestinations} from "./mock/event.js";
 import {generateOffers} from "./mock/offers.js";
 import {render, RenderPosition} from "./utils/render.js";
@@ -60,3 +61,6 @@ newEventButton.addEventListener(`click`, (evt) => {
   evt.preventDefault();
   tripPresenter.addNewEvent(newEventButtonDisableToggle);
 });
+
+const statsComponent = new StatsView(eventsModel.getEvents());
+render(eventsContainer, statsComponent, RenderPosition.AFTEREND);
