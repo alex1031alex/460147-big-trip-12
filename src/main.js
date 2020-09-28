@@ -12,22 +12,10 @@ import FilterPresenter from "./presenter/filter.js";
 import {UpdateType, MenuItem} from "./const.js";
 import Api from "./api.js";
 
-const EVENT_COUNT = 20;
 const AUTHORIZATION = `Basic hh54vTwSC8ne65liM22a`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip`;
-const events = [];
-
-for (let i = 0; i < EVENT_COUNT; i++) {
-  events.push(generateEvent());
-}
-
-const api = new Api(END_POINT, AUTHORIZATION);
-api.getEvents().then((serverEvents) => {
-  console.log(serverEvents);
-});
 
 const eventsModel = new EventsModel();
-eventsModel.setEvents(events);
 
 const filterModel = new FilterModel();
 
@@ -100,3 +88,12 @@ newEventButton.addEventListener(`click`, (evt) => {
     tripPresenter.addNewEvent(newEventButtonDisableToggle);
   }
 });
+
+const api = new Api(END_POINT, AUTHORIZATION);
+api.getEvents()
+  .then((events) => {
+    eventsModel.setEvents(UpdateType.INIT, events);
+  })
+  .catch(() => {
+    eventsModel.setEvents(UpdateType.INIT, []);
+  });
