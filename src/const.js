@@ -3,6 +3,22 @@ const EventCategory = {
   ACTIVITY: `activity`,
 };
 
+const transferTypes = [
+  `taxi`,
+  `bus`,
+  `train`,
+  `ship`,
+  `transport`,
+  `drive`,
+  `flight`,
+];
+
+const activityTypes = [
+  `check-in`,
+  `sightseeing`,
+  `restaurant`,
+];
+
 const DEFAULT_EVENT_TYPE = `bus`;
 const currentDate = new Date();
 const BLANK_EVENT = {
@@ -46,4 +62,19 @@ const FilterType = {
   PAST: `past`
 };
 
-export {BLANK_EVENT, EventCategory, SortType, UserAction, UpdateType, FilterType};
+const MenuItem = {
+  ADD_NEW_EVENT: `add new event`,
+  TABLE: `table`,
+  STATS: `stats`
+};
+
+export {
+  BLANK_EVENT,
+  EventCategory,
+  SortType, UserAction,
+  UpdateType,
+  FilterType,
+  MenuItem,
+  transferTypes,
+  activityTypes
+};

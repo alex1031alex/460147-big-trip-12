@@ -8,6 +8,8 @@ import {SortType, UserAction, UpdateType, FilterType} from "../const.js";
 import EventPresenter from "./event.js";
 import EventNewPresenter from "./event-new.js";
 
+const CONTAINER_HIDDEN_CLASS = `trip-events--hidden`;
+
 export default class Trip {
   constructor(
       tripContainer,
@@ -36,9 +38,6 @@ export default class Trip {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
 
-    this._eventsModel.addObserver(this._handleModelUpdate);
-    this._filterModel.addObserver(this._handleModelUpdate);
-
     this._eventNewPresenter = new EventNewPresenter(
         this._dayListView,
         this._handleViewAction,
@@ -47,18 +46,30 @@ export default class Trip {
     );
   }
 
-  render() {
-    this._renderTrip();
+  _showTripContainer() {
+    this._tripContainer.classList.remove(CONTAINER_HIDDEN_CLASS);
   }
 
-  addNewEvent(disableButton) {
+  _hideTripContainer() {
+    this._tripContainer.classList.add(CONTAINER_HIDDEN_CLASS);
+  }
+
+  render() {
+    this._showTripContainer();
+    this._renderTrip();
+
+    this._eventsModel.addObserver(this._handleModelUpdate);
+    this._filterModel.addObserver(this._handleModelUpdate);
+  }
+
+  addNewEvent(disableNewEventButton) {
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
     if (this._noEventView) {
       remove(this._noEventView);
     }
 
-    this._eventNewPresenter.init(disableButton);
+    this._eventNewPresenter.init(disableNewEventButton);
   }
 
   _getEvents() {
@@ -248,5 +259,13 @@ export default class Trip {
     this._renderDayList();
 
     this._renderDays();
+  }
+
+  destroy() {
+    this._clearTripContainer();
+    this._hideTripContainer();
+
+    this._eventsModel.removeObserver(this._handleModelUpdate);
+    this._filterModel.removeObserver(this._handleModelUpdate);
   }
 }
