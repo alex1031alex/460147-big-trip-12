@@ -22,7 +22,6 @@ const activityTypes = [
 const DEFAULT_EVENT_TYPE = `bus`;
 const currentDate = new Date();
 const BLANK_EVENT = {
-  category: EventCategory.TRANSFER,
   type: DEFAULT_EVENT_TYPE,
   destination: {
     name: ``,

@@ -1,6 +1,6 @@
 import MenuView from "./view/menu.js";
 import StatsView from "./view/stats.js";
-import {generateEvent, getDestinations} from "./mock/event.js";
+import {getDestinations} from "./mock/event.js";
 import {generateOffers} from "./mock/offers.js";
 import {remove, render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";

@@ -125,7 +125,7 @@ const createDestinationTemplate = (destination) => {
 
   const photosTemplate = destination.photos
     .map((photo) => {
-      return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
+      return `<img class="event__photo" src="${photo.src}" alt="${photo.description}"></img>`;
     })
     .join(`\n`);
 
