@@ -1,3 +1,4 @@
+import flatpickr from "flatpickr";
 import SmartView from "./smart.js";
 import {
   transferTypes,
@@ -7,7 +8,6 @@ import {
 } from "../mock/event.js";
 import {localizeDate} from "../utils/common.js";
 import {EventCategory} from "../const.js";
-import flatpickr from "flatpickr";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
