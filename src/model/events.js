@@ -54,4 +54,22 @@ export default class Events extends Observer {
 
     this._notify(updateType);
   }
+
+  static adaptToClient(event) {
+    const adaptedEvent = Object.assign(
+        {},
+        event
+    );
+
+    return adaptedEvent;
+  }
+
+  static adaptToServer(event) {
+    const adaptedEvent = Object.assign(
+        {},
+        event
+    );
+
+    return adaptedEvent;
+  }
 }

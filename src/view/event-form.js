@@ -1,13 +1,15 @@
 import flatpickr from "flatpickr";
 import SmartView from "./smart.js";
+import {localizeDate} from "../utils/common.js";
+import {defineEventCategory} from "../utils/event.js";
+import {EventCategory} from "../const.js";
 import {
   transferTypes,
   activityTypes,
   generateDestinationInfo,
   generateDestinationPhotos
 } from "../mock/event.js";
-import {localizeDate} from "../utils/common.js";
-import {EventCategory} from "../const.js";
+
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -525,7 +527,7 @@ export default class EventForm extends SmartView {
         {},
         event,
         {
-          isTransferEvent: transferTypes.some((it) => it === event.type),
+          isTransferEvent: defineEventCategory(event.type) === EventCategory.TRANSFER,
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
           destinations
         }
@@ -535,10 +537,8 @@ export default class EventForm extends SmartView {
   static parseDraftDataToEvent(draftData) {
     draftData = Object.assign(
         {},
-        draftData,
-        {
-          category: draftData.isTransferEvent ? EventCategory.TRANSFER : EventCategory.ACTIVITY
-        });
+        draftData
+    );
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;

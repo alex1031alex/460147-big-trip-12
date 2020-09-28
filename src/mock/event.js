@@ -83,11 +83,11 @@ const generateDate = () => {
 
 const generateEvent = () => {
   const event = {};
-  event.category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
+  const category = getRandomInteger(0, 2) > 0 ? EventCategory.TRANSFER : EventCategory.ACTIVITY;
 
   event.id = generateId();
 
-  if (event.category === EventCategory.TRANSFER) {
+  if (category === EventCategory.TRANSFER) {
     event.type = getRandomItem(transferTypes);
   } else {
     event.type = getRandomItem(activityTypes);

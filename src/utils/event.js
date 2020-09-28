@@ -1,5 +1,14 @@
 import {getTimeInterval} from "./common.js";
 import {FilterType} from "../const.js";
+import {EventCategory, activityTypes} from "../const.js";
+
+const defineEventCategory = (eventType) => {
+  if (activityTypes.some((activityType) => activityType === eventType)) {
+    return EventCategory.ACTIVITY;
+  }
+
+  return EventCategory.TRANSFER;
+};
 
 const sortByTime = (eventA, eventB) => {
   const eventADuration = getTimeInterval(eventA.date.start, eventA.date.end);
@@ -45,4 +54,4 @@ const filter = {
   }
 };
 
-export {sortByPrice, sortByTime, groupByDates, filter};
+export {defineEventCategory, sortByPrice, sortByTime, groupByDates, filter};
