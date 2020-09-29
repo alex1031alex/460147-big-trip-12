@@ -1,7 +1,5 @@
 import MenuView from "./view/menu.js";
 import StatsView from "./view/stats.js";
-import {getDestinations} from "./mock/event.js";
-import {generateOffers} from "./mock/offers.js";
 import {remove, render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
 import EventsModel from "./model/events.js";
@@ -16,16 +14,9 @@ const AUTHORIZATION = `Basic hh54vTwSC8ne65liM22a`;
 const END_POINT = `https://12.ecmascript.pages.academy/big-trip`;
 
 const eventsModel = new EventsModel();
-
 const filterModel = new FilterModel();
-
 const destinationsModel = new DestinationsModel();
-destinationsModel.setDestinations(UpdateType.MINOR, getDestinations());
-
 const offersModel = new OffersModel();
-generateOffers().forEach((offer) => {
-  offersModel.setOffers(UpdateType.PATCH, offer);
-});
 
 const page = document.querySelector(`.page-body`);
 const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
@@ -90,6 +81,23 @@ newEventButton.addEventListener(`click`, (evt) => {
 });
 
 const api = new Api(END_POINT, AUTHORIZATION);
+
+api.getDestinations()
+  .then((destinations) => {
+    destinationsModel.setDestinations(
+        UpdateType.DESTINATIONS_LOADED,
+        destinations
+    );
+  });
+
+api.getOffers()
+  .then((offers) => {
+    offersModel.setOffers(
+        UpdateType.OFFERS_LOADED,
+        offers
+    );
+  });
+
 api.getEvents()
   .then((events) => {
     eventsModel.setEvents(UpdateType.INIT, events);

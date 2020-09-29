@@ -28,6 +28,8 @@ export default class Trip {
     this._eventPresenter = {};
     this._days = [];
     this._isLoading = true;
+    this._isDestinationsLoaded = false;
+    this._isOffersLoaded = false;
 
     this._noEventView = new NoEventView();
     this._loadingView = new LoadingView();
@@ -63,6 +65,8 @@ export default class Trip {
 
     this._eventsModel.addObserver(this._handleModelUpdate);
     this._filterModel.addObserver(this._handleModelUpdate);
+    this._destinationsModel.addObserver(this._handleModelUpdate);
+    this._offersModel.addObserver(this._handleModelUpdate);
   }
 
   addNewEvent(disableNewEventButton) {
@@ -131,10 +135,27 @@ export default class Trip {
         break;
       }
       case UpdateType.INIT: {
-        this._isLoading = false;
-        remove(this._loadingView);
-        this._renderTrip();
+        this._checkLoading();
+        break;
       }
+      case UpdateType.OFFERS_LOADED: {
+        this._isOffersLoaded = true;
+        this._checkLoading();
+        break;
+      }
+      case UpdateType.DESTINATIONS_LOADED: {
+        this._isDestinationsLoaded = true;
+        this._checkLoading();
+        break;
+      }
+    }
+  }
+
+  _checkLoading() {
+    if (this._isDestinationsLoaded && this._isOffersLoaded) {
+      this._isLoading = false;
+      remove(this._loadingView);
+      this._renderTrip();
     }
   }
 

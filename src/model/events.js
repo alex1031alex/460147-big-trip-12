@@ -85,8 +85,21 @@ export default class Events extends Observer {
   static adaptToServer(event) {
     const adaptedEvent = Object.assign(
         {},
-        event
+        event,
+        {
+          "base_price": event.cost,
+          "date_from": event.date.start.toISOString(),
+          "date_to": event.date.end.toISOString(),
+          "destination": {
+            name: event.destination.name,
+            description: event.destination.info,
+            pictures: event.destination.photos
+          }
+        }
     );
+
+    delete adaptedEvent.cost;
+    delete adaptedEvent.date;
 
     return adaptedEvent;
   }

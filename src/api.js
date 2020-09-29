@@ -1,3 +1,4 @@
+import DestinationsModel from "./model/destinations.js";
 import EventsModel from "./model/events.js";
 
 const Method = {
@@ -22,14 +23,26 @@ export default class Api {
       .then((events) => events.map(EventsModel.adaptToClient));
   }
 
+  getDestinations() {
+    return this._load({url: `destinations`})
+      .then(Api.toJSON)
+      .then((destinations) => destinations.map(DestinationsModel.adaptToClient));
+  }
+
+  getOffers() {
+    return this._load({url: `offers`})
+      .then(Api.toJSON);
+  }
+
   updateEvent(event) {
     return this._load({
       url: `points/${event.id}`,
       method: Method.PUT,
-      body: JSON.stringify(event),
+      body: JSON.stringify(EventsModel.adaptToServer(event)),
       headers: new Headers({"Content-Type": `application/json`})
     })
-      .then(Api.toJSON);
+      .then(Api.toJSON)
+      .then(EventsModel.adaptToClient);
   }
 
   _load({

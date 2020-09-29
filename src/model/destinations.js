@@ -20,4 +20,18 @@ export default class Destinations extends Observer {
   getDestinations() {
     return this._destinations;
   }
+
+  static adaptToClient(destination) {
+    const adaptedDestination = Object.assign(
+        {},
+        destination,
+        {
+          photos: destination.pictures
+        }
+    );
+
+    delete adaptedDestination.pictures;
+
+    return adaptedDestination;
+  }
 }
