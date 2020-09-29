@@ -17,13 +17,15 @@ export default class Trip {
       eventsModel,
       filterModel,
       destinationsModel,
-      offersModel
+      offersModel,
+      api
   ) {
     this._tripContainer = tripContainer;
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
+    this._api = api;
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
@@ -100,7 +102,8 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT: {
-        this._eventsModel.updateEvent(updateType, update);
+        this._api.updateEvent(update)
+          .then((response) => this._eventsModel.updateEvent(updateType, response));
         break;
       }
       case UserAction.ADD_EVENT: {

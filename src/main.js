@@ -25,22 +25,38 @@ const eventsContainer = page.querySelector(`.trip-events`);
 const newEventButton = page.querySelector(`.trip-main__event-add-btn`);
 
 const menuComponent = new MenuView();
+render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);
+
+const activateMenuControls = () => {
+  menuComponent.setMenuClickHandler(handleMenuClick);
+
+  newEventButton.addEventListener(`click`, (evt) => {
+    evt.preventDefault();
+
+    if (statsComponent) {
+      handleMenuClick(MenuItem.ADD_NEW_EVENT);
+    } else {
+      tripPresenter.addNewEvent(newEventButtonDisableToggle);
+    }
+  });
+};
+
 let statsComponent = null;
 
+const api = new Api(END_POINT, AUTHORIZATION);
 const filterPresenter = new FilterPresenter(controlsContainer, filterModel);
 const tripPresenter = new TripPresenter(
     eventsContainer,
     eventsModel,
     filterModel,
     destinationsModel,
-    offersModel
+    offersModel,
+    api
 );
 
 const newEventButtonDisableToggle = (isButtonDisabled) => {
   newEventButton.disabled = isButtonDisabled;
 };
-
-render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);
 
 const handleMenuClick = (menuItem) => {
   switch (menuItem) {
@@ -65,22 +81,8 @@ const handleMenuClick = (menuItem) => {
   }
 };
 
-menuComponent.setMenuClickHandler(handleMenuClick);
-
 filterPresenter.init();
 tripPresenter.render();
-
-newEventButton.addEventListener(`click`, (evt) => {
-  evt.preventDefault();
-
-  if (statsComponent) {
-    handleMenuClick(MenuItem.ADD_NEW_EVENT);
-  } else {
-    tripPresenter.addNewEvent(newEventButtonDisableToggle);
-  }
-});
-
-const api = new Api(END_POINT, AUTHORIZATION);
 
 api.getDestinations()
   .then((destinations) => {
@@ -101,7 +103,9 @@ api.getOffers()
 api.getEvents()
   .then((events) => {
     eventsModel.setEvents(UpdateType.INIT, events);
+    activateMenuControls();
   })
   .catch(() => {
     eventsModel.setEvents(UpdateType.INIT, []);
+    activateMenuControls();
   });
