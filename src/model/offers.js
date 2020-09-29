@@ -14,11 +14,12 @@ export default class Offers extends Observer {
   }
 
   getOffers(type) {
-    const filteredOffers = this._offers.filter((offer) => type === offer.type);
+    const index = this._offers.findIndex((offer) => type === offer.type);
 
-    if (filteredOffers || filteredOffers.length === 0) {
-      return [];
+    if (index !== -1) {
+      return this._offers[index].offers;
     }
-    return filteredOffers[0].offers;
+
+    return [];
   }
 }

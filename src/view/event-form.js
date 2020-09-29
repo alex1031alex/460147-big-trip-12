@@ -378,7 +378,7 @@ export default class EventForm extends SmartView {
       return;
     }
 
-    this.updateDraftData({cost: newPrice});
+    this.updateDraftData({cost: newPrice}, true);
   }
 
   _eventTypeChangeHandler(evt) {
@@ -487,7 +487,7 @@ export default class EventForm extends SmartView {
 
     startDateInput.addEventListener(`focus`, this._startDateFocusHandler);
     endDateInput.addEventListener(`focus`, this._endDateFocusHandler);
-    priceField.addEventListener(`change`, this._priceChangeHandler);
+    priceField.addEventListener(`input`, this._priceChangeHandler);
   }
 
   restoreHandlers() {
