@@ -6,7 +6,7 @@ import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
 import {sortByTime, sortByPrice, groupByDates, filter} from "../utils/event.js";
 import {SortType, UserAction, UpdateType, FilterType} from "../const.js";
-import EventPresenter from "./event.js";
+import EventPresenter, {State as EventPresenterViewState} from "./event.js";
 import EventNewPresenter from "./event-new.js";
 
 const CONTAINER_HIDDEN_CLASS = `trip-events--hidden`;
@@ -102,11 +102,13 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT: {
+        this._eventPresenter[update.id].setViewState(EventPresenterViewState.SAVING);
         this._api.updateEvent(update)
           .then((response) => this._eventsModel.updateEvent(updateType, response));
         break;
       }
       case UserAction.ADD_EVENT: {
+        this._eventNewPresenter.setSaving();
         this._api.addEvent(update)
           .then((response) => {
             this._eventsModel.addEvent(updateType, response);
@@ -114,6 +116,7 @@ export default class Trip {
         break;
       }
       case UserAction.DELETE_EVENT: {
+        this._eventPresenter[update.id].setViewState(EventPresenterViewState.DELETING);
         this._api.deleteEvent(update)
           .then(() => {
             this._eventsModel.deleteEvent(updateType, update);
