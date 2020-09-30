@@ -90,14 +90,17 @@ api.getDestinations()
         UpdateType.DESTINATIONS_LOADED,
         destinations
     );
+  })
+  .catch(() => {
+    destinationsModel.setDestinations(UpdateType.DESTINATIONS_LOADED, []);
   });
 
 api.getOffers()
   .then((offers) => {
-    offersModel.setOffers(
-        UpdateType.OFFERS_LOADED,
-        offers
-    );
+    offersModel.setOffers(UpdateType.OFFERS_LOADED, offers);
+  })
+  .catch(() => {
+    offersModel.setOffers(UpdateType.OFFERS_LOADED, []);
   });
 
 api.getEvents()
