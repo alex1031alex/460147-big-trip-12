@@ -26,7 +26,8 @@ export default class Destinations extends Observer {
         {},
         destination,
         {
-          photos: destination.pictures
+          photos: destination.pictures,
+          info: destination.description
         }
     );
 

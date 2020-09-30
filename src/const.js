@@ -34,7 +34,7 @@ const BLANK_EVENT = {
   },
   offers: [],
   cost: ``,
-  isFavorite: null,
+  isFavorite: false
 };
 
 const SortType = {

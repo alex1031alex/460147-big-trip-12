@@ -6,8 +6,6 @@ import {EventCategory} from "../const.js";
 import {
   transferTypes,
   activityTypes,
-  generateDestinationInfo,
-  generateDestinationPhotos
 } from "../mock/event.js";
 
 
@@ -36,7 +34,7 @@ const createEventTypeTemplate = (eventType, isChecked) => {
 
 const createDestinationListTemplate = (destinations) => {
   const destinationOptions = destinations
-    .map((destination) => `<option value="${destination}"></option>`)
+    .map((destination) => `<option value="${destination.name}"></option>`)
     .join(`\n`);
 
   return `<datalist id="destination-list-1">
@@ -319,23 +317,17 @@ export default class EventForm extends SmartView {
   }
 
   _destinationChoseHandler(evt) {
-    const userDestination = evt.target.value;
-    const update = {
-      destination: {
-        info: generateDestinationInfo(),
-        photos: generateDestinationPhotos(),
-      }
-    };
+    const userDestinationName = evt.target.value;
 
-    if (this._draftData.destinations.some((destination) => destination === userDestination)) {
-      update.destination.name = userDestination;
+    const userDestination = this._draftData.destinations
+      .find((destination) => destination.name === userDestinationName);
+    if (userDestination) {
+      this.updateDraftData({destination: userDestination});
     } else {
       this._showErrorMessage(ErrorMessage.DESTINATION);
       evt.target.value = ``;
       return;
     }
-
-    this.updateDraftData(update);
   }
 
   _startDateFocusHandler() {

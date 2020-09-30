@@ -58,6 +58,7 @@ export default class Events extends Observer {
   }
 
   static adaptToClient(event) {
+
     const adaptedEvent = Object.assign(
         {},
         event,
@@ -71,7 +72,8 @@ export default class Events extends Observer {
             name: event.destination.name,
             info: event.destination.description,
             photos: event.destination.pictures
-          }
+          },
+          isFavorite: event.is_favorite
         }
     );
 
@@ -90,6 +92,7 @@ export default class Events extends Observer {
           "base_price": event.cost,
           "date_from": event.date.start.toISOString(),
           "date_to": event.date.end.toISOString(),
+          "is_favorite": event.isFavorite,
           "destination": {
             name: event.destination.name,
             description: event.destination.info,
