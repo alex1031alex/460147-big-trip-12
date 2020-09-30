@@ -104,7 +104,10 @@ export default class Trip {
       case UserAction.UPDATE_EVENT: {
         this._eventPresenter[update.id].setViewState(EventPresenterViewState.SAVING);
         this._api.updateEvent(update)
-          .then((response) => this._eventsModel.updateEvent(updateType, response));
+          .then((response) => this._eventsModel.updateEvent(updateType, response))
+          .catch(() => {
+            this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
+          });
         break;
       }
       case UserAction.ADD_EVENT: {
@@ -112,6 +115,9 @@ export default class Trip {
         this._api.addEvent(update)
           .then((response) => {
             this._eventsModel.addEvent(updateType, response);
+          })
+          .catch(() => {
+            this._eventNewPresenter.setAborting();
           });
         break;
       }
@@ -120,6 +126,9 @@ export default class Trip {
         this._api.deleteEvent(update)
           .then(() => {
             this._eventsModel.deleteEvent(updateType, update);
+          })
+          .catch(() => {
+            this._eventPresenter[update.id].setViewState(EventPresenterViewState.ABORTING);
           });
         break;
       }
