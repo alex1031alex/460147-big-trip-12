@@ -270,7 +270,7 @@ export default class EventForm extends SmartView {
 
     this._destinations = destinations;
     this._availableOffers = availableOffers;
-    this._draftData = EventForm.parseEventToDraftData(event, this._destinations, this._availableOffers);
+    this._draftData = EventForm.parseEventToDraftData(event);
     this._datepicker = null;
 
     this._eventTypeChangeHandler = this._eventTypeChangeHandler.bind(this);
@@ -296,12 +296,8 @@ export default class EventForm extends SmartView {
     super.removeElement();
   }
 
-  reset(event, offers) {
-    this.updateDraftData(EventForm.parseEventToDraftData(
-        event,
-        this._destinations,
-        this._availableOffers = offers
-    ));
+  reset(event) {
+    this.updateDraftData(EventForm.parseEventToDraftData(event));
   }
 
   setAvailableOffers(offers) {
@@ -317,8 +313,7 @@ export default class EventForm extends SmartView {
 
   _destinationChoseHandler(evt) {
     const userDestinationName = evt.target.value;
-
-    const userDestination = this._draftData.destinations
+    const userDestination = this._destinations
       .find((destination) => destination.name === userDestinationName);
     if (userDestination) {
       this.updateDraftData({destination: userDestination});
@@ -513,14 +508,13 @@ export default class EventForm extends SmartView {
     setTimeout(removeMessage, MESSAGE_SHOW_TIME);
   }
 
-  static parseEventToDraftData(event, destinations) {
+  static parseEventToDraftData(event) {
     return Object.assign(
         {},
         event,
         {
           isTransferEvent: defineEventCategory(event.type) === EventCategory.TRANSFER,
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
-          destinations
         }
     );
   }
@@ -533,7 +527,6 @@ export default class EventForm extends SmartView {
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;
-    delete draftData.destinations;
 
     return draftData;
   }
