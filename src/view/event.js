@@ -1,6 +1,12 @@
 import AbstractView from "./abstract.js";
-import {getLocalTime, getTimeInterval, formatTimeInterval, convertToMachineFormat} from "../utils/common.js";
 import {EventCategory} from "../const.js";
+import {defineEventCategory} from "../utils/event.js";
+import {
+  getLocalTime,
+  getTimeInterval,
+  formatTimeInterval,
+  convertToMachineFormat
+} from "../utils/common.js";
 
 const MAX_SHOWING_OFFER_COUNT = 3;
 
@@ -21,12 +27,17 @@ const createOfferTemplate = (offer) => {
 };
 
 const createEventTemplate = (event) => {
-  const {category, type, destination, date: {start, end}, offers, cost} = event;
+  const {type, destination, date: {start, end}, offers, cost} = event;
 
-  const isTransferEvent = category === EventCategory.TRANSFER;
-  const destinationTemplate = `${type} ${isTransferEvent ? `to` : `in`} ${destination ? destination.name : ``}`;
+  const isTransferEvent = defineEventCategory(event.type) === EventCategory.TRANSFER;
+  const destinationTemplate = `${type}
+    ${isTransferEvent ? `to` : `in`}
+    ${destination ? destination.name : ``}`;
 
-  const offersTemplate = offers.slice(0, MAX_SHOWING_OFFER_COUNT).map(createOfferTemplate).join(`\n`);
+  const offersTemplate = offers
+    .slice(0, MAX_SHOWING_OFFER_COUNT)
+    .map(createOfferTemplate)
+    .join(`\n`);
 
   const eventStartTime = getLocalTime(start);
   const eventEndTime = getLocalTime(end);

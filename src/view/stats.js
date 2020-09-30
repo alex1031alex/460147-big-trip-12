@@ -1,8 +1,8 @@
+import Chart from "chart.js";
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import AbstractView from "./abstract.js";
 import {activityTypes} from "../const.js";
 import {getTimeInterval, formatTimeInterval} from "../utils/common.js";
-import Chart from "chart.js";
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 const BAR_HEIGHT = 55;
 

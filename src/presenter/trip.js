@@ -1,5 +1,6 @@
 import SortingView from "../view/sorting.js";
 import NoEventView from "../view/no-event.js";
+import LoadingView from "../view/loading.js";
 import DayListView from "../view/day-list.js";
 import DayView from "../view/day.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
@@ -16,18 +17,24 @@ export default class Trip {
       eventsModel,
       filterModel,
       destinationsModel,
-      offersModel
+      offersModel,
+      api
   ) {
     this._tripContainer = tripContainer;
     this._eventsModel = eventsModel;
     this._filterModel = filterModel;
     this._destinationsModel = destinationsModel;
     this._offersModel = offersModel;
+    this._api = api;
     this._currentSortType = SortType.EVENT;
     this._eventPresenter = {};
     this._days = [];
+    this._isLoading = true;
+    this._isDestinationsLoaded = false;
+    this._isOffersLoaded = false;
 
     this._noEventView = new NoEventView();
+    this._loadingView = new LoadingView();
     this._sortingView = null;
     this._dayListView = new DayListView();
 
@@ -60,6 +67,8 @@ export default class Trip {
 
     this._eventsModel.addObserver(this._handleModelUpdate);
     this._filterModel.addObserver(this._handleModelUpdate);
+    this._destinationsModel.addObserver(this._handleModelUpdate);
+    this._offersModel.addObserver(this._handleModelUpdate);
   }
 
   addNewEvent(disableNewEventButton) {
@@ -93,7 +102,8 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_EVENT: {
-        this._eventsModel.updateEvent(updateType, update);
+        this._api.updateEvent(update)
+          .then((response) => this._eventsModel.updateEvent(updateType, response));
         break;
       }
       case UserAction.ADD_EVENT: {
@@ -127,6 +137,28 @@ export default class Trip {
         this._renderTrip();
         break;
       }
+      case UpdateType.INIT: {
+        this._checkLoading();
+        break;
+      }
+      case UpdateType.OFFERS_LOADED: {
+        this._isOffersLoaded = true;
+        this._checkLoading();
+        break;
+      }
+      case UpdateType.DESTINATIONS_LOADED: {
+        this._isDestinationsLoaded = true;
+        this._checkLoading();
+        break;
+      }
+    }
+  }
+
+  _checkLoading() {
+    if (this._isDestinationsLoaded && this._isOffersLoaded) {
+      this._isLoading = false;
+      remove(this._loadingView);
+      this._renderTrip();
     }
   }
 
@@ -180,6 +212,14 @@ export default class Trip {
     }
 
     render(this._tripContainer, this._noEventView, RenderPosition.BEFOREEND);
+  }
+
+  _renderLoading() {
+    if (this._loadingView === null) {
+      this._loadingView = new LoadingView();
+    }
+
+    render(this._tripContainer, this._loadingView, RenderPosition.BEFOREEND);
   }
 
   _renderSorting() {
@@ -250,6 +290,11 @@ export default class Trip {
   }
 
   _renderTrip() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     if (this._getEvents().length === 0) {
       this._renderDayList();
       this._renderNoEvents();

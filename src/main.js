@@ -1,7 +1,5 @@
 import MenuView from "./view/menu.js";
 import StatsView from "./view/stats.js";
-import {generateEvent, getDestinations} from "./mock/event.js";
-import {generateOffers} from "./mock/offers.js";
 import {remove, render, RenderPosition} from "./utils/render.js";
 import TripPresenter from "./presenter/trip.js";
 import EventsModel from "./model/events.js";
@@ -10,26 +8,15 @@ import DestinationsModel from "./model/destinations.js";
 import OffersModel from "./model/offers.js";
 import FilterPresenter from "./presenter/filter.js";
 import {UpdateType, MenuItem} from "./const.js";
+import Api from "./api.js";
 
-const EVENT_COUNT = 20;
-const events = [];
-
-for (let i = 0; i < EVENT_COUNT; i++) {
-  events.push(generateEvent());
-}
+const AUTHORIZATION = `Basic hh54vTwSC8ne65liM22a`;
+const END_POINT = `https://12.ecmascript.pages.academy/big-trip`;
 
 const eventsModel = new EventsModel();
-eventsModel.setEvents(events);
-
 const filterModel = new FilterModel();
-
 const destinationsModel = new DestinationsModel();
-destinationsModel.setDestinations(UpdateType.MINOR, getDestinations());
-
 const offersModel = new OffersModel();
-generateOffers().forEach((offer) => {
-  offersModel.setOffers(UpdateType.PATCH, offer);
-});
 
 const page = document.querySelector(`.page-body`);
 const pageMenuWrapper = page.querySelector(`.trip-controls__menu-wrap`);
@@ -38,22 +25,38 @@ const eventsContainer = page.querySelector(`.trip-events`);
 const newEventButton = page.querySelector(`.trip-main__event-add-btn`);
 
 const menuComponent = new MenuView();
+render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);
+
+const activateMenuControls = () => {
+  menuComponent.setMenuClickHandler(handleMenuClick);
+
+  newEventButton.addEventListener(`click`, (evt) => {
+    evt.preventDefault();
+
+    if (statsComponent) {
+      handleMenuClick(MenuItem.ADD_NEW_EVENT);
+    } else {
+      tripPresenter.addNewEvent(newEventButtonDisableToggle);
+    }
+  });
+};
+
 let statsComponent = null;
 
+const api = new Api(END_POINT, AUTHORIZATION);
 const filterPresenter = new FilterPresenter(controlsContainer, filterModel);
 const tripPresenter = new TripPresenter(
     eventsContainer,
     eventsModel,
     filterModel,
     destinationsModel,
-    offersModel
+    offersModel,
+    api
 );
 
 const newEventButtonDisableToggle = (isButtonDisabled) => {
   newEventButton.disabled = isButtonDisabled;
 };
-
-render(pageMenuWrapper, menuComponent, RenderPosition.AFTERBEGIN);
 
 const handleMenuClick = (menuItem) => {
   switch (menuItem) {
@@ -78,17 +81,31 @@ const handleMenuClick = (menuItem) => {
   }
 };
 
-menuComponent.setMenuClickHandler(handleMenuClick);
-
 filterPresenter.init();
 tripPresenter.render();
 
-newEventButton.addEventListener(`click`, (evt) => {
-  evt.preventDefault();
+api.getDestinations()
+  .then((destinations) => {
+    destinationsModel.setDestinations(
+        UpdateType.DESTINATIONS_LOADED,
+        destinations
+    );
+  });
 
-  if (statsComponent) {
-    handleMenuClick(MenuItem.ADD_NEW_EVENT);
-  } else {
-    tripPresenter.addNewEvent(newEventButtonDisableToggle);
-  }
-});
+api.getOffers()
+  .then((offers) => {
+    offersModel.setOffers(
+        UpdateType.OFFERS_LOADED,
+        offers
+    );
+  });
+
+api.getEvents()
+  .then((events) => {
+    eventsModel.setEvents(UpdateType.INIT, events);
+    activateMenuControls();
+  })
+  .catch(() => {
+    eventsModel.setEvents(UpdateType.INIT, []);
+    activateMenuControls();
+  });

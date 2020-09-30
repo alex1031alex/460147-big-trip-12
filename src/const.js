@@ -22,7 +22,6 @@ const activityTypes = [
 const DEFAULT_EVENT_TYPE = `bus`;
 const currentDate = new Date();
 const BLANK_EVENT = {
-  category: EventCategory.TRANSFER,
   type: DEFAULT_EVENT_TYPE,
   destination: {
     name: ``,
@@ -53,7 +52,10 @@ const UserAction = {
 const UpdateType = {
   PATCH: `Patch`,
   MINOR: `Minor`,
-  MAJOR: `Major`
+  MAJOR: `Major`,
+  INIT: `Init`,
+  DESTINATIONS_LOADED: `DestinationsLoaded`,
+  OFFERS_LOADED: `OffersLoaded`
 };
 
 const FilterType = {

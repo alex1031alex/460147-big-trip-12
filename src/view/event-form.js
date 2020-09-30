@@ -1,13 +1,15 @@
+import flatpickr from "flatpickr";
 import SmartView from "./smart.js";
+import {localizeDate} from "../utils/common.js";
+import {defineEventCategory} from "../utils/event.js";
+import {EventCategory} from "../const.js";
 import {
   transferTypes,
   activityTypes,
   generateDestinationInfo,
   generateDestinationPhotos
 } from "../mock/event.js";
-import {localizeDate} from "../utils/common.js";
-import {EventCategory} from "../const.js";
-import flatpickr from "flatpickr";
+
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
@@ -123,7 +125,7 @@ const createDestinationTemplate = (destination) => {
 
   const photosTemplate = destination.photos
     .map((photo) => {
-      return `<img class="event__photo" src="${photo}" alt="Event photo"></img>`;
+      return `<img class="event__photo" src="${photo.src}" alt="${photo.description}"></img>`;
     })
     .join(`\n`);
 
@@ -376,7 +378,7 @@ export default class EventForm extends SmartView {
       return;
     }
 
-    this.updateDraftData({cost: newPrice});
+    this.updateDraftData({cost: newPrice}, true);
   }
 
   _eventTypeChangeHandler(evt) {
@@ -485,7 +487,7 @@ export default class EventForm extends SmartView {
 
     startDateInput.addEventListener(`focus`, this._startDateFocusHandler);
     endDateInput.addEventListener(`focus`, this._endDateFocusHandler);
-    priceField.addEventListener(`change`, this._priceChangeHandler);
+    priceField.addEventListener(`input`, this._priceChangeHandler);
   }
 
   restoreHandlers() {
@@ -525,7 +527,7 @@ export default class EventForm extends SmartView {
         {},
         event,
         {
-          isTransferEvent: transferTypes.some((it) => it === event.type),
+          isTransferEvent: defineEventCategory(event.type) === EventCategory.TRANSFER,
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
           destinations
         }
@@ -535,10 +537,8 @@ export default class EventForm extends SmartView {
   static parseDraftDataToEvent(draftData) {
     draftData = Object.assign(
         {},
-        draftData,
-        {
-          category: draftData.isTransferEvent ? EventCategory.TRANSFER : EventCategory.ACTIVITY
-        });
+        draftData
+    );
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;
