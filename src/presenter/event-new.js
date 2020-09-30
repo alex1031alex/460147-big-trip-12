@@ -40,14 +40,19 @@ export default class EventNew {
     this._disableNewEventButton(true);
   }
 
+  setSaving() {
+    this._eventFormComponent.updateDraftData({
+      isDisabled: true,
+      isSaving: true
+    });
+  }
+
   _handleFormSubmit(newEvent) {
     this._changeData(
         UserAction.ADD_EVENT,
         UpdateType.MAJOR,
         newEvent
     );
-
-    this.destroy();
   }
 
   _handleCancelButtonClick() {

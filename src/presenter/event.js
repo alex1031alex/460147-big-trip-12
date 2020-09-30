@@ -9,6 +9,11 @@ const Mode = {
   EDIT: `edit`
 };
 
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`
+};
+
 export default class Event {
   constructor(
       eventContainer,
@@ -67,11 +72,30 @@ export default class Event {
     }
 
     if (this._mode === Mode.EDIT) {
-      replace(this._eventFormComponent, prevEventFormComponent);
+      replace(this._eventComponent, prevEventFormComponent);
+      this._mode = Mode.DEFAULT;
     }
 
     remove(prevEventComponent);
     remove(prevEventFormComponent);
+  }
+
+  setViewState(state) {
+    switch (state) {
+      case State.SAVING: {
+        this._eventFormComponent.updateDraftData({
+          isSaving: true,
+          isDisabled: true
+        });
+        break;
+      }
+      case State.DELETING: {
+        this._eventFormComponent.updateDraftData({
+          isDeleting: true,
+          isDisabled: true
+        });
+      }
+    }
   }
 
   resetView() {
@@ -157,8 +181,6 @@ export default class Event {
         isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
         updatedEvent
     );
-
-    this._replaceFormToEvent();
   }
 
   destroy() {
