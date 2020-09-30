@@ -42,7 +42,7 @@ const createDestinationListTemplate = (destinations) => {
   </datalist>`;
 };
 
-const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
+const createFavoriteButtonTemplate = (eventId, isFavoriteChecked, isDisabled) => {
   if (eventId || eventId === 0) {
     return `<input
       id="event-favorite-1"
@@ -50,6 +50,7 @@ const createFavoriteButtonTemplate = (eventId, isFavoriteChecked) => {
       type="checkbox"
       name="event-favorite"
       ${isFavoriteChecked}
+      ${isDisabled ? `disabled` : ``}
     >
     <label class="event__favorite-btn" for="event-favorite-1">
       <span class="visually-hidden">Add to favorite</span>
@@ -74,7 +75,7 @@ const createRollupButtonTemplate = (eventId) => {
   return ``;
 };
 
-const createOfferTemplate = (offer, chosenOffers) => {
+const createOfferTemplate = (offer, chosenOffers, isDisabled) => {
   if (!offer) {
     return ``;
   }
@@ -82,6 +83,7 @@ const createOfferTemplate = (offer, chosenOffers) => {
   const {title, price} = offer;
   const isChecked = chosenOffers.some((chosenOffer) => chosenOffer.title === offer.title);
   const checkedAttributeValue = isChecked ? `checked` : ``;
+  const disabledAttributeValue = isDisabled ? `disabled` : ``;
   const titleAsHtml = title.toLowerCase().split(` `).join(`-`);
 
   return (
@@ -91,6 +93,7 @@ const createOfferTemplate = (offer, chosenOffers) => {
         id="event-offer-${titleAsHtml}-1" type="checkbox"    
         name="event-offer-${titleAsHtml}" 
         ${checkedAttributeValue}
+        ${disabledAttributeValue}
       >
       <label class="event__offer-label" for="event-offer-${titleAsHtml}-1">
         <span class="event__offer-title">${title}</span>
@@ -101,7 +104,7 @@ const createOfferTemplate = (offer, chosenOffers) => {
   );
 };
 
-const createOffersTemplate = (availableOffers, chosenOffers) => {
+const createOffersTemplate = (availableOffers, chosenOffers, isDisabled) => {
   if (availableOffers.length === 0) {
     return ``;
   }
@@ -110,7 +113,7 @@ const createOffersTemplate = (availableOffers, chosenOffers) => {
     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     <div class="event__available-offers">
       ${availableOffers
-          .map((availableOffer) => createOfferTemplate(availableOffer, chosenOffers))
+          .map((availableOffer) => createOfferTemplate(availableOffer, chosenOffers, isDisabled))
           .join(`\n`)}
     </div>
   </section>`;
@@ -139,8 +142,8 @@ const createDestinationTemplate = (destination) => {
           </section>`;
 };
 
-const createDetailsTemplate = (availableOffers, chosenOffers, destination) => {
-  const offersTemplate = createOffersTemplate(availableOffers, chosenOffers);
+const createDetailsTemplate = (availableOffers, chosenOffers, destination, isDisabled) => {
+  const offersTemplate = createOffersTemplate(availableOffers, chosenOffers, isDisabled);
   const destinationTemplate = createDestinationTemplate(destination);
 
   if (offersTemplate === `` && destinationTemplate === ``) {
@@ -165,6 +168,9 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
     cost,
     isTransferEvent,
     isFavoriteChecked,
+    isDisabled,
+    isDeleting,
+    isSaving
   } = draftData;
 
   const localizedStartDate = localizeDate(start);
@@ -180,10 +186,13 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
 
   const destinationListTemplate = createDestinationListTemplate(destinations);
   const destinationNameTemplate = !destination ? `` : destination.name;
-  const resetButtonName = id || id === 0 ? `Delete` : `Cancel`;
-  const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked);
+  const favoriteButtonTemplate = createFavoriteButtonTemplate(id, isFavoriteChecked, isDisabled);
   const rollupButtonTemplate = createRollupButtonTemplate(id);
-  const detailsTemplate = createDetailsTemplate(availableOffers, offers, destination);
+  const detailsTemplate = createDetailsTemplate(availableOffers, offers, destination, isDisabled);
+  const submitingButtonText = isSaving ? `Saving...` : `Save`;
+  const deletingButtonText = isDeleting ? `Deleting...` : `Delete`;
+  const resetButtonName = id || id === 0 ? deletingButtonText : `Cancel`;
+  const disabledAtributeTemplate = isDisabled ? `disabled` : ``;
 
   return (
     `<form class="trip-events__item  event  event--edit" action="#" method="post">
@@ -193,7 +202,12 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input
+            class="event__type-toggle  visually-hidden"
+            id="event-type-toggle-1"
+            type="checkbox"
+            ${disabledAtributeTemplate}
+          >
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -212,7 +226,14 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
           <label class="event__label  event__type-output" for="event-destination-1">
             ${type} ${isTransferEvent ? `to` : `in`}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${destinationNameTemplate}" list="destination-list-1">
+          <input 
+            class="event__input  event__input--destination"
+            id="event-destination-1" type="text"
+            name="event-destination"
+            value="${destinationNameTemplate}"
+            list="destination-list-1"
+            ${disabledAtributeTemplate}
+          >
           ${destinationListTemplate}
         </div>
 
@@ -226,6 +247,7 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
             type="text" 
             name="event-start-time" 
             value="${localizedStartDate}"
+            ${disabledAtributeTemplate}
           >
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
@@ -237,6 +259,7 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
             type="text" 
             name="event-end-time" 
             value="${localizedEndDate}"
+            ${disabledAtributeTemplate}
           >
         </div>
 
@@ -250,11 +273,20 @@ const createEventFormTemplate = (draftData, availableOffers, destinations) => {
             id="event-price-1" type="text" 
             name="event-price" 
             value="${cost}"
+            ${disabledAtributeTemplate}
           >
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${resetButtonName}</button>
+        <button
+          class="event__save-btn  btn  btn--blue"
+          type="submit"
+          ${disabledAtributeTemplate}
+        >${submitingButtonText}</button>
+        <button
+          class="event__reset-btn"
+          type="reset"
+          ${disabledAtributeTemplate}
+        >${resetButtonName}</button>
 
         ${favoriteButtonTemplate}
         ${rollupButtonTemplate}
@@ -515,6 +547,9 @@ export default class EventForm extends SmartView {
         {
           isTransferEvent: defineEventCategory(event.type) === EventCategory.TRANSFER,
           isFavoriteChecked: event.isFavorite ? `checked` : ``,
+          isDisabled: false,
+          isDeleting: false,
+          isSaving: false
         }
     );
   }
@@ -527,6 +562,9 @@ export default class EventForm extends SmartView {
 
     delete draftData.isTransferEvent;
     delete draftData.isFavoriteChecked;
+    delete draftData.isDisabled;
+    delete draftData.isDeleting;
+    delete draftData.isSaving;
 
     return draftData;
   }
