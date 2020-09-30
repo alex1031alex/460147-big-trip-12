@@ -100,7 +100,9 @@ export default class Event {
   _handleEscKeyDown(evt) {
     if (isEscKey(evt.key)) {
       evt.preventDefault();
-      this._eventFormComponent.reset(this._event);
+
+      const offers = this._offersModel.getOffers(this._event.type);
+      this._eventFormComponent.reset(this._event, offers);
       this._replaceFormToEvent();
     }
   }
@@ -129,17 +131,19 @@ export default class Event {
 
   _handleEventTypeChange(chosenType) {
     const updatedOffers = this._offersModel.getOffers(chosenType);
+    this._eventFormComponent.setAvailableOffers(updatedOffers);
 
     this._eventFormComponent.updateDraftData(
         {
           type: chosenType,
-          offers: updatedOffers
+          offers: []
         }
     );
   }
 
   _handleRollupButtonClick() {
-    this._eventFormComponent.reset(this._event);
+    const offers = this._offersModel.getOffers(this._event.type);
+    this._eventFormComponent.reset(this._event, offers);
     this._replaceFormToEvent();
   }
 

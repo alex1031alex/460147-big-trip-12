@@ -155,7 +155,7 @@ const createDetailsTemplate = (availableOffers, chosenOffers, destination) => {
   );
 };
 
-const createEventFormTemplate = (draftData, availableOffers) => {
+const createEventFormTemplate = (draftData, availableOffers, destinations) => {
   const {
     id,
     type,
@@ -165,7 +165,6 @@ const createEventFormTemplate = (draftData, availableOffers) => {
     cost,
     isTransferEvent,
     isFavoriteChecked,
-    destinations
   } = draftData;
 
   const localizedStartDate = localizeDate(start);
@@ -289,7 +288,7 @@ export default class EventForm extends SmartView {
   }
 
   getTemplate() {
-    return createEventFormTemplate(this._draftData, this._availableOffers);
+    return createEventFormTemplate(this._draftData, this._availableOffers, this._destinations);
   }
 
   removeElement() {
@@ -297,11 +296,11 @@ export default class EventForm extends SmartView {
     super.removeElement();
   }
 
-  reset(event) {
+  reset(event, offers) {
     this.updateDraftData(EventForm.parseEventToDraftData(
         event,
         this._destinations,
-        this._availableOffers
+        this._availableOffers = offers
     ));
   }
 
